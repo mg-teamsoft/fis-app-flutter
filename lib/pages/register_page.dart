@@ -19,17 +19,33 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final _auth = AuthService();
 
-  String? _req(String? v) => (v == null || v.trim().isEmpty) ? 'Zorunlu alan' : null;
+  String? _req(String? v) =>
+      (v == null || v.trim().isEmpty) ? 'Zorunlu alan' : null;
   String? _email(String? v) {
     if (v == null || v.trim().isEmpty) return 'Zorunlu alan';
     final ok = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(v.trim());
     return ok ? null : 'E-posta adresi geçersiz';
+  }
+
+  String? validatePassword(String? value) {
+    final regex =
+        RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$');
+
+    if (value == null || value.isEmpty) {
+      return 'Please enter your password';
+    } else if (!regex.hasMatch(value)) {
+      return 'Use min 8 chars, at least (1 uppercase & 1 lowercase & 1 number & 1 special) char.';
     }
+    return null;
+  }
 
   Future<void> _onRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
 
     final res = await _auth.register(
       userName: _userCtrl.text,
@@ -103,35 +119,38 @@ class _RegisterPageState extends State<RegisterPage> {
                     labelText: 'Şifre',
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
-                      icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                          _obscure ? Icons.visibility : Icons.visibility_off),
                       onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
                   obscureText: _obscure,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Zorunlu alan';
-                    if (v.length < 6) return 'En az 6 karakter';
-                    return null;
-                  },
+                  validator: validatePassword,
                   onFieldSubmitted: (_) => _onRegister(),
                   autofillHints: const [AutofillHints.newPassword],
                 ),
                 const SizedBox(height: 16),
                 if (_error != null)
-                  Text(_error!, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.error)),
+                  Text(_error!,
+                      style: theme.textTheme.bodyMedium
+                          ?.copyWith(color: theme.colorScheme.error)),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: _loading ? null : _onRegister,
                     child: _loading
-                        ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2))
                         : const Text('Kayıt Ol'),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextButton(
-                  onPressed: () => Navigator.of(context).pushReplacementNamed('/login'),
+                  onPressed: () =>
+                      Navigator.of(context).pushReplacementNamed('/login'),
                   child: const Text('Giriş Ekranına Git'),
                 ),
               ],
