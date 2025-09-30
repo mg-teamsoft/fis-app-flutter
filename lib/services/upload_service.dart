@@ -26,7 +26,7 @@ class UploadService {
         ),
       });
 
-      final res = await _api.dio.post('/upload', data: form);
+      final res = await _api.dio.post('/api/upload', data: form);
       final data = res.data;
 
       final ok = (data is Map && (data['status'] == 'success' || data['ok'] == true));

@@ -20,7 +20,7 @@ class S3UploadService {
     required String checksumCRC32,
     required String sha256,
   }) async {
-    final res = await _api.dio.post('/file/init', data: {
+    final res = await _api.dio.post('/api/file/init', data: {
       'contentType': contentType,
       'filename': filename,
       'checksumCRC32': checksumCRC32,
@@ -104,7 +104,7 @@ class S3UploadService {
     String? mime,
     String? sha256,
   }) async {
-    await _api.dio.post('/file/confirm', data: {
+    await _api.dio.post('/api/file/confirm', data: {
       'key': key,
       if (size != null) 'size': size,
       if (mime != null) 'mime': mime,

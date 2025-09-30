@@ -22,7 +22,7 @@ class JobPollingService {
       if (!_active) return;
       try {
         final res =
-            await ApiClient().dio.get('/job/$jobId', cancelToken: _cancelToken);
+            await ApiClient().dio.get('/api/job/$jobId', cancelToken: _cancelToken);
         final data = res.data as Map<String, dynamic>;
         final job = data['job'] as Map<String, dynamic>;
         onUpdate(job);

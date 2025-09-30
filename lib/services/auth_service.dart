@@ -17,7 +17,7 @@ class AuthService {
   /// Expects { status, token, exp, user: { userId, userName } }
   Future<AuthResult> login(String userName, String password) async {
     try {
-      final res = await _api.dio.post('/auth/login', data: {
+      final res = await _api.dio.post('/api/auth/login', data: {
         'userName': userName.trim(),
         'password': password,
       });
@@ -59,7 +59,7 @@ class AuthService {
     required String email,
   }) async {
     try {
-      final res = await _api.dio.post('/auth/register', data: {
+      final res = await _api.dio.post('/api/auth/register', data: {
         'userName': userName.trim(),
         'password': password,
         'email': email.trim(),
