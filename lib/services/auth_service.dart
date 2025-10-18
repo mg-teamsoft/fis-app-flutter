@@ -90,7 +90,12 @@ class AuthService {
     }
   }
 
+  /// Logout a user
+  /// POST /auth/revoke
+  /// clears stored token
+  /// Response: { status, message }
   Future<void> logout() async {
+    await _api.dio.post('/api/auth/revoke');
     await _api.clearToken();
   }
 }

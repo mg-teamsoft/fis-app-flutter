@@ -92,6 +92,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
           (resp['job'] is Map<String, dynamic>) ? resp['job'] : resp;
 
       s.status = (jobObj['status'] as String?) ?? s.status;
+      final message = jobObj['message']?.toString();
 
       // Receipt may be a map or a JSON string; normalize to Map for the editor
       final raw = jobObj['receipt'];
@@ -110,7 +111,23 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
       }
 
       // If job is done, stop the countdown and prepare the editor text
-      if (s.status == 'done' || s.status == 'failed') {
+      if (s.status == 'done') {
+        s.lastError = null;
+        s.active = false;
+        s.countdown = 0;
+        s.receipt = asMap;
+
+        final editorText = (asMap != null)
+            ? const JsonEncoder.withIndent('  ').convert(asMap)
+            : message ?? 'can not read receipt data';
+
+        if (s.controller == null) {
+          s.controller = TextEditingController(text: editorText);
+        } else {
+          s.controller!.text = editorText;
+        }
+      } else if (s.status == 'failed' || s.status == 'error') {
+        s.lastError = message ?? 'İşleme sırasında hata oluştu.';
         s.active = false;
         s.countdown = 0;
         s.receipt = asMap;
@@ -118,7 +135,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         // Prepare / update the editable text box content
         final editorText = (asMap != null)
             ? const JsonEncoder.withIndent('  ').convert(asMap)
-            : 'can not read receipt data';
+            : s.lastError!;
 
         if (s.controller == null) {
           s.controller = TextEditingController(text: editorText);
@@ -128,6 +145,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
       } else {
         // still running; keep showing progress
         s.active = true;
+        s.lastError = message;
       }
     } catch (e) {
       // On error, keep it active but surface a toast-able message in UI
@@ -217,7 +235,15 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
 
                   final image = ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.file(File(it.file.path), fit: BoxFit.contain),
+                    child: InteractiveViewer(
+                      panEnabled: true,
+                      minScale: 1.0,
+                      maxScale: 5.0,
+                      child: Image.file(
+                        File(it.file.path),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   );
 
                   final editor = _buildEditorArea(context, s);
@@ -295,7 +321,8 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
     final surface =
         theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
 
-    final running = s.active && (s.status != 'done' && s.status != 'failed');
+    final running = s.active &&
+        (s.status != 'done' && s.status != 'failed' && s.status != 'error');
     final showReceiptText = !running;
 
     final countdownText = running ? 'Tekrar sorgu: ${s.countdown}s' : '';
@@ -323,6 +350,12 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
             ],
             if (showReceiptText) ...[
               const SizedBox(height: 4),
+              if (s.lastError != null &&
+                  (s.status == 'failed' || s.status == 'error')) ...[
+                Text('Hata: ${s.lastError}',
+                    style: const TextStyle(color: Color(0xFFD32F2F))),
+                const SizedBox(height: 8),
+              ],
               TextField(
                 controller: s.controller ??
                     (s.controller = TextEditingController(

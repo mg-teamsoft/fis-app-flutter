@@ -17,14 +17,24 @@ class PermissionService {
   }
 
   static Future<bool> _ensureCamera({BuildContext? context}) async {
-    final cam = await Permission.camera.status;
-    if (cam.isGranted) return true;
+    final current = await Permission.camera.status;
+    if (current.isGranted) return true;
 
-    final camReq = await Permission.camera.request();
-    if (camReq.isGranted) return true;
+    if (current.isPermanentlyDenied || current.isRestricted) {
+      await _showGoToSettingsDialog(context,
+          title: 'Kamera izni gerekli',
+          message:
+              'Kamera ile fiş fotoğrafı çekebilmek için ayarlardan kamera izni vermelisiniz.');
+      return false;
+    }
+
+    final requested = await Permission.camera.request();
+    debugPrint('Camera permission result: $requested');
+
+    if (requested.isGranted) return true;
 
     // iOS: if denied permanently, guide to settings
-    if (camReq.isPermanentlyDenied || camReq.isRestricted) {
+    if (requested.isPermanentlyDenied || requested.isRestricted) {
       await _showGoToSettingsDialog(context,
           title: 'Kamera izni gerekli',
           message:
