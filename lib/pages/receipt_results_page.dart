@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../models/receipt_flow_models.dart';
 import '../services/job_service.dart';
 import '../services/excel_service.dart';
+import '../models/status_type.dart';
 
 class ReceiptResultsPage extends StatefulWidget {
   final List<SelectedItem> items;
@@ -111,7 +112,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
       }
 
       // If job is done, stop the countdown and prepare the editor text
-      if (s.status == 'done') {
+      if (s.status == StatusType.done.name) {
         s.lastError = null;
         s.active = false;
         s.countdown = 0;
@@ -126,7 +127,8 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         } else {
           s.controller!.text = editorText;
         }
-      } else if (s.status == 'failed' || s.status == 'error') {
+      } else if (s.status == StatusType.failed.name ||
+          s.status == StatusType.error.name) {
         s.lastError = message ?? 'İşleme sırasında hata oluştu.';
         s.active = false;
         s.countdown = 0;
@@ -174,7 +176,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
       if (ctrl == null) continue;
 
       // Skip still running / failed-without-json items
-      if (s.status != 'done') continue;
+      if (s.status != StatusType.done.name) continue;
 
       try {
         // If editor contains "can not read receipt data", skip
@@ -186,7 +188,13 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         }
 
         final Map<String, dynamic> edited = json.decode(text);
-        final ok = await _excel.pushReceipt(edited);
+        final key = s.item.key;
+        if (key == null || key.isEmpty) {
+          failCount++;
+          failures.add('${s.item.jobId}: missing key');
+          continue;
+        }
+        final ok = await _excel.pushReceipt(key, edited);
         if (ok) {
           okCount++;
         } else {
@@ -322,7 +330,9 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
 
     final running = s.active &&
-        (s.status != 'done' && s.status != 'failed' && s.status != 'error');
+        (s.status != StatusType.done.name &&
+            s.status != StatusType.failed.name &&
+            s.status != StatusType.error.name);
     final showReceiptText = !running;
 
     final countdownText = running ? 'Tekrar sorgu: ${s.countdown}s' : '';
@@ -351,7 +361,8 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
             if (showReceiptText) ...[
               const SizedBox(height: 4),
               if (s.lastError != null &&
-                  (s.status == 'failed' || s.status == 'error')) ...[
+                  (s.status == StatusType.failed.name ||
+                      s.status == StatusType.error.name)) ...[
                 Text('Hata: ${s.lastError}',
                     style: const TextStyle(color: Color(0xFFD32F2F))),
                 const SizedBox(height: 8),
@@ -383,8 +394,8 @@ class _ItemState {
   _ItemState({required this.item});
   final SelectedItem item;
 
-  /// Job status: 'pending' | 'processing' | 'done' | 'failed' …
-  String status = 'processing';
+  /// Job status: 'pending' | StatusType.processing.name | StatusType.done.name | StatusType.failed.name …
+  String status = StatusType.processing.name;
 
   /// 10-second countdown until next poll.
   int countdown = 10;

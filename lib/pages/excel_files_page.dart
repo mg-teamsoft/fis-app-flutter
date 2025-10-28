@@ -1,4 +1,5 @@
 import 'package:fis_app_flutter/models/excel_file_entry.dart';
+import 'package:fis_app_flutter/models/status_type.dart';
 import 'package:fis_app_flutter/services/excel_service.dart';
 import 'package:fis_app_flutter/services/file_download_service.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,7 @@ class _ExcelFilesPageState extends State<ExcelFilesPage> {
       final result = await _downloader.openLocal(path);
 
       if (!mounted) return;
-      if (result.type != ResultType.done) {
+      if (result.type.name != StatusType.done.name) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Açılamadı: ${result.message}')));
@@ -112,63 +113,83 @@ class _ExcelFilesPageState extends State<ExcelFilesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Excel Dosyaları')),
-      body: FutureBuilder<List<ExcelFileEntry>>(
-        future: _future,
-        builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snap.hasError) {
-            return Center(child: Text('Hata: ${snap.error}'));
-          }
-          final rows = snap.data ?? const <ExcelFileEntry>[];
-          if (rows.isEmpty) {
-            return const Center(child: Text('Kayıtlı Excel bulunamadı.'));
-          }
-
-          return SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('Dosya Adı')),
-                  DataColumn(label: Text('Sayfa (Ay/Yıl)')),
-                  DataColumn(label: Text('İşlemler')),
-                ],
-                rows: rows.map((r) {
-                  final isBusy = _busy.contains(r.idOrKey);
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(r.fileName)),
-                      DataCell(Text(r.sheetName)),
-                      DataCell(
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            FilledButton.icon(
-                              onPressed: isBusy ? null : () => _open(r),
-                              icon: const Icon(Icons.open_in_new),
-                              label: Text(isBusy ? 'Açılıyor...' : 'Aç'),
-                            ),
-                            const SizedBox(width: 8),
-                            OutlinedButton.icon(
-                              onPressed: isBusy ? null : () => _download(r),
-                              icon: const Icon(Icons.download),
-                              label: Text(isBusy ? 'İndiriliyor...' : 'İndir'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Align(
+            alignment: Alignment.center,
+            child: Text(
+              'Excel Dosyaları',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          );
-        },
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: FutureBuilder<List<ExcelFileEntry>>(
+              future: _future,
+              builder: (context, snap) {
+                if (snap.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snap.hasError) {
+                  return Center(child: Text('Hata: ${snap.error}'));
+                }
+                final rows = snap.data ?? const <ExcelFileEntry>[];
+                if (rows.isEmpty) {
+                  return const Center(child: Text('Kayıtlı Excel bulunamadı.'));
+                }
+
+                return SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text('Dosya Adı')),
+                        DataColumn(label: Text('Sayfa (Ay/Yıl)')),
+                        DataColumn(label: Text('İşlemler')),
+                      ],
+                      rows: rows.map((r) {
+                        final isBusy = _busy.contains(r.idOrKey);
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(r.fileName)),
+                            DataCell(Text(r.sheetName)),
+                            DataCell(
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  FilledButton.icon(
+                                    onPressed: isBusy ? null : () => _open(r),
+                                    icon: const Icon(Icons.open_in_new),
+                                    label: Text(isBusy ? 'Açılıyor...' : 'Aç'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  OutlinedButton.icon(
+                                    onPressed:
+                                        isBusy ? null : () => _download(r),
+                                    icon: const Icon(Icons.download),
+                                    label: Text(
+                                        isBusy ? 'İndiriliyor...' : 'İndir'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

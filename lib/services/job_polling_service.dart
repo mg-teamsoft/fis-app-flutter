@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import '../services/api_client.dart';
+import '../models/status_type.dart';
 
 class JobPollingService {
   Timer? _timer;
@@ -21,14 +22,16 @@ class JobPollingService {
     Future<void> tick() async {
       if (!_active) return;
       try {
-        final res =
-            await ApiClient().dio.get('/api/job/$jobId', cancelToken: _cancelToken);
+        final res = await ApiClient()
+            .dio
+            .get('/api/job/$jobId', cancelToken: _cancelToken);
         final data = res.data as Map<String, dynamic>;
         final job = data['job'] as Map<String, dynamic>;
         onUpdate(job);
 
         final status = (job['status'] as String?) ?? '';
-        if (status == 'done' || status == 'failed') {
+        if (status == StatusType.done.name ||
+            status == StatusType.failed.name) {
           stop();
           return;
         }

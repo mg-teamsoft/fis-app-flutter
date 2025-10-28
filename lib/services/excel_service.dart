@@ -4,9 +4,10 @@ import 'api_client.dart';
 class ExcelService {
   final _api = ApiClient();
 
-  Future<bool> pushReceipt(Map<String, dynamic> receiptJson) async {
+  Future<bool> pushReceipt(String key, Map<String, dynamic> receiptJson) async {
     try {
-      final res = await _api.dio.post('/api/excel/write', data: receiptJson);
+      final payload = <String, dynamic>{'key': key, ...receiptJson};
+      final res = await _api.dio.post('/api/excel/write', data: payload);
       final data = res.data as Map<String, dynamic>;
       return data['status'] == 'success';
     } on DioException catch (e) {

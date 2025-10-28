@@ -8,7 +8,6 @@ import 'package:path/path.dart' as p;
 import '../services/s3_upload_service.dart';
 import '../services/job_service.dart';
 import '../utils/mime_utils.dart';
-import 'receipt_results_page.dart';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
@@ -75,11 +74,10 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
       }
 
       if (!mounted) return;
-      Navigator.pushReplacement(
+      Navigator.pushReplacementNamed(
         context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => ReceiptResultsPage(items: items),
-        ),
+        '/receipt/results',
+        arguments: items,
       );
     } on DioException catch (e) {
       if (!mounted) return;

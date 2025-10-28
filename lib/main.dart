@@ -1,18 +1,16 @@
-import 'package:fis_app_flutter/pages/about_page.dart';
-import 'package:fis_app_flutter/pages/excel_files_page.dart';
-import 'package:fis_app_flutter/pages/home_page.dart';
 import 'package:fis_app_flutter/pages/login_page.dart';
-import 'package:fis_app_flutter/pages/receipt_page.dart';
-import 'package:fis_app_flutter/pages/receipt_process_page.dart';
-import 'package:fis_app_flutter/pages/receipt_results_page.dart';
+import 'package:fis_app_flutter/pages/main_layout.dart';
 import 'package:fis_app_flutter/pages/register_page.dart';
 import 'package:fis_app_flutter/services/auth_navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'dart:developer' as developer;
 import 'dart:async';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('tr_TR');
+
   FlutterError.onError = (details) {
     FlutterError.dumpErrorToConsole(details);
   };
@@ -44,14 +42,26 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (_) => const LoginPage(),
         '/register': (_) => const RegisterPage(),
-        '/home': (_) => const HomePage(),
-        '/about': (_) => const AboutPage(),
-        '/receipt': (_) => const ReceiptPage(),
-        '/receipt/process': (_) =>
-            const ReceiptProcessPage(files: []), // placeholder
-        '/receipt/results': (_) =>
-            const ReceiptResultsPage(items: []), // placeholder
-        '/excelFiles': (_) => const ExcelFilesPage(),
+        '/home': (_) => const MainLayout(initialRoute: '/home'),
+        '/receipt': (_) => const MainLayout(initialRoute: '/receipt'),
+        '/excelFiles': (_) => const MainLayout(initialRoute: '/excelFiles'),
+        '/about': (_) => const MainLayout(initialRoute: '/about'),
+        '/gallery': (_) => const MainLayout(initialRoute: '/gallery'),
+        '/settings': (_) => const MainLayout(initialRoute: '/settings'),
+        '/receipt/process': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
+          return MainLayout(
+            initialRoute: '/receipt/process',
+            initialArguments: args,
+          );
+        },
+        '/receipt/results': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
+          return MainLayout(
+            initialRoute: '/receipt/results',
+            initialArguments: args,
+          );
+        },
       },
     );
   }
