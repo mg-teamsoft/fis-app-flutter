@@ -1,3 +1,4 @@
+import 'package:fis_app_flutter/pages/account_settings_page.dart';
 import 'package:fis_app_flutter/pages/login_page.dart';
 import 'package:fis_app_flutter/pages/main_layout.dart';
 import 'package:fis_app_flutter/pages/register_page.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Fiş App',
+      title: 'My Fiş App',
       navigatorKey: AuthNavigation.navigatorKey,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
         '/about': (_) => const MainLayout(initialRoute: '/about'),
         '/gallery': (_) => const MainLayout(initialRoute: '/gallery'),
         '/settings': (_) => const MainLayout(initialRoute: '/settings'),
+        '/accountSettings': (_) => const AccountSettingsPage(),
         '/receipt/process': (context) {
           final args = ModalRoute.of(context)?.settings.arguments;
           return MainLayout(

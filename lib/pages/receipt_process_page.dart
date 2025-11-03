@@ -62,6 +62,18 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
 
         // 3) confirm
         final size = await File(item.file.path).length();
+        const maxBytes = 5 * 1024 * 1024;
+        const minBytes = 100 * 1024;
+
+        if (size > maxBytes) {
+          print("⚠️ Resim en fazla 5 MB olabilir.");
+          // Show toast/snackbar to user
+          continue;
+        } else if (size < minBytes) {
+          print("⚠️ Resim en az 100 KB olabilir.");
+          continue;
+        }
+
         await _s3.confirmUpload(
           key: init.key,
           size: size,

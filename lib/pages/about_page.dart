@@ -12,7 +12,7 @@ class AboutPage extends StatelessWidget {
         children: [
           // App name
           const Text(
-            'Fiş App',
+            'My Fiş App',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,

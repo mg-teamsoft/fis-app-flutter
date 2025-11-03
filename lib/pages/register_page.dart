@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
+import '../models/plan_option.dart';
 import '../services/auth_service.dart';
+import '../services/plan_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -18,6 +21,23 @@ class _RegisterPageState extends State<RegisterPage> {
   String? _error;
 
   final _auth = AuthService();
+  final _planService = PlanService();
+  late Future<List<PlanOption>> _plansFuture;
+  String? _selectedPlanKey;
+
+  @override
+  void initState() {
+    super.initState();
+    _plansFuture =
+        _planService.fetchPlans().then(PlanService.sortPlansWithFreeFirst);
+  }
+
+  void _retryPlans() {
+    setState(() {
+      _plansFuture =
+          _planService.fetchPlans().then(PlanService.sortPlansWithFreeFirst);
+    });
+  }
 
   String? _req(String? v) =>
       (v == null || v.trim().isEmpty) ? 'Zorunlu alan' : null;
@@ -51,6 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
       userName: _userCtrl.text,
       password: _passCtrl.text,
       email: _emailCtrl.text,
+      planKey: _selectedPlanKey,
     );
 
     if (!mounted) return;
@@ -129,7 +150,67 @@ class _RegisterPageState extends State<RegisterPage> {
                   onFieldSubmitted: (_) => _onRegister(),
                   autofillHints: const [AutofillHints.newPassword],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Plan Seçimi',
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                FutureBuilder<List<PlanOption>>(
+                  future: _plansFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const _PlanLoadingState();
+                    }
+                    if (snapshot.hasError) {
+                      return _PlanErrorState(
+                        message: 'Planlar yüklenemedi.',
+                        details: snapshot.error?.toString(),
+                        onRetry: _retryPlans,
+                      );
+                    }
+                    final plans = snapshot.data ?? const <PlanOption>[];
+                    if (plans.isEmpty) {
+                      return _PlanErrorState(
+                        message: 'Görüntülenecek plan bulunamadı.',
+                        onRetry: _retryPlans,
+                      );
+                    }
+
+    if (_selectedPlanKey == null && plans.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() => _selectedPlanKey = plans.first.planKey);
+      });
+    }
+
+    final effectiveSelectedKey =
+        _selectedPlanKey ?? plans.first.planKey;
+
+                    final tiles = <Widget>[];
+                    for (var i = 0; i < plans.length; i++) {
+                      final plan = plans[i];
+                      tiles.add(
+        _PlanTile(
+          plan: plan,
+          selected: plan.planKey == effectiveSelectedKey,
+          onTap: () => setState(
+            () => _selectedPlanKey = plan.planKey,
+          ),
+        ),
+                      );
+                      if (i < plans.length - 1) {
+                        tiles.add(const SizedBox(height: 12));
+                      }
+                    }
+                    return Column(children: tiles);
+                  },
+                ),
+                const SizedBox(height: 24),
                 if (_error != null)
                   Text(_error!,
                       style: theme.textTheme.bodyMedium
@@ -157,6 +238,217 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _PlanTile extends StatelessWidget {
+  const _PlanTile({
+    required this.plan,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final PlanOption plan;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final borderColor = selected
+        ? theme.colorScheme.primary
+        : theme.colorScheme.outlineVariant;
+    final backgroundColor = selected
+        ? theme.colorScheme.primary.withValues(alpha: 0.08)
+        : theme.colorScheme.surface;
+    final priceText = plan.billingCycle.isNotEmpty
+        ? '${plan.priceLabel}/${plan.billingCycle}'
+        : plan.priceLabel;
+    final badgeText = (plan.badge != null && plan.badge!.trim().isNotEmpty)
+        ? plan.badge!.trim()
+        : (plan.isPopular ? 'Popüler' : null);
+    final badgeBackground = selected
+        ? theme.colorScheme.primary
+        : theme.colorScheme.secondaryContainer;
+    final badgeForeground = selected
+        ? theme.colorScheme.onPrimary
+        : theme.colorScheme.onSecondaryContainer;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          border: Border.all(color: borderColor, width: selected ? 2 : 1),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        plan.name,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      priceText,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (selected)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: theme.colorScheme.primary,
+                          child: const Icon(Icons.check,
+                              color: Colors.white, size: 16),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  plan.description.isNotEmpty
+                      ? plan.description
+                      : 'Plan detayları yakında.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            if (badgeText != null)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: badgeBackground,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    badgeText,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: badgeForeground,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanLoadingState extends StatelessWidget {
+  const _PlanLoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      children: List.generate(
+        3,
+        (index) => Padding(
+          padding: EdgeInsets.only(bottom: index == 2 ? 0 : 12),
+          child: Container(
+            height: 88,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+            ),
+            child: const Center(
+              child: SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanErrorState extends StatelessWidget {
+  const _PlanErrorState({
+    required this.message,
+    this.details,
+    required this.onRetry,
+  });
+
+  final String message;
+  final String? details;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.error_outline,
+                  color: theme.colorScheme.error, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  message,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (details != null && details!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              details!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Tekrar dene'),
+            ),
+          ),
+        ],
       ),
     );
   }

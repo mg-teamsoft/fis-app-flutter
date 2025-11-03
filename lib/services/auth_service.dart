@@ -57,14 +57,22 @@ class AuthService {
     required String userName,
     required String password,
     required String email,
+    String? planKey,
   }) async {
     try {
-      final res = await _api.dio.post('/api/auth/register', data: {
+      final payload = {
         'userName': userName.trim(),
         'password': password,
         'email': email.trim(),
         // userId is optional — backend generates UUID if empty
-      });
+      };
+
+      if (planKey != null && planKey.trim().isNotEmpty) {
+        payload['planKey'] = planKey.trim();
+      }
+
+      final res =
+          await _api.dio.post('/api/auth/register', data: payload);
 
       final data = res.data as Map<String, dynamic>;
       final ok = data['status'] == 'success';
