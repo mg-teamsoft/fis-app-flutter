@@ -106,4 +106,28 @@ class AuthService {
     await _api.dio.post('/api/auth/revoke');
     await _api.clearToken();
   }
+
+  Future<String> requestPasswordReset(String email) async {
+    try {
+      final res = await _api.dio.post(
+        '/api/auth//request-password-reset',
+        data: {'email': email},
+      );
+      final data = res.data;
+      if (data is Map && data['message'] != null) {
+        return data['message'].toString();
+      }
+      if (data is String && data.isNotEmpty) {
+        return data;
+      }
+      return 'Şifre sıfırlama isteği gönderildi';
+    } on DioException catch (e) {
+      final msg = e.response?.data is Map
+          ? (e.response!.data['message']?.toString() ?? e.message)
+          : e.message;
+      throw Exception(msg ?? 'Şifre sıfırlama isteği başarısız');
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
 }

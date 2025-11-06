@@ -16,86 +16,176 @@ class _ReceiptPageState extends State<ReceiptPage> {
 
   Future<void> _pickMultiGallery() async {
     final files = await _picker.pickMultiImage(imageQuality: 90);
-    if (!mounted) return;
-    setState(() => _picked = files);
-    if (_picked.isNotEmpty) {
-      Navigator.pushNamed(
-        context,
-        '/receipt/process',
-        arguments: _picked,
-      );
-    }
+    if (!mounted || files.isEmpty) return;
+    setState(() {
+      final existing = _picked.map((f) => f.path).toSet();
+      _picked = [
+        ..._picked,
+        ...files.where((file) => !existing.contains(file.path)),
+      ];
+    });
   }
 
   Future<void> _captureCamera() async {
     final file = await ReceiptService.captureWithCamera(context);
-    if (!mounted) return;
-    if (file != null) {
-      setState(() => _picked = [file]);
-      Navigator.pushNamed(
-        context,
-        '/receipt/process',
-        arguments: _picked,
-      );
-    }
+    if (!mounted || file == null) return;
+    setState(() {
+      if (_picked.every((item) => item.path != file.path)) {
+        _picked = [..._picked, file];
+      }
+    });
+  }
+
+  void _processSelected() {
+    if (_picked.isEmpty) return;
+    Navigator.pushNamed(
+      context,
+      '/receipt/process',
+      arguments: List<XFile>.from(_picked),
+    );
+  }
+
+  String get _processButtonLabel {
+    if (_picked.isEmpty) return 'Devam Et';
+    final count = _picked.length;
+    final suffix = count == 1 ? 'Fiş' : 'Fiş';
+    return '$count $suffix Seçildi - Devam Et';
+  }
+
+  Widget _buildActionButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+    required String label,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon),
+        label: Text(label),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Fiş Seç',
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 16),
-          Row(
+    final theme = Theme.of(context);
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FB),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        title: const Text(
+          'Fiş Yükle',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: _pickMultiGallery,
-                  icon: const Icon(Icons.photo_library),
-                  label: const Text('Galeriden Seç (çoklu)'),
-                ),
+              const SizedBox(height: 24),
+              _buildActionButton(
+                onPressed: _pickMultiGallery,
+                icon: Icons.photo_library_outlined,
+                label: 'Galeriden Resim Seç',
               ),
-              const SizedBox(width: 12),
+              const SizedBox(height: 12),
+              _buildActionButton(
+                onPressed: _captureCamera,
+                icon: Icons.photo_camera_outlined,
+                label: 'Kamerayla Çek',
+              ),
+              const SizedBox(height: 24),
               Expanded(
-                child: FilledButton.icon(
-                  onPressed: _captureCamera,
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Kamerayla Çek'),
-                ),
+                child: _picked.isEmpty
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.receipt_long_outlined,
+                            size: 64,
+                            color: theme.colorScheme.primary
+                                .withValues(alpha: 0.3),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Henüz fiş seçilmedi.',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Galerinizden fiş seçin veya kamerayla çekin.',
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      )
+                    : GridView.builder(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 1,
+                        ),
+                        itemCount: _picked.length,
+                        itemBuilder: (_, i) => ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.file(
+                            File(_picked[i].path),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: _picked.isEmpty
-                ? const Center(child: Text('Henüz seçim yapılmadı'))
-                : GridView.builder(
-                    itemCount: _picked.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 8,
-                      crossAxisSpacing: 8,
-                    ),
-                    itemBuilder: (_, i) => ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        File(_picked[i].path),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: _picked.isEmpty ? null : _processSelected,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            child: Text(_processButtonLabel),
           ),
-        ],
+        ),
       ),
     );
   }

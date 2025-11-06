@@ -114,6 +114,11 @@ class _MainLayoutState extends State<MainLayout> {
       return;
     }
 
+    if (value == '/accountSettings') {
+      Navigator.pushNamed(context, '/accountSettings');
+      return;
+    }
+
     _setCurrentRoute(value);
   }
 
@@ -139,6 +144,8 @@ class _MainLayoutState extends State<MainLayout> {
           onSelected: _handleMenuSelection,
           itemBuilder: (context) => const [
             PopupMenuItem(value: '/about', child: Text('Uygulama Hakkında')),
+            PopupMenuItem(
+                value: '/accountSettings', child: Text('Hesap Ayarları')),
             PopupMenuItem(value: 'logout', child: Text('Çıkış Yap')),
           ],
         ),

@@ -96,6 +96,11 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.of(context).pushReplacementNamed('/register'),
               child: const Text('Hesap Oluştur'),
             ),
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(context).pushNamed('/forgotPassword'),
+              child: const Text('Şifremi Unuttum'),
+            ),
           ],
         ),
       ),

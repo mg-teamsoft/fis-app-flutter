@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../services/settings_service.dart';
-import 'account_settings_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -235,23 +234,6 @@ class _SettingsPageState extends State<SettingsPage> {
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Hesap Ayarları'),
-            subtitle: const Text('Kullanıcı bilgilerinizi ve üyeliğinizi yönetin'),
-            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 18),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const AccountSettingsPage(),
-                ),
-              );
-            },
           ),
         ),
         const SizedBox(height: 24),

@@ -109,9 +109,18 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   }
 
   Future<void> _onResendVerification() async {
+    final email = _user?.email ?? '';
+    if (email.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('E-posta adresi bulunamadı.')),
+      );
+      return;
+    }
+
     setState(() => _resendingVerification = true);
     try {
-      await _userService.resendVerificationEmail();
+      await _userService.resendVerificationEmail(email);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Doğrulama e-postası gönderildi')),
@@ -281,6 +290,8 @@ class _AccountDetailsSection extends StatelessWidget {
         TextField(
           controller: emailController,
           readOnly: true,
+          showCursor: false,
+          enableInteractiveSelection: false,
           decoration: const InputDecoration(
             labelText: 'E-posta',
             prefixIcon: Icon(Icons.email_outlined),
@@ -315,6 +326,8 @@ class _AccountDetailsSection extends StatelessWidget {
         TextField(
           controller: usernameController,
           readOnly: true,
+          showCursor: false,
+          enableInteractiveSelection: false,
           decoration: const InputDecoration(
             labelText: 'Kullanıcı Adı',
             prefixIcon: Icon(Icons.person_outline),
@@ -326,6 +339,7 @@ class _AccountDetailsSection extends StatelessWidget {
           readOnly: true,
           obscureText: true,
           enableInteractiveSelection: false,
+          showCursor: false,
           decoration: const InputDecoration(
             labelText: 'Parola',
             prefixIcon: Icon(Icons.lock_outline),

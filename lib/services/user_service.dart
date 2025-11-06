@@ -19,8 +19,16 @@ class UserService {
     throw Exception('Kullanıcı bilgisi alınamadı (${response.statusCode})');
   }
 
-  Future<void> resendVerificationEmail() async {
-    final response = await _api.dio.post('/api/users/resend-verification');
+  Future<void> resendVerificationEmail(String email) async {
+    final normalizedEmail = email.trim();
+    if (normalizedEmail.isEmpty) {
+      throw Exception('Geçerli bir e-posta adresi bulunamadı');
+    }
+
+    final response = await _api.dio.post(
+      '/api/auth/resend-email-verification',
+      data: {'email': normalizedEmail},
+    );
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw Exception('Doğrulama e-postası gönderilemedi');
     }

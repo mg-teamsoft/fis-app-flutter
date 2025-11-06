@@ -66,11 +66,22 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
         const minBytes = 100 * 1024;
 
         if (size > maxBytes) {
-          print("⚠️ Resim en fazla 5 MB olabilir.");
-          // Show toast/snackbar to user
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('⚠️ Resim en fazla 5 MB olabilir.'),
+              ),
+            );
+          }
           continue;
         } else if (size < minBytes) {
-          print("⚠️ Resim en az 100 KB olabilir.");
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('⚠️ Resim en az 100 KB olabilir.'),
+              ),
+            );
+          }
           continue;
         }
 

@@ -29,7 +29,7 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
     final theme = Theme.of(context);
     return Scaffold(
       backgroundColor:
-          theme.colorScheme.surfaceContainerHighest.withOpacity(0.98),
+          theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.98),
       appBar: AppBar(
         title: const Text('Fiş Detayı'),
         centerTitle: true,
@@ -147,7 +147,7 @@ class _ReceiptImage extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             offset: const Offset(0, 10),
             blurRadius: 24,
           ),
@@ -203,7 +203,7 @@ class _InfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             offset: const Offset(0, 8),
             blurRadius: 20,
           ),

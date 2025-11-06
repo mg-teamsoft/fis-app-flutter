@@ -1,4 +1,5 @@
 import 'package:fis_app_flutter/pages/account_settings_page.dart';
+import 'package:fis_app_flutter/pages/forgot_password_page.dart';
 import 'package:fis_app_flutter/pages/login_page.dart';
 import 'package:fis_app_flutter/pages/main_layout.dart';
 import 'package:fis_app_flutter/pages/register_page.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/gallery': (_) => const MainLayout(initialRoute: '/gallery'),
         '/settings': (_) => const MainLayout(initialRoute: '/settings'),
         '/accountSettings': (_) => const AccountSettingsPage(),
+        '/forgotPassword': (_) => const ForgotPasswordPage(),
         '/receipt/process': (context) {
           final args = ModalRoute.of(context)?.settings.arguments;
           return MainLayout(
