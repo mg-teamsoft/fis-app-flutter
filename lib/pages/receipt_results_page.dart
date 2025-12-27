@@ -95,7 +95,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
       s.status = (jobObj['status'] as String?) ?? s.status;
       final message = jobObj['message']?.toString();
 
-      // Receipt may be a map or a JSON string; normalize to Map for the editor
+      // Receipt may be a map or a JSON string; normalize then localize for the editor
       final raw = jobObj['receipt'];
       Map<String, dynamic>? asMap;
       if (raw == null) {
@@ -111,16 +111,19 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         }
       }
 
+      final localizedReceipt = _localizeReceipt(asMap);
+      s.rawReceipt = asMap;
+
       // If job is done, stop the countdown and prepare the editor text
       if (s.status == StatusType.done.name) {
         s.lastError = null;
         s.active = false;
         s.countdown = 0;
-        s.receipt = asMap;
+        s.receipt = localizedReceipt;
 
-        final editorText = (asMap != null)
-            ? const JsonEncoder.withIndent('  ').convert(asMap)
-            : message ?? 'can not read receipt data';
+        final editorText = (localizedReceipt != null)
+            ? const JsonEncoder.withIndent('  ').convert(localizedReceipt)
+            : message ?? 'fiş datası okunamadı.';
 
         if (s.controller == null) {
           s.controller = TextEditingController(text: editorText);
@@ -129,14 +132,14 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         }
       } else if (s.status == StatusType.failed.name ||
           s.status == StatusType.error.name) {
-        s.lastError = message ?? 'İşleme sırasında hata oluştu.';
+        s.lastError = message ?? 'İşlem sırasında hata oluştu.';
         s.active = false;
         s.countdown = 0;
-        s.receipt = asMap;
+        s.receipt = localizedReceipt;
 
         // Prepare / update the editable text box content
-        final editorText = (asMap != null)
-            ? const JsonEncoder.withIndent('  ').convert(asMap)
+        final editorText = (localizedReceipt != null)
+            ? const JsonEncoder.withIndent('  ').convert(localizedReceipt)
             : s.lastError!;
 
         if (s.controller == null) {
@@ -187,14 +190,22 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
           continue;
         }
 
-        final Map<String, dynamic> edited = json.decode(text);
+        final dynamic decoded = json.decode(text);
+        if (decoded is! Map) {
+          failCount++;
+          failures.add('${s.item.jobId}: geçersiz JSON');
+          continue;
+        }
+
+        final edited = Map<String, dynamic>.from(decoded);
+        final normalized = _delocalizeReceiptIfNeeded(edited);
         final key = s.item.key;
         if (key == null || key.isEmpty) {
           failCount++;
           failures.add('${s.item.jobId}: missing key');
           continue;
         }
-        final ok = await _excel.pushReceipt(key, edited);
+        final ok = await _excel.pushReceipt(key, normalized);
         if (ok) {
           okCount++;
         } else {
@@ -388,6 +399,211 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
       ),
     );
   }
+
+  static const Set<String> _localizedReceiptKeys = {
+    'Şirket Adı',
+    'İşlem Tarihi',
+    'Fiş No',
+    'KDV Tutarı',
+    'Toplam Tutar',
+    'KDV Oranı (%)',
+    'İşlem Tipi',
+    'Ödeme Tipi',
+    'Ürünler',
+    'Diğer Alanlar',
+  };
+
+  static const Set<String> _englishReceiptKeys = {
+    'businessName',
+    'companyName',
+    'receiptNumber',
+    'transactionDate',
+    'products',
+    'kdvAmount',
+    'totalAmount',
+    'transactionType',
+    'paymentType',
+  };
+
+  Map<String, dynamic>? _localizeReceipt(Map<String, dynamic>? raw) {
+    if (raw == null) return null;
+
+    final localized = <String, dynamic>{};
+    void put(String key, dynamic value) {
+      if (value == null) return;
+      if (value is String && value.trim().isEmpty) return;
+      localized[key] = value;
+    }
+
+    put('Şirket Adı', raw['businessName'] ?? raw['companyName']);
+    put('İşlem Tarihi', raw['transactionDate']);
+    put('Fiş No', raw['receiptNumber']);
+    put('KDV Tutarı', raw['kdvAmount']);
+    put('Toplam Tutar', raw['totalAmount']);
+    put('Ödeme Tipi', raw['paymentType']);
+
+    final transactionType = raw['transactionType'];
+    if (transactionType is Map) {
+      final typed = Map<String, dynamic>.from(transactionType);
+      put('İşlem Tipi', typed['type'] ?? typed['name']);
+      put('KDV Oranı (%)', typed['kdvRate']);
+      final extra = Map<String, dynamic>.from(typed)
+        ..remove('type')
+        ..remove('name')
+        ..remove('kdvRate');
+      if (extra.isNotEmpty) {
+        localized['Diğer Alanlar'] = extra;
+      }
+    } else if (transactionType != null) {
+      put('İşlem Tipi', transactionType);
+    }
+
+    final products = raw['products'];
+    if (products is List) {
+      final localizedProducts = products
+          .whereType<Map>()
+          .map((p) => _localizeProduct(Map<String, dynamic>.from(p)))
+          .where((p) => p.isNotEmpty)
+          .toList();
+      if (localizedProducts.isNotEmpty) {
+        localized['Ürünler'] = localizedProducts;
+      }
+    }
+
+    final extras = <String, dynamic>{};
+    raw.forEach((key, value) {
+      if (!_englishReceiptKeys.contains(key)) {
+        extras[key] = value;
+      }
+    });
+    if (extras.isNotEmpty) {
+      final merged = <String, dynamic>{
+        ...?localized['Diğer Alanlar'] as Map<String, dynamic>?,
+        ...extras,
+      };
+      if (merged.isNotEmpty) {
+        localized['Diğer Alanlar'] = merged;
+      }
+    }
+
+    return localized.isEmpty ? null : localized;
+  }
+
+  Map<String, dynamic> _localizeProduct(Map<String, dynamic> raw) {
+    final localized = <String, dynamic>{};
+    void put(String key, dynamic value) {
+      if (value == null) return;
+      localized[key] = value;
+    }
+
+    put('Ürün Adı', raw['name'] ?? raw['productName']);
+    put('Miktar', raw['quantity']);
+    put('Birim Fiyat', raw['unitPrice']);
+    put('Satır Toplamı', raw['lineTotal']);
+
+    final extras = Map<String, dynamic>.from(raw)
+      ..remove('name')
+      ..remove('productName')
+      ..remove('quantity')
+      ..remove('unitPrice')
+      ..remove('lineTotal');
+    if (extras.isNotEmpty) {
+      localized['Ek Bilgi'] = extras;
+    }
+
+    return localized;
+  }
+
+  Map<String, dynamic> _delocalizeReceiptIfNeeded(Map<String, dynamic> source) {
+    final containsLocalizedKey =
+        source.keys.any((key) => _localizedReceiptKeys.contains(key));
+    if (!containsLocalizedKey) {
+      return source;
+    }
+
+    final normalized = <String, dynamic>{};
+    void put(String key, dynamic value) {
+      if (value == null) return;
+      normalized[key] = value;
+    }
+
+    put('businessName',
+        source['Şirket Adı'] ?? source['isletmeAdi'] ?? source['firmaAdi']);
+    put('receiptNumber',
+        source['Fiş No'] ?? source['fisNumarasi'] ?? source['fisNo']);
+    put('transactionDate', source['İşlem Tarihi'] ?? source['islemTarihi']);
+    put('kdvAmount', source['KDV Tutarı'] ?? source['kdvTutari']);
+    put('totalAmount', source['Toplam Tutar'] ?? source['toplamTutar']);
+    put('paymentType', source['Ödeme Tipi'] ?? source['odemeTipi']);
+
+    final islemTipi = source['İşlem Tipi'] ?? source['islemTipi'];
+    if (islemTipi is Map) {
+      final map = Map<String, dynamic>.from(islemTipi);
+      final normalizedIslem = <String, dynamic>{};
+      if (map['tip'] != null) normalizedIslem['type'] = map['tip'];
+      if (map['KDV Oranı (%)'] != null) {
+        normalizedIslem['kdvRate'] = map['KDV Oranı (%)'];
+      } else if (source['KDV Oranı (%)'] != null) {
+        normalizedIslem['kdvRate'] = source['KDV Oranı (%)'];
+      }
+      final extra = Map<String, dynamic>.from(map)
+        ..remove('tip')
+        ..remove('KDV Oranı (%)');
+      if (extra.isNotEmpty) {
+        normalizedIslem.addAll(extra);
+      }
+      if (normalizedIslem.isNotEmpty) {
+        normalized['transactionType'] = normalizedIslem;
+      }
+    } else if (islemTipi != null) {
+      normalized['transactionType'] = {
+        'type': islemTipi,
+        if (source['KDV Oranı (%)'] != null) 'kdvRate': source['KDV Oranı (%)'],
+      };
+    } else if (source['KDV Oranı (%)'] != null) {
+      normalized['transactionType'] = {'kdvRate': source['KDV Oranı (%)']};
+    }
+
+    final urunler = source['Ürünler'] ?? source['urunler'];
+    if (urunler is List) {
+      final products = urunler
+          .whereType<Map>()
+          .map((p) => _delocalizeProduct(Map<String, dynamic>.from(p)))
+          .where((p) => p.isNotEmpty)
+          .toList();
+      if (products.isNotEmpty) {
+        normalized['products'] = products;
+      }
+    }
+
+    final extras =
+        source['Diğer Alanlar'] ?? source['digerAlanlar'] ?? source['diger'];
+    if (extras is Map) {
+      normalized.addAll(Map<String, dynamic>.from(extras));
+    }
+
+    return normalized;
+  }
+
+  Map<String, dynamic> _delocalizeProduct(Map<String, dynamic> source) {
+    final normalized = <String, dynamic>{};
+    void put(String key, dynamic value) {
+      if (value == null) return;
+      normalized[key] = value;
+    }
+
+    put('name', source['Ürün Adı'] ?? source['urunAdi'] ?? source['ad']);
+    put('quantity', source['Miktar'] ?? source['miktar']);
+    put('unitPrice', source['Birim Fiyat'] ?? source['birimFiyat']);
+    put('lineTotal', source['Satır Toplamı'] ?? source['satirToplami']);
+
+    final extras = source['Ek Bilgi'] ?? source['diger'];
+    if (extras is Map) {
+      normalized.addAll(Map<String, dynamic>.from(extras));
+    }
+
+    return normalized;
+  }
 }
 
 class _ItemState {
@@ -406,7 +622,10 @@ class _ItemState {
   /// Last backend error (if any).
   String? lastError;
 
-  /// Parsed receipt map (null if not available)
+  /// Original receipt payload from backend
+  Map<String, dynamic>? rawReceipt;
+
+  /// Localized receipt map (null if not available)
   Map<String, dynamic>? receipt;
 
   /// Editor controller (holds pretty JSON or message)

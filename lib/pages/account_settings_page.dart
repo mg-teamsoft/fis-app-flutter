@@ -18,13 +18,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
   final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
-  final _maskedPasswordController =
-      TextEditingController(text: '********');
+  final _maskedPasswordController = TextEditingController(text: '********');
 
   UserProfile? _user;
   List<PlanOption> _plans = const [];
   String? _selectedPlanKey;
   String? _currentPlanKey;
+  String? _userPlanId;
 
   bool _loading = true;
   bool _updatingPlan = false;
@@ -57,16 +57,17 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       final plans = PlanService.sortPlansWithFreeFirst(
         await _planService.fetchPlans(),
       );
-      final planKey = await _planService.fetchUserPlanKey();
+      final userPlan = await _planService.fetchUserPlanKey();
 
       if (!mounted) return;
       setState(() {
         _user = user;
         _plans = plans;
-        _currentPlanKey =
-            (planKey != null && planKey.isNotEmpty) ? planKey : null;
-        _selectedPlanKey = _currentPlanKey ??
-            (plans.isNotEmpty ? plans.first.planKey : null);
+        _currentPlanKey = userPlan?.planKey ??
+            ((plans.isNotEmpty) ? plans.first.planKey : null);
+        _selectedPlanKey =
+            _currentPlanKey ?? (plans.isNotEmpty ? plans.first.planKey : null);
+        _userPlanId = userPlan?.id;
 
         _emailController.text = user.email;
         _usernameController.text = user.userName;
@@ -86,9 +87,20 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   Future<void> _onUpdatePlan() async {
     final selected = _selectedPlanKey;
     if (selected == null || selected == _currentPlanKey) return;
+    if (_userPlanId == null || _userPlanId!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Güncellenecek kullanıcı planı bulunamadı.'),
+        ),
+      );
+      return;
+    }
     setState(() => _updatingPlan = true);
     try {
-      await _planService.updateUserPlan(selected);
+      await _planService.updateUserPlan(
+        userPlanId: _userPlanId!,
+        planKey: selected,
+      );
       if (!mounted) return;
       setState(() {
         _currentPlanKey = selected;
@@ -141,13 +153,6 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Hesap Ayarları'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-      ),
       body: _buildBody(theme),
     );
   }
@@ -176,7 +181,12 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(20),
         children: [
-          _HeaderSection(user: _user!),
+          Text(
+            'Hesap Ayarları',
+            style: theme.textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w700),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 24),
           _AccountDetailsSection(
             emailController: _emailController,
@@ -212,47 +222,6 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _HeaderSection extends StatelessWidget {
-  const _HeaderSection({required this.user});
-
-  final UserProfile user;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        CircleAvatar(
-          radius: 32,
-          backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12),
-          child: Text(
-            user.displayName.isNotEmpty ? user.displayName[0].toUpperCase() : '?',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.primary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          user.displayName,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          user.email,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
     );
   }
 }
@@ -411,9 +380,8 @@ class _PlanChoiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final borderColor = selected
-        ? theme.colorScheme.primary
-        : theme.colorScheme.outlineVariant;
+    final borderColor =
+        selected ? theme.colorScheme.primary : theme.colorScheme.outlineVariant;
     final background = selected
         ? theme.colorScheme.primary.withValues(alpha: 0.08)
         : theme.colorScheme.surface;

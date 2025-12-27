@@ -6,7 +6,10 @@ class ExcelService {
 
   Future<bool> pushReceipt(String key, Map<String, dynamic> receiptJson) async {
     try {
-      final payload = <String, dynamic>{'key': key, ...receiptJson};
+      final payload = <String, dynamic>{
+        'key': key,
+        'receiptJson': receiptJson,
+      };
       final res = await _api.dio.post('/api/excel/write', data: payload);
       final data = res.data as Map<String, dynamic>;
       return data['status'] == 'success';

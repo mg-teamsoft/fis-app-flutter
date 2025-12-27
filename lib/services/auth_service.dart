@@ -110,7 +110,7 @@ class AuthService {
   Future<String> requestPasswordReset(String email) async {
     try {
       final res = await _api.dio.post(
-        '/api/auth//request-password-reset',
+        '/api/auth/request-password-reset',
         data: {'email': email},
       );
       final data = res.data;
@@ -128,6 +128,30 @@ class AuthService {
       throw Exception(msg ?? 'Şifre sıfırlama isteği başarısız');
     } catch (e) {
       throw Exception(e.toString());
+    }
+  }
+
+  /// Reset password with token + new password
+  Future<AuthResult> resetPassword({
+    required String token,
+    required String password,
+  }) async {
+    try {
+      final res = await _api.dio.post(
+        '/api/auth/reset-password',
+        data: {'token': token, 'password': password},
+      );
+      final data = res.data is Map ? res.data as Map<String, dynamic> : {};
+      final ok = data['status'] == 'success';
+      final msg = data['message']?.toString();
+      return AuthResult(success: ok, message: msg);
+    } on DioException catch (e) {
+      final msg = e.response?.data is Map
+          ? (e.response!.data['message']?.toString() ?? e.message)
+          : e.message;
+      return AuthResult(success: false, message: msg ?? 'Reset password failed');
+    } catch (e) {
+      return AuthResult(success: false, message: e.toString());
     }
   }
 }

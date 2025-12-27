@@ -1,5 +1,6 @@
 import 'package:fis_app_flutter/models/receipt_flow_models.dart';
 import 'package:fis_app_flutter/pages/about_page.dart';
+import 'package:fis_app_flutter/pages/account_settings_page.dart';
 import 'package:fis_app_flutter/pages/excel_files_page.dart';
 import 'package:fis_app_flutter/pages/home_page.dart';
 import 'package:fis_app_flutter/pages/receipt_gallery_page.dart';
@@ -43,6 +44,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/gallery',
     '/excelFiles',
     '/about',
+    '/accountSettings',
     '/settings',
   };
 
@@ -52,6 +54,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/receipt': (_, __) => const ReceiptPage(),
     '/excelFiles': (_, __) => const ExcelFilesPage(),
     '/about': (_, __) => const AboutPage(),
+    '/accountSettings': (_, __) => const AccountSettingsPage(),
     '/gallery': (_, __) => ReceiptGalleryPage(),
     '/settings': (_, __) => const SettingsPage(),
     '/receipt/process': (_, args) {
@@ -114,10 +117,10 @@ class _MainLayoutState extends State<MainLayout> {
       return;
     }
 
-    if (value == '/accountSettings') {
+    /* if (value == '/accountSettings') {
       Navigator.pushNamed(context, '/accountSettings');
       return;
-    }
+    } */
 
     _setCurrentRoute(value);
   }

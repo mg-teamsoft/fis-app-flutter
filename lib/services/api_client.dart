@@ -18,15 +18,27 @@ class ApiClient {
       ),
     );
 
-    // 1) İstek/yanıt logları
+    // 1) İstek/yanıt logları (şifre gibi alanları maskele)
     _dio.interceptors.add(
-      LogInterceptor(
-        request: true,
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: true,
-        responseBody: true,
-        error: true,
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          final maskedBody = _maskSensitive(options.data);
+          // ignore: avoid_print
+          print(
+              '--> ${options.method} ${options.uri}\nHeaders: ${options.headers}\nBody: $maskedBody');
+          handler.next(options);
+        },
+        onResponse: (response, handler) {
+          // ignore: avoid_print
+          print('<-- ${response.statusCode} ${response.requestOptions.uri}');
+          handler.next(response);
+        },
+        onError: (DioException e, handler) {
+          // ignore: avoid_print
+          print(
+              'xxx ${e.response?.statusCode ?? ''} ${e.requestOptions.uri} ${e.message}');
+          handler.next(e);
+        },
       ),
     );
 
@@ -105,5 +117,23 @@ class ApiClient {
     _expCache = null;
     await _storage.delete(key: AuthConfig.tokenKey);
     await _storage.delete(key: AuthConfig.tokenExpKey);
+  }
+
+  dynamic _maskSensitive(dynamic data) {
+    if (data is Map) {
+      final copy = <String, dynamic>{};
+      data.forEach((key, value) {
+        if (key.toLowerCase().contains('password')) {
+          copy[key] = '***';
+        } else {
+          copy[key] = _maskSensitive(value);
+        }
+      });
+      return copy;
+    }
+    if (data is List) {
+      return data.map(_maskSensitive).toList();
+    }
+    return data;
   }
 }
