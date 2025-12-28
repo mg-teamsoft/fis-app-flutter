@@ -29,7 +29,8 @@ class _LoginPageState extends State<LoginPage> {
       // Navigate to your app’s main page (replace with your ReceiptPage etc.)
       Navigator.of(context).pushReplacementNamed('/home');
     } else {
-      setState(() => _error = res.message ?? 'Giriş başarısız');
+      setState(() => _error =
+          'Giriş başarısız. Lütfen bilgilerinizi kontrol edip tekrar deneyin.');
     }
   }
 
@@ -45,63 +46,66 @@ class _LoginPageState extends State<LoginPage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Giriş Yap')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _userCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Kullanıcı Adı',
-                prefixIcon: Icon(Icons.person),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _userCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Kullanıcı Adı',
+                  prefixIcon: Icon(Icons.person),
+                ),
+                textInputAction: TextInputAction.next,
               ),
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _passCtrl,
-              decoration: InputDecoration(
-                labelText: 'Şifre',
-                prefixIcon: const Icon(Icons.lock),
-                suffixIcon: IconButton(
-                  icon:
-                      Icon(_obscure ? Icons.visibility : Icons.visibility_off),
-                  onPressed: () => setState(() => _obscure = !_obscure),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _passCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Şifre',
+                  prefixIcon: const Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                        _obscure ? Icons.visibility : Icons.visibility_off),
+                    onPressed: () => setState(() => _obscure = !_obscure),
+                  ),
+                ),
+                obscureText: _obscure,
+                onSubmitted: (_) => _handleLogin(),
+              ),
+              const SizedBox(height: 16),
+              if (_error != null)
+                Text(_error!,
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: theme.colorScheme.error)),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _loading ? null : _handleLogin,
+                  child: _loading
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Giriş'),
                 ),
               ),
-              obscureText: _obscure,
-              onSubmitted: (_) => _handleLogin(),
-            ),
-            const SizedBox(height: 16),
-            if (_error != null)
-              Text(_error!,
-                  style: theme.textTheme.bodyMedium
-                      ?.copyWith(color: theme.colorScheme.error)),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _loading ? null : _handleLogin,
-                child: _loading
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Giriş'),
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pushReplacementNamed('/register'),
+                child: const Text('Hesap Oluştur'),
               ),
-            ),
-            TextButton(
-              onPressed: () =>
-                  Navigator.of(context).pushReplacementNamed('/register'),
-              child: const Text('Hesap Oluştur'),
-            ),
-            TextButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed('/forgotPassword'),
-              child: const Text('Şifremi Unuttum'),
-            ),
-          ],
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pushNamed('/forgotPassword'),
+                child: const Text('Şifremi Unuttum'),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
