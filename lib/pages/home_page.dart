@@ -87,6 +87,9 @@ class _HomeHeader extends StatelessWidget {
         ? currencyFormatter.format(summary.monthlyLimitAmount)
         : '—';
     final percentageText = _buildPercentageText(summary, hasMonthlyLimit);
+    final usageFraction = hasMonthlyLimit && summary.monthlyLimitAmount > 0
+        ? (summary.totalSpent / summary.monthlyLimitAmount).clamp(0.0, 1.5)
+        : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,6 +121,12 @@ class _HomeHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         _SummaryRow(title: 'Oran %', value: percentageText),
+        const SizedBox(height: 16),
+        _UsageChart(
+          title: '',
+          value: usageFraction,
+          hasLimit: hasMonthlyLimit,
+        ),
       ],
     );
   }
@@ -129,6 +138,162 @@ class _HomeHeader extends StatelessWidget {
     if (!raw.isFinite) return '—';
     final roundedUp = raw.ceil();
     return '$roundedUp%';
+  }
+}
+
+class _UsageChart extends StatelessWidget {
+  const _UsageChart({
+    required this.title,
+    required this.value,
+    required this.hasLimit,
+  });
+
+  final String title;
+  final double value; // 0.0 -> 1.5 (allowing slight overflow visualization)
+  final bool hasLimit;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final clamped = value.clamp(0.0, 1.5);
+    final fillColor =
+        Color.lerp(Colors.yellow, Colors.red, clamped.clamp(0.0, 1.0));
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.colorScheme.outlineVariant, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.shadow.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (title.isNotEmpty) ...[
+            Text(
+              title,
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 10),
+          ],
+          if (!hasLimit)
+            Text(
+              'Aylık limit tanımlı değil.',
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceVariant,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final fillWidth =
+                                  constraints.maxWidth * clamped.clamp(0.0, 1.0);
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                width: fillWidth,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.yellow.shade500,
+                                      Colors.green.shade500,
+                                      Colors.red.shade500,
+                                    ],
+                                    stops: const [0.0, 0.55, 1.0],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 6,
+                  children: const [
+                    _LegendChip(label: 'Düşük', color: Colors.yellow),
+                    _LegendChip(label: 'Orta', color: Colors.green),
+                    _LegendChip(label: 'Yüksek', color: Colors.red),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                if (clamped > 1.0)
+                  Text(
+                    'Limit aşıldı, yeni fişler için dikkatli olun.',
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: theme.colorScheme.error),
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LegendChip extends StatelessWidget {
+  const _LegendChip({required this.label, required this.color});
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: color.withOpacity(0.9),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
