@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import '../services/receipt_service.dart';
 
@@ -13,6 +15,7 @@ class ReceiptPage extends StatefulWidget {
 class _ReceiptPageState extends State<ReceiptPage> {
   final _picker = ImagePicker();
   List<XFile> _picked = [];
+  final Map<String, Future<Uint8List>> _bytesCache = {};
 
   Future<void> _pickMultiGallery() async {
     final files = await _picker.pickMultiImage(imageQuality: 90);
@@ -152,13 +155,34 @@ class _ReceiptPageState extends State<ReceiptPage> {
                           childAspectRatio: 1,
                         ),
                         itemCount: _picked.length,
-                        itemBuilder: (_, i) => ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.file(
-                            File(_picked[i].path),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        itemBuilder: (_, i) {
+                          final file = _picked[i];
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: kIsWeb
+                                ? FutureBuilder<Uint8List>(
+                                    future: _bytesCache.putIfAbsent(
+                                      file.path,
+                                      () => file.readAsBytes(),
+                                    ),
+                                    builder: (context, snap) {
+                                      if (!snap.hasData) {
+                                        return const Center(
+                                            child:
+                                                CircularProgressIndicator());
+                                      }
+                                      return Image.memory(
+                                        snap.data!,
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  )
+                                : Image.file(
+                                    File(file.path),
+                                    fit: BoxFit.cover,
+                                  ),
+                          );
+                        },
                       ),
               ),
             ],

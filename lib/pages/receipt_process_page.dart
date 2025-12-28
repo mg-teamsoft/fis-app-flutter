@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:fis_app_flutter/models/receipt_flow_models.dart';
 import 'package:fis_app_flutter/utils/checksum_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import '../services/s3_upload_service.dart';
@@ -26,6 +27,7 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
   final _s3 = S3UploadService();
   final _jobs = JobService();
   bool _processing = false;
+  final Map<String, Future<Uint8List>> _bytesCache = {};
 
   Future<void> _process() async {
     setState(() => _processing = true);
@@ -133,13 +135,33 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
                   mainAxisSpacing: 8,
                   crossAxisSpacing: 8,
                 ),
-                itemBuilder: (_, i) => ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    File(widget.files[i].path),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                itemBuilder: (_, i) {
+                  final file = widget.files[i];
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: kIsWeb
+                        ? FutureBuilder<Uint8List>(
+                            future: _bytesCache.putIfAbsent(
+                              file.path,
+                              () => file.readAsBytes(),
+                            ),
+                            builder: (context, snap) {
+                              if (!snap.hasData) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+                              return Image.memory(
+                                snap.data!,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          )
+                        : Image.file(
+                            File(file.path),
+                            fit: BoxFit.cover,
+                          ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 12),

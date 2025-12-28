@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+import 'dart:typed_data';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:photo_view/photo_view.dart';
 
 import '../models/receipt_flow_models.dart';
 import '../services/job_service.dart';
@@ -22,6 +26,9 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
   final _excel = ExcelService();
   bool _submitting = false;
   bool? _hasSuccessfulSubmission;
+  bool _showOnlySelected = false;
+  final Map<String, Future<Uint8List>> _bytesCache = {};
+  late final List<SelectedItem> _items;
 
   /// Per-item UI + polling state
   final Map<String, _ItemState> _state = {}; // key: jobId
@@ -31,7 +38,8 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
   @override
   void initState() {
     super.initState();
-    for (final it in widget.items) {
+    _items = widget.items.where((it) => it.jobId != null).toList();
+    for (final it in _items) {
       if (it.jobId == null) continue;
       _state[it.jobId!] = _ItemState(item: it);
     }
@@ -120,6 +128,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         s.active = false;
         s.countdown = 0;
         s.receipt = localizedReceipt;
+        s.selected ??= localizedReceipt != null;
 
         final editorText = (localizedReceipt != null)
             ? const JsonEncoder.withIndent('  ').convert(localizedReceipt)
@@ -136,6 +145,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         s.active = false;
         s.countdown = 0;
         s.receipt = localizedReceipt;
+        s.selected ??= false;
 
         // Prepare / update the editable text box content
         final editorText = (localizedReceipt != null)
@@ -160,6 +170,25 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
     if (mounted) setState(() {});
   }
 
+  void _removeItem(SelectedItem it) {
+    final jobId = it.jobId;
+    if (jobId != null && _state.containsKey(jobId)) {
+      _state[jobId]?.controller?.dispose();
+      _state[jobId]?.photoController?.dispose();
+      _state.remove(jobId);
+    }
+    setState(() {
+      _items.removeWhere((x) => x.jobId == jobId);
+    });
+  }
+
+  void _rotateImage(_ItemState s) {
+    s.photoController ??= PhotoViewController();
+    s.rotationDeg = (s.rotationDeg + 90) % 360;
+    s.photoController!.rotation = s.rotationDeg * math.pi / 180;
+    setState(() {});
+  }
+
   Future<void> _approveAll() async {
     if (_submitting) return; // already running
     setState(() {
@@ -174,6 +203,11 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
 
     for (final entry in _state.entries) {
       final s = entry.value;
+
+      // Respect user selection; default to selected if receipt exists
+      final isSelected = s.selected ?? (s.receipt != null);
+      if (!isSelected) continue;
+
       // Only try if we have an editor with JSON content
       final ctrl = s.controller;
       if (ctrl == null) continue;
@@ -236,10 +270,36 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final items = widget.items.where((it) => it.jobId != null).toList();
+    final items = _items.where((it) {
+      final jobId = it.jobId;
+      if (jobId == null) return false;
+      if (!_showOnlySelected) return true;
+      final s = _state[jobId];
+      return (s?.selected ?? s?.receipt != null);
+    }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Sonuçlar')),
+      appBar: AppBar(
+        title: const Text('Sonuçlar'),
+        actions: [
+          IconButton(
+            tooltip: _showOnlySelected
+                ? 'Tüm fişleri göster'
+                : 'Sadece seçilenleri göster',
+            icon: Icon(
+              Icons.filter_list,
+              color: _showOnlySelected
+                  ? Theme.of(context).colorScheme.primary
+                  : null,
+            ),
+            onPressed: () {
+              setState(() {
+                _showOnlySelected = !_showOnlySelected;
+              });
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -249,45 +309,119 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                 itemCount: items.length,
                 itemBuilder: (_, i) {
                   final it = items[i];
-                  final s = _state[it.jobId] ?? _ItemState(item: it); // safety
+                  final jobId = it.jobId!;
+                  final s = _state.putIfAbsent(jobId, () => _ItemState(item: it));
                   final wide = MediaQuery.of(context).size.width > 700;
+                  final isSelected = s.selected ?? (s.receipt != null);
+                  final submitted = _hasSuccessfulSubmission == true;
+                  final controller = s.photoController ??= PhotoViewController();
 
                   final image = ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: InteractiveViewer(
-                      panEnabled: true,
-                      minScale: 1.0,
-                      maxScale: 5.0,
-                      child: Image.file(
-                        File(it.file.path),
-                        fit: BoxFit.contain,
-                      ),
-                    ),
+                    child: kIsWeb
+                        ? FutureBuilder<Uint8List>(
+                            future: _bytesCache.putIfAbsent(
+                              it.file.path,
+                              () => it.file.readAsBytes(),
+                            ),
+                            builder: (context, snap) {
+                              if (!snap.hasData) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                              return PhotoView(
+                                imageProvider: MemoryImage(snap.data!),
+                                controller: controller,
+                                backgroundDecoration:
+                                    const BoxDecoration(color: Colors.transparent),
+                                minScale:
+                                    PhotoViewComputedScale.contained * 0.95,
+                                maxScale:
+                                    PhotoViewComputedScale.covered * 4.0,
+                                basePosition: Alignment.center,
+                                tightMode: true,
+                              );
+                            },
+                          )
+                        : PhotoView(
+                            imageProvider: FileImage(File(it.file.path)),
+                            controller: controller,
+                            backgroundDecoration:
+                                const BoxDecoration(color: Colors.transparent),
+                            minScale: PhotoViewComputedScale.contained * 0.95,
+                            maxScale: PhotoViewComputedScale.covered * 4.0,
+                            basePosition: Alignment.center,
+                            tightMode: true,
+                          ),
                   );
 
-                  final editor = _buildEditorArea(context, s);
+                  final editor = _buildEditorArea(context, s, submitted: submitted);
+                  final showControls = !submitted;
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    child: wide
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: AspectRatio(
-                                    aspectRatio: 3 / 4, child: image),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            if (showControls) ...[
+                              Checkbox(
+                                value: isSelected,
+                                onChanged: (v) {
+                                  setState(() {
+                                    s.selected = v ?? false;
+                                  });
+                                },
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(child: editor),
+                              const SizedBox(width: 8),
                             ],
-                          )
-                        : Column(
-                            children: [
-                              AspectRatio(aspectRatio: 3 / 4, child: image),
-                              const SizedBox(height: 12),
-                              editor,
-                            ],
-                          ),
+                            Expanded(
+                              child: Text(
+                                'Fiş ${i + 1}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Döndür',
+                              onPressed: () => _rotateImage(s),
+                              icon: const Icon(Icons.rotate_right),
+                            ),
+                            if (showControls)
+                              IconButton(
+                                tooltip: 'Sil',
+                                onPressed: () => _removeItem(it),
+                                icon: const Icon(Icons.delete_outline),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        wide
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: AspectRatio(
+                                        aspectRatio: 3 / 4, child: image),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(child: editor),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  AspectRatio(
+                                      aspectRatio: 3 / 4, child: image),
+                                  const SizedBox(height: 12),
+                                  editor,
+                                ],
+                              ),
+                      ],
+                    ),
                   );
                 },
               ),
@@ -335,7 +469,8 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
     );
   }
 
-  Widget _buildEditorArea(BuildContext context, _ItemState s) {
+  Widget _buildEditorArea(BuildContext context, _ItemState s,
+      {required bool submitted}) {
     final theme = Theme.of(context);
     final surface =
         theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
@@ -387,6 +522,8 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                           : 'can not read receipt data',
                     )),
                 maxLines: 18,
+                readOnly: submitted,
+                enabled: !submitted,
                 style: const TextStyle(fontFamily: 'monospace'),
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -609,9 +746,14 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
 class _ItemState {
   _ItemState({required this.item});
   final SelectedItem item;
+  PhotoViewController? photoController;
+  double rotationDeg = 0;
 
   /// Job status: 'pending' | StatusType.processing.name | StatusType.done.name | StatusType.failed.name …
   String status = StatusType.processing.name;
+
+  /// Whether this item is selected for submission (null means "decide from data")
+  bool? selected;
 
   /// 10-second countdown until next poll.
   int countdown = 10;

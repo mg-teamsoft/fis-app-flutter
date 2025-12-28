@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import '../services/receipt_service.dart';
 import '../services/upload_service.dart';
@@ -13,13 +15,23 @@ class GalleryUploadPage extends StatefulWidget {
 
 class _GalleryUploadPageState extends State<GalleryUploadPage> {
   XFile? _picked;
+  Uint8List? _pickedBytes;
   bool _uploading = false;
   final _uploader = UploadService();
 
   Future<void> _pick() async {
     final file = await ReceiptService.pickFromGallery(context);
+    Uint8List? bytes;
+
+    if (kIsWeb && file != null) {
+      bytes = await file.readAsBytes();
+    }
+
     if (!mounted) return;
-    setState(() => _picked = file);
+    setState(() {
+      _picked = file;
+      _pickedBytes = bytes;
+    });
     if (file == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Herhangi bir görsel seçilmedi')),
@@ -43,7 +55,11 @@ class _GalleryUploadPageState extends State<GalleryUploadPage> {
 
   @override
   Widget build(BuildContext context) {
-    final img = _picked != null ? Image.file(File(_picked!.path)) : null;
+    final img = _picked != null
+        ? kIsWeb
+            ? (_pickedBytes != null ? Image.memory(_pickedBytes!) : null)
+            : Image.file(File(_picked!.path))
+        : null;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Galeriden Yükle')),
