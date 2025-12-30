@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -83,217 +85,154 @@ class _HomeHeader extends StatelessWidget {
         NumberFormat.currency(locale: 'tr_TR', symbol: '₺');
     final totalSpentText = currencyFormatter.format(summary.totalSpent);
     final hasMonthlyLimit = summary.monthlyLimitAmount > 0;
-    final monthlyLimitText = hasMonthlyLimit
-        ? currencyFormatter.format(summary.monthlyLimitAmount)
-        : '—';
-    final percentageText = _buildPercentageText(summary, hasMonthlyLimit);
     final usageFraction = hasMonthlyLimit && summary.monthlyLimitAmount > 0
-        ? (summary.totalSpent / summary.monthlyLimitAmount).clamp(0.0, 1.5)
+        ? (summary.totalSpent / summary.monthlyLimitAmount).clamp(0.0, 1.2)
         : 0.0;
+    final percentageText = hasMonthlyLimit
+        ? '${(usageFraction * 100).clamp(0, 120).round()}%'
+        : '—';
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Toplam Tutar',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                totalSpentText,
-                style:
-                    const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-              ),
-            ],
+          child: Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: const Icon(Icons.play_arrow_rounded,
+                color: Colors.blue, size: 34),
           ),
         ),
-        const SizedBox(height: 16),
-        _SummaryRow(title: 'Aylık Limit', value: monthlyLimitText),
-        const SizedBox(height: 8),
-        _SummaryRow(
-          title: 'Kullanım',
-          value:
-              summary.limitUsageText.isNotEmpty ? summary.limitUsageText : '—',
+        const SizedBox(height: 18),
+        const Text(
+          'Toplam Bakiye',
+          style: TextStyle(fontSize: 17, color: Colors.grey),
         ),
-        const SizedBox(height: 8),
-        _SummaryRow(title: 'Oran %', value: percentageText),
-        const SizedBox(height: 16),
-        _UsageChart(
-          title: '',
-          value: usageFraction,
+        const SizedBox(height: 6),
+        Text(
+          totalSpentText,
+          style: const TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 18),
+        _TargetProgressRing(
+          progress: usageFraction,
+          percentageText: percentageText,
           hasLimit: hasMonthlyLimit,
+          limitText: hasMonthlyLimit
+              ? currencyFormatter.format(summary.monthlyLimitAmount)
+              : 'Limit tanımlı değil',
         ),
       ],
     );
   }
-
-  String _buildPercentageText(HomeSummary summary, bool hasMonthlyLimit) {
-    if (!hasMonthlyLimit) return '—';
-    if (summary.monthlyLimitAmount == 0) return '—';
-    final raw = (summary.totalSpent / summary.monthlyLimitAmount) * 100;
-    if (!raw.isFinite) return '—';
-    final roundedUp = raw.ceil();
-    return '$roundedUp%';
-  }
 }
 
-class _UsageChart extends StatelessWidget {
-  const _UsageChart({
-    required this.title,
-    required this.value,
+class _TargetProgressRing extends StatelessWidget {
+  const _TargetProgressRing({
+    required this.progress,
+    required this.percentageText,
     required this.hasLimit,
+    required this.limitText,
   });
 
-  final String title;
-  final double value; // 0.0 -> 1.5 (allowing slight overflow visualization)
+  final double progress; // 0.0 -> 1.2 (slight overflow allowed)
+  final String percentageText;
   final bool hasLimit;
+  final String limitText;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final clamped = value.clamp(0.0, 1.5);
-    final fillColor =
-        Color.lerp(Colors.yellow, Colors.red, clamped.clamp(0.0, 1.0));
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outlineVariant, width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.shadow.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (title.isNotEmpty) ...[
-            Text(
-              title,
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 10),
-          ],
-          if (!hasLimit)
-            Text(
-              'Aylık limit tanımlı değil.',
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surfaceVariant,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final fillWidth =
-                                  constraints.maxWidth * clamped.clamp(0.0, 1.0);
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                width: fillWidth,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.yellow.shade500,
-                                      Colors.green.shade500,
-                                      Colors.red.shade500,
-                                    ],
-                                    stops: const [0.0, 0.55, 1.0],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 6,
-                  children: const [
-                    _LegendChip(label: 'Düşük', color: Colors.yellow),
-                    _LegendChip(label: 'Orta', color: Colors.green),
-                    _LegendChip(label: 'Yüksek', color: Colors.red),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                if (clamped > 1.0)
+    final clamped = progress.clamp(0.0, 1.2);
+    return Column(
+      children: [
+        SizedBox(
+          height: 180,
+          width: 180,
+          child: CustomPaint(
+            painter: _RingPainter(progress: clamped.toDouble()),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Text(
-                    'Limit aşıldı, yeni fişler için dikkatli olun.',
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.colorScheme.error),
+                    percentageText,
+                    style: const TextStyle(
+                        fontSize: 28, fontWeight: FontWeight.w800),
                   ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    hasLimit ? 'Hedef' : 'Limit yok',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
+                  ),
+                ],
+              ),
             ),
-        ],
-      ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          limitText,
+          style: TextStyle(color: Colors.grey.shade600),
+        ),
+      ],
     );
   }
 }
 
-class _LegendChip extends StatelessWidget {
-  const _LegendChip({required this.label, required this.color});
-  final String label;
-  final Color color;
+class _RingPainter extends CustomPainter {
+  _RingPainter({required this.progress});
+
+  final double progress; // 0.0 -> 1.2
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.4)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: color.withOpacity(0.9),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
+  void paint(Canvas canvas, Size size) {
+    const strokeWidth = 14.0;
+    final rect = Offset(strokeWidth / 2, strokeWidth / 2) &
+        Size(size.width - strokeWidth, size.height - strokeWidth);
+
+    final backgroundPaint = Paint()
+      ..color = const Color(0xFFE8EDF4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+    canvas.drawArc(rect, -math.pi / 2, 2 * math.pi, false, backgroundPaint);
+
+    if (progress <= 0) return;
+    final sweep = 2 * math.pi * progress.clamp(0.0, 1.0);
+
+    final gradient = SweepGradient(
+      startAngle: -math.pi / 2,
+      endAngle: (3 * math.pi) / 2,
+      colors: const [
+        Color(0xFF4CAF50),
+        Color(0xFFFFC107),
+        Color(0xFFF44336),
+      ],
+      stops: const [0.0, 0.65, 1.0],
     );
+
+    final foregroundPaint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(rect, -math.pi / 2, sweep, false, foregroundPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _RingPainter oldDelegate) {
+    return oldDelegate.progress != progress;
   }
 }
 
@@ -431,41 +370,6 @@ class _InvoiceItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       tileColor: theme.colorScheme.surface,
-    );
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({required this.title, required this.value});
-
-  final String title;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
     );
   }
 }
