@@ -1,4 +1,6 @@
+import 'package:fis_app_flutter/providers/user_plan_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -26,6 +28,15 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _loading = false);
 
     if (res.success) {
+      // ✅ Safe call: token is already saved by AuthService.login()
+      try {
+        await context.read<UserPlanProvider>().loadMyPlan();
+      } catch (_) {
+        // Optional: ignore & continue, or show a soft warning.
+      }
+
+      if (!mounted) return;
+
       // Navigate to your app’s main page (replace with your ReceiptPage etc.)
       Navigator.of(context).pushReplacementNamed('/home');
     } else {

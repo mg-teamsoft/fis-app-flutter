@@ -15,6 +15,7 @@ class ReceiptPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 final file = await ReceiptService.pickFromGallery(context);
+                if (!context.mounted) return;
                 if (file != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("Galeriden seçildi: ${file.path}")),
@@ -27,6 +28,7 @@ class ReceiptPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 final file = await ReceiptService.captureWithCamera(context);
+                if (!context.mounted) return;
                 if (file != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("Kameradan çekildi: ${file.path}")),

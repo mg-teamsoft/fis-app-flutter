@@ -162,7 +162,12 @@ class _ReceiptImage extends StatelessWidget {
               child: Image.network(
                 imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const _ImagePlaceholder(),
+                errorBuilder: (_, error, __) {
+                  debugPrint(
+                    'Receipt image load failed. url=$imageUrl error=$error',
+                  );
+                  return const _ImagePlaceholder();
+                },
               ),
             )
           : const _ImagePlaceholder(),

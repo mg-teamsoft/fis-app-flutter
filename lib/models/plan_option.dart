@@ -7,10 +7,14 @@ class PlanOption {
     required this.priceLabel,
     required this.billingCycle,
     required this.priceAmount,
+    required this.currency,
     required this.period,
     required this.quota,
     required this.isPopular,
     required this.badge,
+    required this.storeIds,
+    required this.productType,
+    required this.active,
   });
 
   final String id;
@@ -20,10 +24,14 @@ class PlanOption {
   final String priceLabel;
   final String billingCycle;
   final double? priceAmount;
+  final String currency;
   final String period;
   final int? quota;
   final bool isPopular;
   final String? badge;
+  final Map<String, String> storeIds;
+  final String? productType;
+  final bool active;
   bool get isFreePlan =>
       planKey.toLowerCase().contains('free') ||
       priceAmount == null ||
@@ -31,11 +39,34 @@ class PlanOption {
 
   factory PlanOption.fromJson(Map<String, dynamic> json) {
     String readString(String key) => json[key]?.toString().trim() ?? '';
+    bool readBool(String key) {
+      final value = json[key];
+      if (value is bool) return value;
+      if (value == null) return false;
+      final normalized = value.toString().toLowerCase();
+      return normalized == 'true' || normalized == '1';
+    }
 
     double? readDouble(String key) {
       final value = json[key];
       if (value is num) return value.toDouble();
       return double.tryParse(value?.toString() ?? '');
+    }
+
+    Map<String, String> readStringMap(String key) {
+      final value = json[key];
+      if (value is Map) {
+        final mapped = <String, String>{};
+        value.forEach((k, v) {
+          final mappedKey = k?.toString().trim() ?? '';
+          final mappedValue = v?.toString().trim() ?? '';
+          if (mappedKey.isNotEmpty && mappedValue.isNotEmpty) {
+            mapped[mappedKey] = mappedValue;
+          }
+        });
+        return mapped;
+      }
+      return const {};
     }
 
     String currencySymbolFor(String currency) {
@@ -106,6 +137,9 @@ class PlanOption {
         : readString('description');
 
     final badge = json['badge']?.toString();
+    final storeIds = readStringMap('storeIds');
+    final productType = readString('productType');
+    final active = readBool('active') || readBool('isActive');
 
     return PlanOption(
       id: id,
@@ -115,11 +149,15 @@ class PlanOption {
       priceLabel: formattedPrice,
       billingCycle: billingCycle,
       priceAmount: priceValue,
+      currency: currency,
       period: rawPeriod,
       quota: int.tryParse(readString('quota')),
       isPopular: json['isPopular'] == true ||
           readString('tag').toLowerCase() == 'popular',
       badge: (badge != null && badge.trim().isNotEmpty) ? badge.trim() : null,
+      storeIds: storeIds,
+      productType: productType.isNotEmpty ? productType : null,
+      active: active,
     );
   }
 }

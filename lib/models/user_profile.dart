@@ -6,6 +6,7 @@ class UserProfile {
     required this.displayName,
     required this.emailVerified,
     this.phoneNumber,
+    this.createdAt,
   });
 
   final String id;
@@ -14,6 +15,7 @@ class UserProfile {
   final String displayName;
   final bool emailVerified;
   final String? phoneNumber;
+  final DateTime? createdAt;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     String readString(String key) => json[key]?.toString().trim() ?? '';
@@ -46,6 +48,11 @@ class UserProfile {
       phoneNumber: readString('phoneNumber').isNotEmpty
           ? readString('phoneNumber')
           : null,
+      createdAt: DateTime.tryParse(
+        readString('createdAt').isNotEmpty
+            ? readString('createdAt')
+            : readString('created_at'),
+      ),
     );
   }
 }

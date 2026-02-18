@@ -44,7 +44,10 @@ class PlanService {
       );
       final id =
           (activePlan['_id'] ?? activePlan['id'])?.toString().trim() ?? '';
-      final planKey = activePlan['planKey']?.toString().trim() ?? '';
+      final planKey =
+          activePlan['planKey']?.toString().trim() ??
+          activePlan['key']?.toString().trim() ??
+          '';
       if (id.isEmpty || planKey.isEmpty) return null;
       return UserPlanSummary(
         id: id,

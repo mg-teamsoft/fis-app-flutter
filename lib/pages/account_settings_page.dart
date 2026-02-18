@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../models/plan_option.dart';
 import '../models/user_profile.dart';
+import '../providers/purchase_provider.dart';
+import '../providers/user_plan_provider.dart';
 import '../services/plan_service.dart';
 import '../services/user_service.dart';
 
@@ -12,15 +17,20 @@ class AccountSettingsPage extends StatefulWidget {
   State<AccountSettingsPage> createState() => _AccountSettingsPageState();
 }
 
+const fallbackProductIds = <String>{
+  'com.myfisapp.sub.monthly100',
+  'com.myfisapp.sub.yearly1200',
+  'com.myfisapp.consumable.100scans',
+};
+
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
   final _userService = UserService();
   final _planService = PlanService();
 
-  final _emailController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _maskedPasswordController = TextEditingController(text: '********');
-
   UserProfile? _user;
+  List<PlanOption> _allPlans = const [];
+  List<PlanOption> _subscriptionPlans = const [];
+  PlanOption? _currentPlan;
   List<PlanOption> _plans = const [];
   String? _selectedPlanKey;
   String? _currentPlanKey;
@@ -30,19 +40,12 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   bool _updatingPlan = false;
   bool _resendingVerification = false;
   String? _error;
+  bool _iapInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _loadAll();
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _usernameController.dispose();
-    _maskedPasswordController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadAll() async {
@@ -54,24 +57,49 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
     try {
       final user = await _userService.fetchCurrentUser();
-      final plans = PlanService.sortPlansWithFreeFirst(
-        await _planService.fetchPlans(),
-      );
+      final fetchedPlans = await _planService.fetchPlans();
+      final sortedAllPlans = PlanService.sortPlansWithFreeFirst(fetchedPlans);
+      final subscriptionPlans = sortedAllPlans.where((plan) {
+        return (plan.productType ?? '').toLowerCase() == 'subscription' &&
+            plan.active;
+      }).toList();
       final userPlan = await _planService.fetchUserPlanKey();
 
       if (!mounted) return;
       setState(() {
         _user = user;
-        _plans = plans;
-        _currentPlanKey = userPlan?.planKey ??
-            ((plans.isNotEmpty) ? plans.first.planKey : null);
-        _selectedPlanKey =
-            _currentPlanKey ?? (plans.isNotEmpty ? plans.first.planKey : null);
-        _userPlanId = userPlan?.id;
+        final up = Provider.of<UserPlanProvider?>(context, listen: false);
+        _currentPlanKey = up?.planKey ??
+            userPlan?.planKey ??
+            (subscriptionPlans.isNotEmpty
+                ? subscriptionPlans.first.planKey
+                : null);
+        _currentPlan = sortedAllPlans
+                .where((plan) => plan.planKey == _currentPlanKey)
+                .isNotEmpty
+            ? sortedAllPlans
+                .firstWhere((plan) => plan.planKey == _currentPlanKey)
+            : null;
+        _allPlans = sortedAllPlans
+            .where((plan) => plan.planKey != _currentPlanKey)
+            .toList();
+        _subscriptionPlans = subscriptionPlans;
+        _plans = subscriptionPlans
+            .where((plan) => plan.planKey != _currentPlanKey)
+            .toList();
+        debugPrint('Current plan key: $_currentPlanKey');
+        debugPrint(
+            'Available plans: ${_plans.map((p) => p.planKey).join(', ')}');
 
-        _emailController.text = user.email;
-        _usernameController.text = user.userName;
+        _selectedPlanKey = null;
+        _userPlanId = userPlan?.id;
       });
+
+      if (!_iapInitialized) {
+        final pp = Provider.of<PurchaseProvider>(context, listen: false);
+        await pp.init(_productIdsFromPlans());
+        _iapInitialized = true;
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = e.toString());
@@ -84,34 +112,237 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
   Future<void> _onRefresh() => _loadAll();
 
-  Future<void> _onUpdatePlan() async {
-    final selected = _selectedPlanKey;
-    if (selected == null || selected == _currentPlanKey) return;
-    if (_userPlanId == null || _userPlanId!.isEmpty) {
+  String? _productIdForPlanKey(String planKey) {
+    switch (planKey) {
+      case 'MONTHLY_100':
+        return 'com.myfisapp.sub.monthly100';
+      case 'YEARLY_1200':
+        return 'com.myfisapp.sub.yearly1200';
+      case 'ADDITIONAL_100':
+        return 'com.myfisapp.consumable.100scans';
+      default:
+        return null;
+    }
+  }
+
+  String? _productIdForPlan(PlanOption plan) {
+    if (plan.storeIds.isNotEmpty) {
+      final match = plan.storeIds.entries.firstWhere(
+        (entry) {
+          final key = entry.key.toLowerCase();
+          return key.contains('apple') ||
+              key.contains('ios') ||
+              key.contains('appstore') ||
+              key.contains('storekit');
+        },
+        orElse: () => const MapEntry('', ''),
+      );
+      if (match.value.isNotEmpty) {
+        return match.value;
+      }
+    }
+    return _productIdForPlanKey(plan.planKey);
+  }
+
+  Set<String> _productIdsFromPlans() {
+    final ids = <String>{};
+    for (final plan in _allPlans) {
+      final id = _productIdForPlan(plan);
+      if (id != null && id.isNotEmpty) {
+        ids.add(id);
+      }
+    }
+    return ids.isNotEmpty ? ids : fallbackProductIds;
+  }
+
+  List<PlanOption> _availablePlansForCurrent(String? currentPlanKey) {
+    return _subscriptionPlans
+        .where((plan) => plan.planKey != currentPlanKey)
+        .toList();
+  }
+
+  PlanOption? _findPlanByKey(String? key) {
+    if (key == null) return null;
+    for (final plan in _allPlans) {
+      if (plan.planKey == key) return plan;
+    }
+    return null;
+  }
+
+  PlanOption? get _selectedPlan {
+    final key = _selectedPlanKey;
+    if (key == null) return null;
+    for (final plan in _plans) {
+      if (plan.planKey == key) return plan;
+    }
+    return null;
+  }
+
+  PlanOption? get _activePlan {
+    if (_currentPlan != null) return _currentPlan;
+    final current = _findPlanByKey(_currentPlanKey);
+    if (current != null) return current;
+    if (_subscriptionPlans.isNotEmpty) return _subscriptionPlans.first;
+    return _allPlans.isNotEmpty ? _allPlans.first : null;
+  }
+
+  PlanOption? get _additionalPlan {
+    for (final plan in _allPlans) {
+      final key = plan.planKey.toLowerCase();
+      final type = (plan.productType ?? '').toLowerCase();
+      if (key.contains('additional') || type == 'consumable') {
+        return plan;
+      }
+    }
+    return null;
+  }
+
+  Color _availablePlanBackground(int index) {
+    const palette = <Color>[
+      Color(0xFFDCEEFF),
+      Color(0xFFDCF7EA),
+      Color(0xFFFFECD6),
+    ];
+    return palette[index % palette.length];
+  }
+
+  Color _availablePlanBorder(int index) {
+    const palette = <Color>[
+      Color(0xFF84CAFF),
+      Color(0xFF75E0A7),
+      Color(0xFFFDBA74),
+    ];
+    return palette[index % palette.length];
+  }
+
+  Future<void> _buyPlan(
+    PlanOption plan, {
+    required bool syncCurrentPlan,
+  }) async {
+    final pp = Provider.of<PurchaseProvider>(context, listen: false);
+    if (!_iapInitialized) {
+      await pp.init(_productIdsFromPlans());
+      _iapInitialized = true;
+    }
+    if (!mounted) return;
+
+    final productId = _productIdForPlan(plan);
+    if (productId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Güncellenecek kullanıcı planı bulunamadı.'),
-        ),
+        const SnackBar(content: Text('Bu plan bulunamadı.')),
       );
       return;
     }
-    setState(() => _updatingPlan = true);
-    try {
-      await _planService.updateUserPlan(
-        userPlanId: _userPlanId!,
-        planKey: selected,
+
+    ProductDetails? product;
+    for (final p in pp.products) {
+      if (p.id == productId) {
+        product = p;
+        break;
+      }
+    }
+
+    if (product == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Plan App Store\'da mevcut değil.')),
       );
+      return;
+    }
+
+    await pp.buy(product);
+
+    if (!syncCurrentPlan || !mounted) return;
+    final up = Provider.of<UserPlanProvider?>(context, listen: false);
+    if (up != null) {
+      await up.loadMyPlan();
       if (!mounted) return;
       setState(() {
-        _currentPlanKey = selected;
+        _currentPlanKey = up.planKey;
+        _currentPlan = _subscriptionPlans
+                .where((plan) => plan.planKey == _currentPlanKey)
+                .isNotEmpty
+            ? _subscriptionPlans
+                .firstWhere((plan) => plan.planKey == _currentPlanKey)
+            : _currentPlan;
+        _plans = _availablePlansForCurrent(_currentPlanKey);
+        _selectedPlanKey = null;
       });
+    }
+  }
+
+  Future<void> _onUpdatePlan() async {
+    final selected = _selectedPlanKey;
+    if (selected == null || selected == _currentPlanKey) return;
+
+    final selectedPlan = _selectedPlan;
+    if (selectedPlan == null) return;
+
+    setState(() => _updatingPlan = true);
+    try {
+      if (selected == 'FREE') {
+        if (_userPlanId == null || _userPlanId!.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Güncellenecek kullanıcı planı bulunamadı.')),
+          );
+          return;
+        }
+        await _planService.updateUserPlan(
+          userPlanId: _userPlanId!,
+          planKey: selected,
+        );
+
+        if (!mounted) return;
+        setState(() {
+          _currentPlanKey = selected;
+          _currentPlan = null;
+          _plans = _availablePlansForCurrent(_currentPlanKey);
+          _selectedPlanKey = null;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Plan güncellendi.')),
+        );
+        return;
+      }
+
+      await _buyPlan(selectedPlan, syncCurrentPlan: true);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Plan güncellendi')),
+        const SnackBar(content: Text('Plan güncellendi.')),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Plan güncellenemedi: $e')),
+        SnackBar(content: Text('Plan güncelleme başarısız: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _updatingPlan = false);
+      }
+    }
+  }
+
+  Future<void> _onBuyAdditional() async {
+    final plan = _additionalPlan;
+    if (plan == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ek paket mevcut değil.')),
+      );
+      return;
+    }
+
+    setState(() => _updatingPlan = true);
+    try {
+      await _buyPlan(plan, syncCurrentPlan: false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ek kota satın alındı.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Satın alma başarısız: $e')),
       );
     } finally {
       if (mounted) {
@@ -135,7 +366,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       await _userService.resendVerificationEmail(email);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Doğrulama e-postası gönderildi')),
+        const SnackBar(content: Text('Doğrulama e-postası gönderildi.')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -149,76 +380,288 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     }
   }
 
+  void _onResetPassword() {
+    Navigator.of(context).pushNamed('/forgotPassword');
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
-      body: _buildBody(theme),
+      backgroundColor: const Color(0xFFF3F5F7),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF3F5F7),
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Hesap Ayarları',
+          style: TextStyle(
+            color: Color(0xFF101828),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      body: _buildBody(),
     );
   }
 
-  Widget _buildBody(ThemeData theme) {
+  Widget _buildBody() {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
+
     if (_error != null) {
       return _ErrorView(
-        message: 'Veriler alınırken bir sorun oluştu.',
+        message: 'Hesap ayarları yüklenemedi.',
         details: _error,
         onRetry: _loadAll,
       );
     }
+
     if (_user == null) {
       return _ErrorView(
-        message: 'Kullanıcı bilgisi bulunamadı.',
+        message: 'Kullanıcı profili bulunamadı.',
         onRetry: _loadAll,
       );
     }
 
+    final activePlan = _activePlan;
+    final navSpacer = kBottomNavigationBarHeight + 12;
     return RefreshIndicator(
       onRefresh: _onRefresh,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
         children: [
-          Text(
-            'Hesap Ayarları',
-            style: theme.textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w700),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          _AccountDetailsSection(
-            emailController: _emailController,
-            usernameController: _usernameController,
-            passwordController: _maskedPasswordController,
-            isEmailVerified: _user!.emailVerified,
+          _SectionTitle(text: 'Hesap Detayları'),
+          const SizedBox(height: 12),
+          _AccountDetailsCard(
+            user: _user!,
+            resendingVerification: _resendingVerification,
             onResendVerification: _onResendVerification,
-            resending: _resendingVerification,
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: _onResetPassword,
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(56),
+              side: const BorderSide(color: Color(0xFFD0D5DD)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            icon: const Icon(Icons.lock_reset, color: Color(0xFF98A2B3)),
+            label: const Text(
+              'Şifreyi Sıfırla',
+              style: TextStyle(
+                color: Color(0xFF101828),
+                fontWeight: FontWeight.w700,
+                fontSize: 28 / 2,
+              ),
+            ),
           ),
           const SizedBox(height: 24),
-          _PlanSelectionSection(
-            plans: _plans,
-            selectedPlanKey: _selectedPlanKey,
-            currentPlanKey: _currentPlanKey,
-            onSelect: (plan) => setState(() {
-              _selectedPlanKey = plan.planKey;
-            }),
-          ),
+          _SectionTitle(text: 'Aktif Plan'),
+          const SizedBox(height: 12),
+          if (activePlan != null)
+            _ActivePlanCard(
+              plan: activePlan,
+              onBuyAdditional: _updatingPlan ? null : _onBuyAdditional,
+            )
+          else
+            const _EmptyPlanCard(),
           const SizedBox(height: 24),
-          FilledButton(
-            onPressed: (_selectedPlanKey == null ||
-                    _selectedPlanKey == _currentPlanKey ||
-                    _updatingPlan)
-                ? null
-                : _onUpdatePlan,
-            child: _updatingPlan
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Planı Güncelle'),
+          _SectionTitle(text: 'Mevcut Planlar'),
+          const SizedBox(height: 12),
+          if (_plans.isEmpty)
+            const _EmptyPlanCard()
+          else
+            ..._plans.asMap().entries.map(
+              (entry) {
+                final index = entry.key;
+                final plan = entry.value;
+                return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _AvailablePlanTile(
+                  plan: plan,
+                  selected: _selectedPlanKey == plan.planKey,
+                  backgroundColor: _availablePlanBackground(index),
+                  borderColor: _availablePlanBorder(index),
+                  onTap: () => setState(() => _selectedPlanKey = plan.planKey),
+                ),
+              );
+              },
+            ),
+          const SizedBox(height: 18),
+          SizedBox(
+            height: 68,
+            child: ElevatedButton(
+              onPressed: (_selectedPlanKey == null ||
+                      _selectedPlanKey == _currentPlanKey ||
+                      _updatingPlan)
+                  ? null
+                  : _onUpdatePlan,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0E1A3A),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: _updatingPlan
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text(
+                      'Planı Güncelle',
+                      style: TextStyle(
+                          fontSize: 32 / 2, fontWeight: FontWeight.w700),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            'Plan değişiklikleri hemen uygulanır. Mevcut fatura dönemindeki kullanılmayan kota için iade yapılmaz.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Color(0xFF98A2B3),
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(height: navSpacer),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text.toUpperCase(),
+      style: const TextStyle(
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.8,
+        fontSize: 14,
+        color: Color(0xFF475467),
+      ),
+    );
+  }
+}
+
+class _AccountDetailsCard extends StatelessWidget {
+  const _AccountDetailsCard({
+    required this.user,
+    required this.resendingVerification,
+    required this.onResendVerification,
+  });
+
+  final UserProfile user;
+  final bool resendingVerification;
+  final VoidCallback onResendVerification;
+
+  @override
+  Widget build(BuildContext context) {
+    final createdAt = user.createdAt;
+    final createdAtLabel = createdAt != null
+        ? DateFormat('d MMMM yyyy', 'tr_TR').format(createdAt)
+        : '-';
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFD0D5DD)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Kullanıcı Adı',
+              style: TextStyle(color: Color(0xFF667085))),
+          const SizedBox(height: 6),
+          Text(
+            user.userName,
+            style: const TextStyle(
+              color: Color(0xFF101828),
+              fontWeight: FontWeight.w600,
+              fontSize: 32 / 2,
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Divider(height: 1, color: Color(0xFFEAECF0)),
+          const SizedBox(height: 14),
+          const Text('E-posta', style: TextStyle(color: Color(0xFF667085))),
+          const SizedBox(height: 6),
+          Text(
+            user.email,
+            style: const TextStyle(
+              color: Color(0xFF101828),
+              fontWeight: FontWeight.w500,
+              fontSize: 32 / 2,
+            ),
+          ),
+          if (!user.emailVerified) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF6E8),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFF2D7A7)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.warning_amber_rounded,
+                      color: Color(0xFFB54708), size: 18),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'E-posta doğrulanmadı',
+                      style: TextStyle(
+                        color: Color(0xFFB54708),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed:
+                        resendingVerification ? null : onResendVerification,
+                    child: resendingVerification
+                        ? const SizedBox(
+                            height: 14,
+                            width: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Tekrar Gönder'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 14),
+          const Divider(height: 1, color: Color(0xFFEAECF0)),
+          const SizedBox(height: 14),
+          const Text('Hesap Oluşturma',
+              style: TextStyle(color: Color(0xFF667085))),
+          const SizedBox(height: 6),
+          Text(
+            createdAtLabel,
+            style: const TextStyle(
+              color: Color(0xFF101828),
+              fontWeight: FontWeight.w500,
+              fontSize: 32 / 2,
+            ),
           ),
         ],
       ),
@@ -226,322 +669,299 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   }
 }
 
-class _AccountDetailsSection extends StatelessWidget {
-  const _AccountDetailsSection({
-    required this.emailController,
-    required this.usernameController,
-    required this.passwordController,
-    required this.isEmailVerified,
-    required this.onResendVerification,
-    required this.resending,
+class _ActivePlanCard extends StatelessWidget {
+  const _ActivePlanCard({
+    required this.plan,
+    required this.onBuyAdditional,
   });
 
-  final TextEditingController emailController;
-  final TextEditingController usernameController;
-  final TextEditingController passwordController;
-  final bool isEmailVerified;
-  final VoidCallback onResendVerification;
-  final bool resending;
+  final PlanOption plan;
+  final VoidCallback? onBuyAdditional;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Hesap Bilgileri',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: emailController,
-          readOnly: true,
-          showCursor: false,
-          enableInteractiveSelection: false,
-          decoration: const InputDecoration(
-            labelText: 'E-posta',
-            prefixIcon: Icon(Icons.email_outlined),
-          ),
-        ),
-        if (!isEmailVerified) ...[
-          const SizedBox(height: 8),
+    final price = plan.priceLabel;
+    final renewLabel = _renewLabel(plan.period);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF1570EF), width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Text(
-                  'E-posta doğrulanmadı',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.error,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEAF2FF),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: const Text(
+                        'MEVCUT PLAN',
+                        style: TextStyle(
+                          color: Color(0xFF1570EF),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      plan.name,
+                      style: const TextStyle(
+                        color: Color(0xFF101828),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 36 / 2,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${plan.quota ?? 0} fatura/ay  •  $renewLabel',
+                      style: const TextStyle(
+                          color: Color(0xFF667085), fontSize: 28 / 2),
+                    ),
+                  ],
                 ),
               ),
-              TextButton(
-                onPressed: resending ? null : onResendVerification,
-                child: resending
-                    ? const SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Doğrulama Gönder'),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    price,
+                    style: const TextStyle(
+                      color: Color(0xFF101828),
+                      fontWeight: FontWeight.w800,
+                      fontSize: 44 / 2,
+                    ),
+                  ),
+                  const Text(
+                    'aylık',
+                    style: TextStyle(color: Color(0xFF667085)),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-        const SizedBox(height: 16),
-        TextField(
-          controller: usernameController,
-          readOnly: true,
-          showCursor: false,
-          enableInteractiveSelection: false,
-          decoration: const InputDecoration(
-            labelText: 'Kullanıcı Adı',
-            prefixIcon: Icon(Icons.person_outline),
-          ),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: passwordController,
-          readOnly: true,
-          obscureText: true,
-          enableInteractiveSelection: false,
-          showCursor: false,
-          decoration: const InputDecoration(
-            labelText: 'Parola',
-            prefixIcon: Icon(Icons.lock_outline),
-            suffixIcon: Icon(Icons.visibility_off),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _PlanSelectionSection extends StatelessWidget {
-  const _PlanSelectionSection({
-    required this.plans,
-    required this.selectedPlanKey,
-    required this.currentPlanKey,
-    required this.onSelect,
-  });
-
-  final List<PlanOption> plans;
-  final String? selectedPlanKey;
-  final String? currentPlanKey;
-  final void Function(PlanOption) onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Abonelik Planın',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 12),
-        ...plans.map((plan) {
-          final selected = plan.planKey == selectedPlanKey;
-          final isCurrent = plan.planKey == currentPlanKey;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _PlanChoiceTile(
-              plan: plan,
-              selected: selected,
-              isCurrent: isCurrent,
-              onTap: () => onSelect(plan),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: onBuyAdditional,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1570EF),
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              icon: const Icon(Icons.shopping_cart_checkout),
+              label: const Text(
+                'Ek 100 Satın Al',
+                style: TextStyle(fontSize: 32 / 2, fontWeight: FontWeight.w700),
+              ),
             ),
-          );
-        }),
-      ],
+          ),
+          const SizedBox(height: 18),
+          const Divider(height: 1, color: Color(0xFFEAECF0)),
+          const SizedBox(height: 18),
+          const Text(
+            'ÖDEME DETAYLARI',
+            style: TextStyle(
+              color: Color(0xFF98A2B3),
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.6,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFD0D5DD)),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.credit_card, color: Color(0xFF98A2B3)),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Visa son 4 hane • • • • 4242',
+                    style: TextStyle(color: Color(0xFF344054)),
+                  ),
+                ),
+                Text(
+                  'Düzenle',
+                  style: TextStyle(
+                    color: Color(0xFF1570EF),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  static String _renewLabel(String period) {
+    final value = period.toLowerCase();
+    if (value.contains('month')) return 'Aylık yenilenir';
+    if (value.contains('year') || value.contains('annual')) {
+      return 'Yıllık yenilenir';
+    }
+    return 'Otomatik yenilenir';
   }
 }
 
-class _PlanChoiceTile extends StatelessWidget {
-  const _PlanChoiceTile({
+class _AvailablePlanTile extends StatelessWidget {
+  const _AvailablePlanTile({
     required this.plan,
     required this.selected,
-    required this.isCurrent,
+    required this.backgroundColor,
+    required this.borderColor,
     required this.onTap,
   });
 
   final PlanOption plan;
   final bool selected;
-  final bool isCurrent;
+  final Color backgroundColor;
+  final Color borderColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final borderColor =
-        selected ? theme.colorScheme.primary : theme.colorScheme.outlineVariant;
-    final background = selected
-        ? theme.colorScheme.primary.withValues(alpha: 0.08)
-        : theme.colorScheme.surface;
-    final priceSuffix =
-        plan.billingCycle.isNotEmpty ? '/${plan.billingCycle}' : '';
-    final priceText = '${plan.priceLabel}$priceSuffix';
+    final effectiveBorderColor =
+        selected ? const Color(0xFF1570EF) : borderColor;
+    final effectiveBackgroundColor =
+        selected ? const Color(0xFFEAF2FF) : backgroundColor;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
         decoration: BoxDecoration(
-          color: background,
+          color: effectiveBackgroundColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: borderColor, width: selected ? 2 : 1),
+          border: Border.all(
+            color: effectiveBorderColor,
+            width: selected ? 2.2 : 1.4,
+          ),
         ),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: onTap,
-                  child: Icon(
-                    selected
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked,
-                    color: selected
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.outline,
-                  ),
+            if (selected) ...[
+              Container(
+                margin: const EdgeInsets.only(right: 10, top: 2),
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF1570EF),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        plan.name,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        plan.description.isNotEmpty
-                            ? plan.description
-                            : 'Plan detayları yakında.',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
+                child: const Icon(
+                  Icons.check,
+                  size: 12,
+                  color: Colors.white,
                 ),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      priceText,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+              ),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    plan.name,
+                    style: const TextStyle(
+                      color: Color(0xFF101828),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 36 / 2,
                     ),
-                    if (isCurrent)
-                      Container(
-                        margin: const EdgeInsets.only(top: 6),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(
-                          'Mevcut Plan',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.onPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                  ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    plan.description.isNotEmpty
+                        ? plan.description
+                        : 'Abonelik planı',
+                    style: const TextStyle(
+                        color: Color(0xFF667085), fontSize: 30 / 2),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${plan.quota ?? 0} FATURA   •   ${_periodLabel(plan.period).toUpperCase()}',
+                    style: const TextStyle(
+                      color: Color(0xFF1570EF),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  plan.priceLabel,
+                  style: const TextStyle(
+                    color: Color(0xFF101828),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 44 / 2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _periodLabel(plan.period),
+                  style: const TextStyle(color: Color(0xFF98A2B3)),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            ..._buildFeatureRows(context, plan),
           ],
         ),
       ),
     );
   }
 
-  List<Widget> _buildFeatureRows(BuildContext context, PlanOption plan) {
-    final theme = Theme.of(context);
-    final features = <String>[];
-    if (plan.quota != null && plan.quota! > 0) {
-      features.add('${plan.quota} tarama hakkı');
-    }
-    if (plan.period.isNotEmpty) {
-      features.add('Yenileme periyodu: ${_prettyPeriod(plan.period)}');
-    }
-    if (features.isEmpty && plan.description.isNotEmpty) {
-      features.add(plan.description);
-    } else if (features.isEmpty) {
-      features.add('Plan avantajları yakında sunulacak.');
-    }
-
-    return features
-        .map(
-          (feature) => Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Row(
-              children: [
-                Icon(Icons.check_circle,
-                    size: 18, color: theme.colorScheme.primary),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    feature,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        )
-        .toList();
+  static String _periodLabel(String period) {
+    final value = period.toLowerCase();
+    if (value.contains('month')) return 'Aylık';
+    if (value.contains('year') || value.contains('annual')) return 'Yıllık';
+    if (value.contains('week')) return 'Haftalık';
+    return 'Plan';
   }
+}
 
-  String _prettyPeriod(String raw) {
-    switch (raw.toLowerCase()) {
-      case 'monthly':
-      case 'month':
-      case 'mo':
-        return 'Aylık';
-      case 'weekly':
-      case 'week':
-        return 'Haftalık';
-      case 'daily':
-      case 'day':
-        return 'Günlük';
-      case 'yearly':
-      case 'annual':
-      case 'annually':
-      case 'yr':
-      case 'year':
-        return 'Yıllık';
-      case 'once':
-      case 'one_time':
-      case 'single':
-        return 'Tek seferlik';
-      default:
-        return raw;
-    }
+class _EmptyPlanCard extends StatelessWidget {
+  const _EmptyPlanCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFD0D5DD)),
+      ),
+      child: const Text(
+        'Plan bulunamadı.',
+        style: TextStyle(color: Color(0xFF667085)),
+      ),
+    );
   }
 }
 
@@ -587,7 +1007,7 @@ class _ErrorView extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Tekrar dene'),
+              label: const Text('Tekrar Dene'),
             ),
           ],
         ),

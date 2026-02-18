@@ -8,9 +8,11 @@ import 'package:fis_app_flutter/pages/receipt_page.dart';
 import 'package:fis_app_flutter/pages/receipt_process_page.dart';
 import 'package:fis_app_flutter/pages/receipt_results_page.dart';
 import 'package:fis_app_flutter/pages/settings_page.dart';
+import 'package:fis_app_flutter/providers/user_plan_provider.dart';
 import 'package:fis_app_flutter/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class MainLayout extends StatefulWidget {
   final String initialRoute;
@@ -73,6 +75,9 @@ class _MainLayoutState extends State<MainLayout> {
     super.initState();
     _currentRoute = _normalizeRoute(widget.initialRoute);
     _currentArguments = widget.initialArguments;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserPlanProvider>().loadMyPlan();
+    });
   }
 
   String _normalizeRoute(String route) {
@@ -117,11 +122,6 @@ class _MainLayoutState extends State<MainLayout> {
       return;
     }
 
-    /* if (value == '/accountSettings') {
-      Navigator.pushNamed(context, '/accountSettings');
-      return;
-    } */
-
     _setCurrentRoute(value);
   }
 
@@ -134,7 +134,7 @@ class _MainLayoutState extends State<MainLayout> {
         icon: const Icon(Icons.menu, color: Colors.black87),
         onSelected: _handleMenuSelection,
         itemBuilder: (context) => const [
-          PopupMenuItem(value: '/home', child: Text('Anasayfa')),
+          PopupMenuItem(value: '/home', child: Text('Ana Sayfa')),
           PopupMenuItem(value: '/gallery', child: Text('Fişler')),
           PopupMenuItem(value: '/excelFiles', child: Text('Kişiler')),
           PopupMenuItem(value: '/settings', child: Text('Ayarlar')),
@@ -166,7 +166,7 @@ class _MainLayoutState extends State<MainLayout> {
       selectedItemColor: Colors.blue,
       unselectedItemColor: Colors.grey,
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Anasayfa"),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Ana Sayfa"),
         BottomNavigationBarItem(
             icon: Icon(Icons.receipt_long), label: "Fişler"),
         BottomNavigationBarItem(

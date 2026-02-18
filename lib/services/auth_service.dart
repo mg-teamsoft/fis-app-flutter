@@ -38,6 +38,7 @@ class AuthService {
       }
 
       await _api.saveToken(token, expUnixSeconds: exp);
+
       return AuthResult(success: true, userId: uid, userName: uname);
     } on DioException catch (e) {
       final msg = e.response?.data is Map
@@ -71,8 +72,7 @@ class AuthService {
         payload['planKey'] = planKey.trim();
       }
 
-      final res =
-          await _api.dio.post('/api/auth/register', data: payload);
+      final res = await _api.dio.post('/api/auth/register', data: payload);
 
       final data = res.data as Map<String, dynamic>;
       final ok = data['status'] == 'success';
@@ -149,7 +149,8 @@ class AuthService {
       final msg = e.response?.data is Map
           ? (e.response!.data['message']?.toString() ?? e.message)
           : e.message;
-      return AuthResult(success: false, message: msg ?? 'Reset password failed');
+      return AuthResult(
+          success: false, message: msg ?? 'Reset password failed');
     } catch (e) {
       return AuthResult(success: false, message: e.toString());
     }

@@ -21,7 +21,12 @@ class PermissionService {
     if (current.isGranted) return true;
 
     if (current.isPermanentlyDenied || current.isRestricted) {
-      await _showGoToSettingsDialog(context,
+      final ctx = context;
+      if (ctx == null || !ctx.mounted) {
+        await openAppSettings();
+        return false;
+      }
+      await _showGoToSettingsDialog(ctx,
           title: 'Kamera izni gerekli',
           message:
               'Kamera ile fiş fotoğrafı çekebilmek için ayarlardan kamera izni vermelisiniz.');
@@ -35,7 +40,12 @@ class PermissionService {
 
     // iOS: if denied permanently, guide to settings
     if (requested.isPermanentlyDenied || requested.isRestricted) {
-      await _showGoToSettingsDialog(context,
+      final ctx = context;
+      if (ctx == null || !ctx.mounted) {
+        await openAppSettings();
+        return false;
+      }
+      await _showGoToSettingsDialog(ctx,
           title: 'Kamera izni gerekli',
           message:
               'Kamera ile fiş fotoğrafı çekebilmek için ayarlardan kamera izni vermelisiniz.');
@@ -59,7 +69,12 @@ class PermissionService {
       if (req.isGranted || req.isLimited) return true;
 
       if (req.isPermanentlyDenied || req.isRestricted) {
-        await _showGoToSettingsDialog(context,
+        final ctx = context;
+        if (ctx == null || !ctx.mounted) {
+          await openAppSettings();
+          return false;
+        }
+        await _showGoToSettingsDialog(ctx,
             title: 'Fotoğraflar izni gerekli',
             message:
                 'Galeriden fiş seçebilmek için ayarlardan fotoğraflar izni vermelisiniz.');
@@ -84,7 +99,12 @@ class PermissionService {
       if (req.isGranted) return true;
 
       if (req.isPermanentlyDenied || req.isRestricted) {
-        await _showGoToSettingsDialog(context,
+        final ctx = context;
+        if (ctx == null || !ctx.mounted) {
+          await openAppSettings();
+          return false;
+        }
+        await _showGoToSettingsDialog(ctx,
             title: 'Depolama izni gerekli',
             message:
                 'Galeriden fiş seçebilmek için ayarlardan depolama izni vermelisiniz.');
