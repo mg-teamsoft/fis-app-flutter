@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
+import '../pages/receipt_manual_form_page.dart';
 import '../services/receipt_service.dart';
 
 class ReceiptPage extends StatefulWidget {
@@ -45,6 +46,14 @@ class _ReceiptPageState extends State<ReceiptPage> {
       context,
       '/receipt/process',
       arguments: List<XFile>.from(_picked),
+    );
+  }
+
+  void _openManualForm() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const ReceiptManualFormPage(),
+      ),
     );
   }
 
@@ -116,6 +125,12 @@ class _ReceiptPageState extends State<ReceiptPage> {
                 icon: Icons.photo_camera_outlined,
                 label: 'Kamerayla Çek',
               ),
+              const SizedBox(height: 12),
+              _buildActionButton(
+                onPressed: _openManualForm,
+                icon: Icons.edit_note,
+                label: 'Manuel Fatura Ekle',
+              ),
               const SizedBox(height: 24),
               Expanded(
                 child: _picked.isEmpty
@@ -168,8 +183,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
                                     builder: (context, snap) {
                                       if (!snap.hasData) {
                                         return const Center(
-                                            child:
-                                                CircularProgressIndicator());
+                                            child: CircularProgressIndicator());
                                       }
                                       return Image.memory(
                                         snap.data!,

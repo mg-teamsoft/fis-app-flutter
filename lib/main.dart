@@ -7,6 +7,7 @@ import 'package:fis_app_flutter/services/auth_navigation.dart';
 import 'package:fis_app_flutter/services/purchase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'dart:developer' as developer;
 import 'dart:async';
@@ -66,6 +67,16 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'My Fiş App',
         navigatorKey: AuthNavigation.navigatorKey,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en'),
+          Locale('tr'),
+          Locale('tr', 'TR'),
+        ],
         theme: ThemeData(
           primarySwatch: Colors.blue,
           fontFamily: 'Poppins',

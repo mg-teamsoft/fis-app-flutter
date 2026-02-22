@@ -4,10 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../models/plan_option.dart';
+import '../models/purchase_transaction.dart';
 import '../models/user_profile.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/user_plan_provider.dart';
 import '../services/plan_service.dart';
+import '../services/purchase_transaction_service.dart';
 import '../services/user_service.dart';
 
 class AccountSettingsPage extends StatefulWidget {
@@ -26,6 +28,7 @@ const fallbackProductIds = <String>{
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
   final _userService = UserService();
   final _planService = PlanService();
+  final _purchaseTransactionService = PurchaseTransactionService();
 
   UserProfile? _user;
   List<PlanOption> _allPlans = const [];
@@ -35,6 +38,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   String? _selectedPlanKey;
   String? _currentPlanKey;
   String? _userPlanId;
+  List<PurchaseTransaction> _transactions = const [];
+  String? _transactionError;
 
   bool _loading = true;
   bool _updatingPlan = false;
@@ -64,6 +69,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             plan.active;
       }).toList();
       final userPlan = await _planService.fetchUserPlanKey();
+      List<PurchaseTransaction> transactions = const [];
+      String? transactionError;
+      try {
+        transactions = await _purchaseTransactionService.listTransactions();
+      } catch (e) {
+        transactionError = e.toString();
+      }
 
       if (!mounted) return;
       setState(() {
@@ -93,6 +105,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
 
         _selectedPlanKey = null;
         _userPlanId = userPlan?.id;
+        _transactions = transactions;
+        _transactionError = transactionError;
       });
 
       if (!_iapInitialized) {
@@ -480,15 +494,16 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                 final index = entry.key;
                 final plan = entry.value;
                 return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _AvailablePlanTile(
-                  plan: plan,
-                  selected: _selectedPlanKey == plan.planKey,
-                  backgroundColor: _availablePlanBackground(index),
-                  borderColor: _availablePlanBorder(index),
-                  onTap: () => setState(() => _selectedPlanKey = plan.planKey),
-                ),
-              );
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _AvailablePlanTile(
+                    plan: plan,
+                    selected: _selectedPlanKey == plan.planKey,
+                    backgroundColor: _availablePlanBackground(index),
+                    borderColor: _availablePlanBorder(index),
+                    onTap: () =>
+                        setState(() => _selectedPlanKey = plan.planKey),
+                  ),
+                );
               },
             ),
           const SizedBox(height: 18),
@@ -522,6 +537,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                           fontSize: 32 / 2, fontWeight: FontWeight.w700),
                     ),
             ),
+          ),
+          const SizedBox(height: 24),
+          _SectionTitle(text: 'Ödeme Detayları'),
+          const SizedBox(height: 12),
+          _PaymentDetailsTable(
+            transactions: _transactions,
+            error: _transactionError,
           ),
           const SizedBox(height: 14),
           const Text(
@@ -774,44 +796,6 @@ class _ActivePlanCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 18),
-          const Divider(height: 1, color: Color(0xFFEAECF0)),
-          const SizedBox(height: 18),
-          const Text(
-            'ÖDEME DETAYLARI',
-            style: TextStyle(
-              color: Color(0xFF98A2B3),
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.6,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFD0D5DD)),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.credit_card, color: Color(0xFF98A2B3)),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Visa son 4 hane • • • • 4242',
-                    style: TextStyle(color: Color(0xFF344054)),
-                  ),
-                ),
-                Text(
-                  'Düzenle',
-                  style: TextStyle(
-                    color: Color(0xFF1570EF),
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -824,6 +808,100 @@ class _ActivePlanCard extends StatelessWidget {
       return 'Yıllık yenilenir';
     }
     return 'Otomatik yenilenir';
+  }
+}
+
+class _PaymentDetailsTable extends StatelessWidget {
+  const _PaymentDetailsTable({
+    required this.transactions,
+    required this.error,
+  });
+
+  final List<PurchaseTransaction> transactions;
+  final String? error;
+
+  @override
+  Widget build(BuildContext context) {
+    final dateFormatter = DateFormat('d MMM yyyy HH:mm', 'tr_TR');
+
+    final sortedTransactions = [...transactions]..sort((a, b) {
+        final aDate = a.purchaseDate ??
+            a.expiresDate ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final bDate = b.purchaseDate ??
+            b.expiresDate ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        return bDate.compareTo(aDate);
+      });
+
+    final rows = sortedTransactions.isEmpty
+        ? <DataRow>[
+            const DataRow(cells: [
+              DataCell(Text('-')),
+              DataCell(Text('-')),
+              DataCell(Text('-')),
+              DataCell(Text('-')),
+            ]),
+          ]
+        : sortedTransactions.map((transaction) {
+            final purchaseDate = transaction.purchaseDate != null
+                ? dateFormatter.format(transaction.purchaseDate!)
+                : '-';
+            final expiresDate = transaction.expiresDate != null
+                ? dateFormatter.format(transaction.expiresDate!)
+                : '-';
+            return DataRow(cells: [
+              DataCell(Text(
+                transaction.transactionId.isNotEmpty
+                    ? transaction.transactionId
+                    : '-',
+              )),
+              DataCell(Text(
+                transaction.originalTransactionId.isNotEmpty
+                    ? transaction.originalTransactionId
+                    : '-',
+              )),
+              DataCell(Text(purchaseDate)),
+              DataCell(Text(expiresDate)),
+            ]);
+          }).toList();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFD0D5DD)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (error != null && error!.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: Text(
+                'Odeme detaylari alinamadi.',
+                style: TextStyle(
+                  color: Color(0xFFB42318),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text('transactionId')),
+                DataColumn(label: Text('originalTransactionId')),
+                DataColumn(label: Text('purchaseDate')),
+                DataColumn(label: Text('expiresDate')),
+              ],
+              rows: rows,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
