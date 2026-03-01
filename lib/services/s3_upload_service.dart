@@ -7,8 +7,13 @@ class S3InitResponse {
   final String key;
   final String presignedUrl;
   final Map<String, String> headers;
+
   S3InitResponse(
       {required this.key, required this.presignedUrl, required this.headers});
+
+  @override
+  String toString() =>
+      'S3InitResponse(key: $key, presignedUrl: $presignedUrl, headers: $headers)';
 }
 
 class S3UploadService {

@@ -65,7 +65,7 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
         // 3) confirm
         final size = await File(item.file.path).length();
         const maxBytes = 5 * 1024 * 1024;
-        const minBytes = 100 * 1024;
+        const minBytes = 10 * 1024;
 
         if (size > maxBytes) {
           if (mounted) {
