@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/receipt_detail.dart';
 import '../services/settings_service.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -98,14 +99,14 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     setState(() {
-      _food = !excluded.contains('YİYECEK');
-      _meal = !excluded.contains('YEMEK');
-      _fuel = !excluded.contains('AKARYAKIT');
-      _parking = !excluded.contains('OTOPARK');
-      _electronic = !excluded.contains('ELEKTRONİK');
-      _medication = !excluded.contains('İLAÇ');
-      _stationery = !excluded.contains('KIRTASİYE');
-      _makeup = !excluded.contains('KİŞİSEL BAKIM');
+      _food = !excluded.contains(ReceiptCategory.food.label);
+      _meal = !excluded.contains(ReceiptCategory.meal.label);
+      _fuel = !excluded.contains(ReceiptCategory.fuel.label);
+      _parking = !excluded.contains(ReceiptCategory.parking.label);
+      _electronic = !excluded.contains(ReceiptCategory.electronic.label);
+      _medication = !excluded.contains(ReceiptCategory.medication.label);
+      _stationery = !excluded.contains(ReceiptCategory.stationery.label);
+      _makeup = !excluded.contains(ReceiptCategory.personalCare.label);
       _hasChanges = false;
     });
     _suppressChanges = false;
@@ -179,14 +180,14 @@ class _SettingsPageState extends State<SettingsPage> {
     final target = _formatNumber(_parseCurrency(_monthlyTargetController.text));
 
     final excludedTypes = <String>[];
-    if (!_food) excludedTypes.add('YİYECEK');
-    if (!_meal) excludedTypes.add('YEMEK');
-    if (!_fuel) excludedTypes.add('AKARYAKIT');
-    if (!_parking) excludedTypes.add('OTOPARK');
-    if (!_electronic) excludedTypes.add('ELEKTRONİK');
-    if (!_medication) excludedTypes.add('İLAÇ');
-    if (!_stationery) excludedTypes.add('KIRTASİYE');
-    if (!_makeup) excludedTypes.add('KİŞİSEL BAKIM');
+    if (!_food) excludedTypes.add(ReceiptCategory.food.label);
+    if (!_meal) excludedTypes.add(ReceiptCategory.meal.label);
+    if (!_fuel) excludedTypes.add(ReceiptCategory.fuel.label);
+    if (!_parking) excludedTypes.add(ReceiptCategory.parking.label);
+    if (!_electronic) excludedTypes.add(ReceiptCategory.electronic.label);
+    if (!_medication) excludedTypes.add(ReceiptCategory.medication.label);
+    if (!_stationery) excludedTypes.add(ReceiptCategory.stationery.label);
+    if (!_makeup) excludedTypes.add(ReceiptCategory.personalCare.label);
 
     final rulesString = [
       'MIN_AMOUNT_LIMIT=$minLimit',
@@ -304,49 +305,53 @@ class _SettingsPageState extends State<SettingsPage> {
           style: TextStyle(color: Colors.black54),
         ),
         const SizedBox(height: 12),
-        _buildCheckboxTile('YİYECEK', _food, (value) {
+        _buildCheckboxTile(ReceiptCategory.food.label, _food, (value) {
           setState(() {
             _food = value!;
             if (!_suppressChanges) _hasChanges = true;
           });
         }),
-        _buildCheckboxTile('YEMEK', _meal, (value) {
+        _buildCheckboxTile(ReceiptCategory.meal.label, _meal, (value) {
           setState(() {
             _meal = value!;
             if (!_suppressChanges) _hasChanges = true;
           });
         }),
-        _buildCheckboxTile('AKARYAKIT', _fuel, (value) {
+        _buildCheckboxTile(ReceiptCategory.fuel.label, _fuel, (value) {
           setState(() {
             _fuel = value!;
             if (!_suppressChanges) _hasChanges = true;
           });
         }),
-        _buildCheckboxTile('OTOPARK', _parking, (value) {
+        _buildCheckboxTile(ReceiptCategory.parking.label, _parking, (value) {
           setState(() {
             _parking = value!;
             if (!_suppressChanges) _hasChanges = true;
           });
         }),
-        _buildCheckboxTile('ELEKTRONİK', _electronic, (value) {
+        _buildCheckboxTile(ReceiptCategory.electronic.label, _electronic,
+            (value) {
           setState(() {
             _electronic = value!;
             if (!_suppressChanges) _hasChanges = true;
           });
         }),
-        _buildCheckboxTile('İLAÇ', _medication, (value) {
+        _buildCheckboxTile(ReceiptCategory.medication.label, _medication,
+            (value) {
           setState(() {
             _medication = value!;
             if (!_suppressChanges) _hasChanges = true;
           });
         }),
-        _buildCheckboxTile('KIRTASİYE', _stationery, (value) {
+        _buildCheckboxTile(ReceiptCategory.stationery.label, _stationery,
+            (value) {
           setState(() {
             _stationery = value!;
             if (!_suppressChanges) _hasChanges = true;
           });
         }),
-        _buildCheckboxTile('KİŞİSEL BAKIM', _makeup, (value) {
+        _buildCheckboxTile(ReceiptCategory.personalCare.label, _makeup,
+            (value) {
           setState(() {
             _makeup = value!;
             if (!_suppressChanges) _hasChanges = true;

@@ -13,13 +13,13 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
 
+    <!-- Declare camera hardware; set required=false so app installs on devices without camera -->
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+
     <application
-        android:label="fis-app-flutter"
+        android:label="fis_app_flutter"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        
-        <!-- Declare camera hardware; set required=false so app installs on devices without camera -->
-        <uses-feature android:name="android.hardware.camera" android:required="false"/>
 
         <activity
             android:name=".MainActivity"

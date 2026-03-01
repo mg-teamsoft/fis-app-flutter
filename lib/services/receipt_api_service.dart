@@ -41,4 +41,12 @@ class ReceiptApiService {
       throw Exception('Failed to load receipt detail');
     }
   }
+
+  /// POST /api/receipts — creates a receipt record in MongoDB.
+  /// Throws [DioException] on HTTP error so the caller can surface the message.
+  Future<Map<String, dynamic>> createReceipt(
+      Map<String, dynamic> payload) async {
+    final res = await _api.dio.post('/api/receipts', data: payload);
+    return res.data as Map<String, dynamic>;
+  }
 }

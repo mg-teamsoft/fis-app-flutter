@@ -1,10 +1,21 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+
+import '../models/receipt_detail.dart';
+// ignore: unused_import
+import '../services/s3_upload_service.dart';
+import '../services/receipt_api_service.dart';
+import '../utils/checksum_utils.dart';
+
+String _sha256Hex(Uint8List bytes) => sha256.convert(bytes).toString();
 
 class ReceiptManualFormPage extends StatefulWidget {
   const ReceiptManualFormPage({super.key});
@@ -23,14 +34,40 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
   final _totalAmountController = TextEditingController();
 
   DateTime? _selectedDate;
-  String? _transactionType = 'income';
+  ReceiptCategory? _selectedCategory;
   String? _paymentType = 'card';
   String? _selectedKdvRate;
   XFile? _invoiceImage;
   Uint8List? _invoiceImageBytes;
 
+  bool _dateError = false;
+  bool _imageError = false;
+  bool _isUploading = false;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _totalAmountController.addListener(_recalculateKdv);
+  }
+
+  /// Calculates VAT from the total (VAT-inclusive) amount and the selected rate.
+  /// Formula: vatAmount = total × rate ÷ (100 + rate)
+  void _recalculateKdv() {
+    final total = double.tryParse(_totalAmountController.text.trim());
+    final rate = int.tryParse(_selectedKdvRate ?? '');
+    if (total == null || rate == null || rate == 0) {
+      _kdvAmountController.text = '';
+      return;
+    }
+    final vat = total * rate / (100 + rate);
+    // Format to 2 decimal places without triggering the currency formatter
+    _kdvAmountController.text = vat.toStringAsFixed(2);
+  }
+
   @override
   void dispose() {
+    _totalAmountController.removeListener(_recalculateKdv);
     _businessNameController.dispose();
     _receiptNoController.dispose();
     _kdvAmountController.dispose();
@@ -49,7 +86,10 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
       locale: const Locale('tr', 'TR'),
     );
     if (!mounted || result == null) return;
-    setState(() => _selectedDate = result);
+    setState(() {
+      _selectedDate = result;
+      _dateError = false;
+    });
   }
 
   Future<void> _pickInvoiceImage() async {
@@ -64,39 +104,160 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
     setState(() {
       _invoiceImage = file;
       _invoiceImageBytes = bytes;
+      _imageError = false;
     });
   }
 
-  void _save() {
-    final isValid = _formKey.currentState?.validate() ?? false;
-    if (!isValid) return;
+  Future<void> _save() async {
+    if (_saving) return;
+    final isFormValid = _formKey.currentState?.validate() ?? false;
 
-    if (_selectedDate == null) {
+    final newDateError = _selectedDate == null;
+    final newImageError = _invoiceImage == null;
+
+    setState(() {
+      _dateError = newDateError;
+      _imageError = newImageError;
+    });
+
+    if (!isFormValid || newDateError || newImageError) return;
+
+    setState(() => _saving = true);
+    try {
+      // Step 1: upload image → get key + imageUrl
+      final upload = await _uploadImage();
+      if (!mounted) return;
+
+      // Step 2: parse numeric/date fields
+      final totalAmount =
+          double.tryParse(_totalAmountController.text.trim()) ?? 0.0;
+      final vatAmount =
+          double.tryParse(_kdvAmountController.text.trim()) ?? 0.0;
+      final vatRate = int.tryParse(_selectedKdvRate ?? '') ?? 0;
+      final transactionDate = DateFormat('dd.MM.yyyy').format(_selectedDate!);
+
+      // Step 3: build payload with upload result
+      final Map<String, dynamic> payload = {
+        'businessName': _businessNameController.text.trim(),
+        'receiptNumber': _receiptNoController.text.trim(),
+        'totalAmount': totalAmount,
+        'vatAmount': vatAmount,
+        'vatRate': vatRate,
+        'transactionDate': transactionDate,
+        'transactionType': _selectedCategory?.name,
+        'paymentType': _paymentType,
+        'imageUrl': upload?.imageUrl ?? '',
+        if (upload?.key != null) 'sourceKey': upload!.key,
+      };
+
+      // Step 4: POST to /api/receipts
+      final result = await ReceiptApiService().createReceipt(payload);
+      if (!mounted) return;
+      final id = result['_id'] ?? result['id'] ?? '';
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen tarih seçin.')),
+        SnackBar(
+          content: Text('Fiş kaydedildi (id: $id)'),
+          backgroundColor: const Color(0xFF12B76A),
+        ),
       );
-      return;
-    }
-
-    if (_selectedKdvRate == null || _selectedKdvRate!.isEmpty) {
+      Navigator.of(context).pop();
+    } on DioException catch (e) {
+      if (!mounted) return;
+      final msg = (e.response?.data is Map)
+          ? (e.response!.data['message'] ?? e.message)
+          : (e.message ?? 'Sunucu hatası');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen KDV oranı seçin.')),
+        SnackBar(
+          content: Text('Hata: $msg'),
+          backgroundColor: const Color(0xFFF04438),
+        ),
       );
-      return;
-    }
-
-    if (_invoiceImage == null) {
+    } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen fiş görseli ekleyin.')),
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: const Color(0xFFF04438),
+        ),
       );
-      return;
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content:
-              Text('Manuel fiş formu hazır. Kaydetme entegrasyonu bekliyor.')),
-    );
+  /// Validates, checksums, and uploads the invoice image to S3.
+  /// Returns a record with [key] (S3 object key) and [imageUrl] on success,
+  /// or [null] if skipped / while S3 is commented out.
+  Future<({String key, String imageUrl})?> _uploadImage() async {
+    if (_invoiceImage == null || kIsWeb) return null;
+    setState(() => _isUploading = true);
+    try {
+      final file = File(_invoiceImage!.path);
+      // ignore: unused_local_variable
+      final mime = _invoiceImage!.mimeType ?? 'image/jpeg';
+
+      // 1) Compute checksums on raw file
+      final bytes = await file.readAsBytes();
+      // ignore: unused_local_variable
+      final checksum = crc32Base64(bytes);
+      // ignore: unused_local_variable
+      final sha = _sha256Hex(bytes);
+
+      // 2) Size validation
+      final size = bytes.length;
+      const maxBytes = 5 * 1024 * 1024;
+      const minBytes = 100 * 1024;
+
+      if (size > maxBytes) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('⚠️ Resim en fazla 5 MB olabilir.')),
+        );
+        return null;
+      } else if (size < minBytes) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('⚠️ Resim en az 100 KB olabilir.')),
+        );
+        return null;
+      }
+
+      // TODO: uncomment when ready to upload
+      // final service = S3UploadService();
+      // final init = await service.initUpload(
+      //   contentType: mime,
+      //   filename: _invoiceImage!.name,
+      //   checksumCRC32: checksum,
+      //   sha256: sha,
+      // );
+      // await service.putToS3(
+      //   presignedUrl: init.presignedUrl,
+      //   file: file,
+      //   headers: {'Content-Type': mime},
+      // );
+      // await service.confirmUpload(
+      //   key: init.key,
+      //   size: size,
+      //   mime: mime,
+      //   sha256: sha,
+      // );
+      // Once uncommented, replace the return below with:
+      // return (key: init.key, imageUrl: ''); // TODO: set imageUrl from your S3/CDN base URL
+
+      return null; // remove when S3 upload is active
+    } on DioException catch (e) {
+      if (!mounted) return null;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Yükleme hatası')),
+      );
+      return null;
+    } catch (e) {
+      if (!mounted) return null;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+      return null;
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
   }
 
   @override
@@ -132,7 +293,7 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
                 _TextFieldBox(
                   controller: _businessNameController,
                   hintText: 'Acme Corp',
-                  validator: _requiredValidator,
+                  validator: _businessNameValidator,
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -147,6 +308,7 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
                           _DateFieldBox(
                             value: dateText,
                             onTap: _pickDate,
+                            hasError: _dateError,
                           ),
                         ],
                       ),
@@ -161,7 +323,7 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
                           _TextFieldBox(
                             controller: _receiptNoController,
                             hintText: 'REC-12345',
-                            validator: _requiredValidator,
+                            validator: _receiptNoValidator,
                           ),
                         ],
                       ),
@@ -177,47 +339,30 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,
-                  children: [
-                    _ChoiceChipButton(
-                      label: 'Gelir',
-                      selected: _transactionType == 'income',
-                      onTap: () => setState(() => _transactionType = 'income'),
-                    ),
-                    _ChoiceChipButton(
-                      label: 'Gider',
-                      selected: _transactionType == 'expense',
-                      onTap: () => setState(() => _transactionType = 'expense'),
-                    ),
-                    _ChoiceChipButton(
-                      label: 'İade',
-                      selected: _transactionType == 'refund',
-                      onTap: () => setState(() => _transactionType = 'refund'),
-                    ),
-                  ],
+                  children: ReceiptCategory.values.map((category) {
+                    return _ChoiceChipButton(
+                      label: category.label,
+                      selected: _selectedCategory == category,
+                      onTap: () => setState(() => _selectedCategory = category),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+                _FieldLabel('Toplam Tutar*'),
+                const SizedBox(height: 8),
+                _TextFieldBox(
+                  controller: _totalAmountController,
+                  hintText: '0.00',
+                  prefixText: '₺ ',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [_CurrencyInputFormatter()],
+                  textAlign: TextAlign.right,
+                  validator: _totalAmountValidator,
                 ),
                 const SizedBox(height: 20),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _FieldLabel('KDV Tutarı*'),
-                          const SizedBox(height: 8),
-                          _TextFieldBox(
-                            controller: _kdvAmountController,
-                            hintText: '0.00',
-                            prefixText: '₺ ',
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            validator: _requiredValidator,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,25 +373,39 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
                             value: _selectedKdvRate,
                             hintText: 'Oran Seç',
                             items: const ['1', '8', '10', '18', '20'],
-                            onChanged: (value) =>
-                                setState(() => _selectedKdvRate = value),
+                            onChanged: (value) {
+                              setState(() => _selectedKdvRate = value);
+                              _recalculateKdv();
+                            },
+                            validator: (value) =>
+                                (value == null || value.isEmpty)
+                                    ? 'KDV oranı seçiniz'
+                                    : null,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _FieldLabel('KDV Tutarı*'),
+                          const SizedBox(height: 8),
+                          _TextFieldBox(
+                            controller: _kdvAmountController,
+                            hintText: '0.00',
+                            prefixText: '₺ ',
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.right,
+                            readOnly: true,
+                            fillColor: const Color(0xFFF2F4F7),
+                            validator: _kdvAmountValidator,
                           ),
                         ],
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 20),
-                _FieldLabel('Toplam Tutar*'),
-                const SizedBox(height: 8),
-                _TextFieldBox(
-                  controller: _totalAmountController,
-                  hintText: '0.00',
-                  prefixText: '₺ ',
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  validator: _requiredValidator,
                 ),
                 const SizedBox(height: 20),
                 _FieldLabel.rich(
@@ -264,14 +423,9 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
                       onTap: () => setState(() => _paymentType = 'cash'),
                     ),
                     _ChoiceChipButton(
-                      label: 'Kart',
+                      label: 'Kredi Kartı',
                       selected: _paymentType == 'card',
                       onTap: () => setState(() => _paymentType = 'card'),
-                    ),
-                    _ChoiceChipButton(
-                      label: 'Havale',
-                      selected: _paymentType == 'transfer',
-                      onTap: () => setState(() => _paymentType = 'transfer'),
                     ),
                   ],
                 ),
@@ -282,7 +436,19 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
                   imageFile: _invoiceImage,
                   imageBytes: _invoiceImageBytes,
                   onTap: _pickInvoiceImage,
+                  hasError: _imageError,
                 ),
+                if (_imageError)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 6, left: 4),
+                    child: Text(
+                      'Fiş görseli zorunludur',
+                      style: TextStyle(
+                        color: Color(0xFFF04438),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 12),
               ],
             ),
@@ -294,7 +460,7 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
         child: SizedBox(
           height: 56,
           child: ElevatedButton(
-            onPressed: _save,
+            onPressed: (_isUploading || _saving) ? null : _save,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1570EF),
               foregroundColor: Colors.white,
@@ -306,17 +472,55 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            child: const Text('Fişi Kaydet'),
+            child: (_isUploading || _saving)
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Fişi Kaydet'),
           ),
         ),
       ),
     );
   }
 
-  String? _requiredValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Bu alan zorunludur';
+  String? _businessNameValidator(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Bu alan zorunludur';
+    if (value.trim().length < 2) return 'En az 2 karakter giriniz';
+    return null;
+  }
+
+  String? _receiptNoValidator(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Bu alan zorunludur';
+    final regex = RegExp(r'^[a-zA-Z0-9\-_]+$');
+    if (!regex.hasMatch(value.trim())) {
+      return 'Yalnızca harf, rakam, - ve _ kullanılabilir';
     }
+    return null;
+  }
+
+  String? _kdvAmountValidator(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Bu alan zorunludur';
+    final parsed = double.tryParse(value.trim().replaceAll(',', '.'));
+    if (parsed == null) return 'Geçerli bir tutar giriniz';
+    if (parsed < 0) return 'Tutar negatif olamaz';
+    final total = double.tryParse(
+        _totalAmountController.text.trim().replaceAll(',', '.'));
+    if (total != null && parsed > total) {
+      return 'KDV tutarı toplam tutarı aşamaz';
+    }
+    return null;
+  }
+
+  String? _totalAmountValidator(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Bu alan zorunludur';
+    final parsed = double.tryParse(value.trim().replaceAll(',', '.'));
+    if (parsed == null) return 'Geçerli bir tutar giriniz';
+    if (parsed <= 0) return 'Tutar 0\'dan büyük olmalıdır';
     return null;
   }
 }
@@ -377,6 +581,10 @@ class _TextFieldBox extends StatelessWidget {
     this.validator,
     this.prefixText,
     this.keyboardType,
+    this.inputFormatters,
+    this.textAlign = TextAlign.left,
+    this.readOnly = false,
+    this.fillColor,
   });
 
   final TextEditingController controller;
@@ -384,18 +592,26 @@ class _TextFieldBox extends StatelessWidget {
   final String? Function(String?)? validator;
   final String? prefixText;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextAlign textAlign;
+  final bool readOnly;
+  final Color? fillColor;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       validator: validator,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      textAlign: textAlign,
+      readOnly: readOnly,
       decoration: InputDecoration(
         hintText: hintText,
         prefixText: prefixText,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: fillColor ?? Colors.white,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
@@ -427,10 +643,12 @@ class _DateFieldBox extends StatelessWidget {
   const _DateFieldBox({
     required this.value,
     required this.onTap,
+    this.hasError = false,
   });
 
   final String value;
   final VoidCallback onTap;
+  final bool hasError;
 
   @override
   Widget build(BuildContext context) {
@@ -442,7 +660,9 @@ class _DateFieldBox extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFD0D5DD)),
+          border: Border.all(
+            color: hasError ? const Color(0xFFF04438) : const Color(0xFFD0D5DD),
+          ),
         ),
         child: Row(
           children: [
@@ -471,17 +691,20 @@ class _DropdownFieldBox extends StatelessWidget {
     required this.hintText,
     required this.items,
     required this.onChanged,
+    this.validator,
   });
 
   final String? value;
   final String hintText;
   final List<String> items;
   final ValueChanged<String?> onChanged;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
       initialValue: value,
+      validator: validator,
       items: items
           .map((item) => DropdownMenuItem<String>(
                 value: item,
@@ -506,6 +729,14 @@ class _DropdownFieldBox extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Color(0xFF1570EF), width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFF04438)),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFF04438)),
         ),
       ),
       icon: const Icon(Icons.keyboard_arrow_down_rounded),
@@ -556,11 +787,13 @@ class _InvoiceImagePickerBox extends StatelessWidget {
     required this.imageFile,
     required this.imageBytes,
     required this.onTap,
+    this.hasError = false,
   });
 
   final XFile? imageFile;
   final Uint8List? imageBytes;
   final VoidCallback onTap;
+  final bool hasError;
 
   @override
   Widget build(BuildContext context) {
@@ -576,7 +809,7 @@ class _InvoiceImagePickerBox extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0xFFD0D5DD),
+            color: hasError ? const Color(0xFFF04438) : const Color(0xFFD0D5DD),
             width: 1.5,
           ),
         ),
@@ -654,4 +887,46 @@ class _DashedBorderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// ATM-style currency formatter: digits push in from the right of a fixed
+/// decimal point (2 decimal places). The dot is never user-editable.
+class _CurrencyInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    // Extract only digit characters from whatever was typed
+    final digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (digits.isEmpty) {
+      return newValue.copyWith(
+        text: '0.00',
+        selection: const TextSelection.collapsed(offset: 4),
+      );
+    }
+
+    // Max 10 digits (99 999 999.99)
+    final trimmed =
+        digits.length > 10 ? digits.substring(digits.length - 10) : digits;
+
+    // Pad to at least 3 digits so we always have X.XX
+    final padded = trimmed.padLeft(3, '0');
+
+    // Split into integer and decimal parts
+    final intRaw = padded.substring(0, padded.length - 2);
+    final decPart = padded.substring(padded.length - 2);
+
+    // Strip leading zeros from integer part, keep at least one digit
+    final intPart = intRaw.replaceFirst(RegExp(r'^0+'), '').isEmpty
+        ? '0'
+        : intRaw.replaceFirst(RegExp(r'^0+'), '');
+
+    final result = '$intPart.$decPart';
+    return newValue.copyWith(
+      text: result,
+      selection: TextSelection.collapsed(offset: result.length),
+    );
+  }
 }
