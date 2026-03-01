@@ -36,7 +36,7 @@ flutter --version
 2. Provide the backend endpoint and other build-time settings via `--dart-define` flags (see below).
 3. Launch the desired platform:
    ```bash
-   flutter run \
+   flutter run -d <Deviced ID> \
      --dart-define=API_BASE_URL=https://your-api.example.com \
      --dart-define=ENV=dev
    ```
