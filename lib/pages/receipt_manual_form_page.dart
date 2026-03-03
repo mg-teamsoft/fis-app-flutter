@@ -8,12 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
 
 import '../models/receipt_detail.dart';
-// ignore: unused_import
 import '../services/s3_upload_service.dart';
 import '../services/receipt_api_service.dart';
+import '../services/excel_service.dart';
 import '../utils/checksum_utils.dart';
+import '../utils/mime_utils.dart';
 
 String _sha256Hex(Uint8List bytes) => sha256.convert(bytes).toString();
 
@@ -45,6 +47,16 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
   bool _isUploading = false;
   bool _saving = false;
 
+  /// Whether all form fields and the submit button are enabled.
+  /// Only becomes true after the image has been uploaded successfully.
+  bool _fieldsEnabled = false;
+
+  /// S3 key returned after a successful upload.
+  String? _uploadedKey;
+
+  /// Image URL (CDN / presigned) returned after upload.
+  String? _uploadedImageUrl;
+
   @override
   void initState() {
     super.initState();
@@ -61,7 +73,6 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
       return;
     }
     final vat = total * rate / (100 + rate);
-    // Format to 2 decimal places without triggering the currency formatter
     _kdvAmountController.text = vat.toStringAsFixed(2);
   }
 
@@ -76,6 +87,7 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
   }
 
   Future<void> _pickDate() async {
+    if (!_fieldsEnabled) return;
     final now = DateTime.now();
     final initial = _selectedDate ?? now;
     final result = await showDatePicker(
@@ -92,6 +104,11 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
     });
   }
 
+  /// Picks an image, then immediately runs the full S3 upload pipeline:
+  ///   1. POST /file/init  → if "duplicate" show error and stop
+  ///   2. PUT to S3 presigned URL
+  ///   3. POST /file/confirm
+  /// On success: enable all form fields.
   Future<void> _pickInvoiceImage() async {
     final file = await _picker.pickImage(source: ImageSource.gallery);
     if (!mounted || file == null) return;
@@ -101,34 +118,172 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
       bytes = await file.readAsBytes();
     }
 
+    // Show the image immediately in the picker box
     setState(() {
       _invoiceImage = file;
       _invoiceImageBytes = bytes;
       _imageError = false;
+      _fieldsEnabled = false; // reset until upload finishes
+      _uploadedKey = null;
+      _uploadedImageUrl = null;
     });
+
+    // ----- Upload pipeline -----
+    setState(() => _isUploading = true);
+    try {
+      final rawBytes = kIsWeb ? bytes! : await File(file.path).readAsBytes();
+
+      // Size validation
+      final size = rawBytes.length;
+      const maxBytes = 5 * 1024 * 1024;
+      const minBytes = 10 * 1024;
+      if (size > maxBytes) {
+        _showSnackBar('⚠️ Resim en fazla 5 MB olabilir.');
+        setState(() {
+          _invoiceImage = null;
+          _invoiceImageBytes = null;
+        });
+        return;
+      } else if (size < minBytes) {
+        _showSnackBar('⚠️ Resim en az 100 KB olabilir.');
+        setState(() {
+          _invoiceImage = null;
+          _invoiceImageBytes = null;
+        });
+        return;
+      }
+
+      final mime =
+          kIsWeb ? (file.mimeType ?? 'image/jpeg') : guessMime(file.path);
+      final checksum = crc32Base64(rawBytes);
+      final sha = _sha256Hex(rawBytes);
+      final filename = p.basename(file.path);
+
+      final s3 = S3UploadService();
+
+      // Step 1: /file/init — check for duplicate
+      final rawData = await s3.initUploadRaw(
+        contentType: mime,
+        filename: filename,
+        checksumCRC32: checksum,
+        sha256: sha,
+      );
+
+      final status = rawData['status']?.toString().toLowerCase();
+      if (status == 'duplicate') {
+        if (!mounted) return;
+        _showDuplicateDialog();
+        setState(() {
+          _invoiceImage = null;
+          _invoiceImageBytes = null;
+        });
+        return;
+      }
+
+      // Parse the init response
+      final key = rawData['key'] as String;
+      final presignedUrl = rawData['presignedUrl'] as String;
+      // NOTE: Do NOT spread the `headers` map from the init response into the
+      // PUT request. The presigned URL is signed with only `host` as the
+      // SignedHeaders (see X-Amz-SignedHeaders=host in the URL). Any extra
+      // headers sent (e.g. x-amz-checksum-crc32) that were NOT part of the
+      // presigned signature will cause AWS to return 403 AccessDenied.
+      // The checksum is already embedded in the presigned URL query string.
+
+      // Step 2: PUT to S3
+      if (!kIsWeb) {
+        await s3.putToS3(
+          presignedUrl: presignedUrl,
+          file: File(file.path),
+          headers: {'Content-Type': mime},
+        );
+      }
+
+      // Step 3: confirm
+      await s3.confirmUpload(
+        key: key,
+        size: size,
+        mime: mime,
+        sha256: sha,
+      );
+
+      // Success — store key/url and unlock form
+      final imageUrl = rawData['imageUrl']?.toString() ??
+          rawData['url']?.toString() ??
+          presignedUrl.split('?').first; // strip query params as fallback
+
+      if (!mounted) return;
+      setState(() {
+        _uploadedKey = key;
+        _uploadedImageUrl = imageUrl;
+        _fieldsEnabled = true;
+      });
+
+      _showSnackBar('✅ Görsel yüklendi', color: const Color(0xFF12B76A));
+    } on DioException catch (e) {
+      if (!mounted) return;
+      final msg = (e.response?.data is Map)
+          ? (e.response!.data['message'] ?? e.message)
+          : (e.message ?? 'Yükleme hatası');
+      _showSnackBar('Hata: $msg');
+      setState(() {
+        _invoiceImage = null;
+        _invoiceImageBytes = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      _showSnackBar(e.toString());
+      setState(() {
+        _invoiceImage = null;
+        _invoiceImageBytes = null;
+      });
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
+  void _showDuplicateDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Mükerrer Görsel'),
+        content: const Text(
+          'Bu görsel daha önce sisteme yüklenmiş. Lütfen farklı bir görsel seçin.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Tamam'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSnackBar(String msg, {Color? color}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: color ?? const Color(0xFFF04438),
+      ),
+    );
   }
 
   Future<void> _save() async {
-    if (_saving) return;
-    final isFormValid = _formKey.currentState?.validate() ?? false;
+    if (_saving || !_fieldsEnabled) return;
 
+    final isFormValid = _formKey.currentState?.validate() ?? false;
     final newDateError = _selectedDate == null;
-    final newImageError = _invoiceImage == null;
 
     setState(() {
       _dateError = newDateError;
-      _imageError = newImageError;
     });
 
-    if (!isFormValid || newDateError || newImageError) return;
+    if (!isFormValid || newDateError) return;
 
     setState(() => _saving = true);
     try {
-      // Step 1: upload image → get key + imageUrl
-      final upload = await _uploadImage();
-      if (!mounted) return;
-
-      // Step 2: parse numeric/date fields
       final totalAmount =
           double.tryParse(_totalAmountController.text.trim()) ?? 0.0;
       final vatAmount =
@@ -136,7 +291,6 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
       final vatRate = int.tryParse(_selectedKdvRate ?? '') ?? 0;
       final transactionDate = DateFormat('dd.MM.yyyy').format(_selectedDate!);
 
-      // Step 3: build payload with upload result
       final Map<String, dynamic> payload = {
         'businessName': _businessNameController.text.trim(),
         'receiptNumber': _receiptNoController.text.trim(),
@@ -146,117 +300,50 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
         'transactionDate': transactionDate,
         'transactionType': _selectedCategory?.name,
         'paymentType': _paymentType,
-        'imageUrl': upload?.imageUrl ?? '',
-        if (upload?.key != null) 'sourceKey': upload!.key,
+        'imageUrl': _uploadedImageUrl ?? '',
+        if (_uploadedKey != null) 'sourceKey': _uploadedKey,
       };
 
-      // Step 4: POST to /api/receipts
+      // POST to /api/receipts
       final result = await ReceiptApiService().createReceipt(payload);
       if (!mounted) return;
-      final id = result['_id'] ?? result['id'] ?? '';
+
+      // Push to Excel: _uploadedKey is always set here because the form is
+      // locked until /file/init + putToS3 + confirmUpload all succeed.
+      String successMsg = '✅ Fiş başarıyla kaydedildi';
+      try {
+        final ok = await ExcelService().pushReceipt(_uploadedKey!, result);
+        successMsg = ok
+            ? '✅ Fiş kaydedildi ve Excel\'e eklendi'
+            : '✅ Fiş kaydedildi (Excel güncellenemedi)';
+      } catch (_) {
+        successMsg = '✅ Fiş kaydedildi (Excel güncellenemedi)';
+      }
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Fiş kaydedildi (id: $id)'),
+          content: Text(successMsg),
           backgroundColor: const Color(0xFF12B76A),
         ),
       );
-      Navigator.of(context).pop();
+
+      // Navigate to Excel files page
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/excelFiles',
+        (route) => route.isFirst,
+      );
     } on DioException catch (e) {
       if (!mounted) return;
       final msg = (e.response?.data is Map)
           ? (e.response!.data['message'] ?? e.message)
           : (e.message ?? 'Sunucu hatası');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Hata: $msg'),
-          backgroundColor: const Color(0xFFF04438),
-        ),
-      );
+      _showSnackBar('Hata: $msg');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: const Color(0xFFF04438),
-        ),
-      );
+      _showSnackBar(e.toString());
     } finally {
       if (mounted) setState(() => _saving = false);
-    }
-  }
-
-  /// Validates, checksums, and uploads the invoice image to S3.
-  /// Returns a record with [key] (S3 object key) and [imageUrl] on success,
-  /// or [null] if skipped / while S3 is commented out.
-  Future<({String key, String imageUrl})?> _uploadImage() async {
-    if (_invoiceImage == null || kIsWeb) return null;
-    setState(() => _isUploading = true);
-    try {
-      final file = File(_invoiceImage!.path);
-      // ignore: unused_local_variable
-      final mime = _invoiceImage!.mimeType ?? 'image/jpeg';
-
-      // 1) Compute checksums on raw file
-      final bytes = await file.readAsBytes();
-      // ignore: unused_local_variable
-      final checksum = crc32Base64(bytes);
-      // ignore: unused_local_variable
-      final sha = _sha256Hex(bytes);
-
-      // 2) Size validation
-      final size = bytes.length;
-      const maxBytes = 5 * 1024 * 1024;
-      const minBytes = 100 * 1024;
-
-      if (size > maxBytes) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('⚠️ Resim en fazla 5 MB olabilir.')),
-        );
-        return null;
-      } else if (size < minBytes) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('⚠️ Resim en az 100 KB olabilir.')),
-        );
-        return null;
-      }
-
-      // TODO: uncomment when ready to upload
-      // final service = S3UploadService();
-      // final init = await service.initUpload(
-      //   contentType: mime,
-      //   filename: _invoiceImage!.name,
-      //   checksumCRC32: checksum,
-      //   sha256: sha,
-      // );
-      // await service.putToS3(
-      //   presignedUrl: init.presignedUrl,
-      //   file: file,
-      //   headers: {'Content-Type': mime},
-      // );
-      // await service.confirmUpload(
-      //   key: init.key,
-      //   size: size,
-      //   mime: mime,
-      //   sha256: sha,
-      // );
-      // Once uncommented, replace the return below with:
-      // return (key: init.key, imageUrl: ''); // TODO: set imageUrl from your S3/CDN base URL
-
-      return null; // remove when S3 upload is active
-    } on DioException catch (e) {
-      if (!mounted) return null;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Yükleme hatası')),
-      );
-      return null;
-    } catch (e) {
-      if (!mounted) return null;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-      return null;
-    } finally {
-      if (mounted) setState(() => _isUploading = false);
     }
   }
 
@@ -288,155 +375,44 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _FieldLabel('İşletme Adı*'),
-                const SizedBox(height: 8),
-                _TextFieldBox(
-                  controller: _businessNameController,
-                  hintText: 'Acme Corp',
-                  validator: _businessNameValidator,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _FieldLabel('Tarih*'),
-                          const SizedBox(height: 8),
-                          _DateFieldBox(
-                            value: dateText,
-                            onTap: _pickDate,
-                            hasError: _dateError,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _FieldLabel('Fiş No*'),
-                          const SizedBox(height: 8),
-                          _TextFieldBox(
-                            controller: _receiptNoController,
-                            hintText: 'REC-12345',
-                            validator: _receiptNoValidator,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _FieldLabel.rich(
-                  main: 'İşlem Türü',
-                  suffix: ' (Opsiyonel)',
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: ReceiptCategory.values.map((category) {
-                    return _ChoiceChipButton(
-                      label: category.label,
-                      selected: _selectedCategory == category,
-                      onTap: () => setState(() => _selectedCategory = category),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 20),
-                _FieldLabel('Toplam Tutar*'),
-                const SizedBox(height: 8),
-                _TextFieldBox(
-                  controller: _totalAmountController,
-                  hintText: '0.00',
-                  prefixText: '₺ ',
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [_CurrencyInputFormatter()],
-                  textAlign: TextAlign.right,
-                  validator: _totalAmountValidator,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _FieldLabel('KDV Oranı (%)'),
-                          const SizedBox(height: 8),
-                          _DropdownFieldBox(
-                            value: _selectedKdvRate,
-                            hintText: 'Oran Seç',
-                            items: const ['1', '8', '10', '18', '20'],
-                            onChanged: (value) {
-                              setState(() => _selectedKdvRate = value);
-                              _recalculateKdv();
-                            },
-                            validator: (value) =>
-                                (value == null || value.isEmpty)
-                                    ? 'KDV oranı seçiniz'
-                                    : null,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _FieldLabel('KDV Tutarı*'),
-                          const SizedBox(height: 8),
-                          _TextFieldBox(
-                            controller: _kdvAmountController,
-                            hintText: '0.00',
-                            prefixText: '₺ ',
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.right,
-                            readOnly: true,
-                            fillColor: const Color(0xFFF2F4F7),
-                            validator: _kdvAmountValidator,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _FieldLabel.rich(
-                  main: 'Ödeme Türü',
-                  suffix: ' (Opsiyonel)',
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _ChoiceChipButton(
-                      label: 'Nakit',
-                      selected: _paymentType == 'cash',
-                      onTap: () => setState(() => _paymentType = 'cash'),
-                    ),
-                    _ChoiceChipButton(
-                      label: 'Kredi Kartı',
-                      selected: _paymentType == 'card',
-                      onTap: () => setState(() => _paymentType = 'card'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
+                // ── 1. Image picker — always at top ──────────────────────────
                 _FieldLabel('Fiş Görseli*'),
                 const SizedBox(height: 8),
-                _InvoiceImagePickerBox(
-                  imageFile: _invoiceImage,
-                  imageBytes: _invoiceImageBytes,
-                  onTap: _pickInvoiceImage,
-                  hasError: _imageError,
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    _InvoiceImagePickerBox(
+                      imageFile: _invoiceImage,
+                      imageBytes: _invoiceImageBytes,
+                      onTap: _isUploading ? null : _pickInvoiceImage,
+                      hasError: _imageError,
+                    ),
+                    if (_isUploading)
+                      Container(
+                        height: 180,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(color: Colors.white),
+                              SizedBox(height: 12),
+                              Text(
+                                'Yükleniyor...',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 if (_imageError)
                   const Padding(
@@ -449,7 +425,197 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
                       ),
                     ),
                   ),
-                const SizedBox(height: 12),
+
+                // ── Helper hint when no image yet ────────────────────────────
+                if (!_fieldsEnabled && !_isUploading) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF4E5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFFFB347)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.info_outline,
+                            color: Color(0xFFE67E00), size: 18),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Formu doldurmak için önce fiş görselini yükleyin.',
+                            style: TextStyle(
+                              color: Color(0xFFE67E00),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 20),
+
+                // ── 2. Rest of the form — locked until image uploaded ─────────
+                AbsorbPointer(
+                  absorbing: !_fieldsEnabled,
+                  child: Opacity(
+                    opacity: _fieldsEnabled ? 1.0 : 0.45,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _FieldLabel('İşletme Adı*'),
+                        const SizedBox(height: 8),
+                        _TextFieldBox(
+                          controller: _businessNameController,
+                          hintText: 'Acme Corp',
+                          validator: _businessNameValidator,
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _FieldLabel('Tarih*'),
+                                  const SizedBox(height: 8),
+                                  _DateFieldBox(
+                                    value: dateText,
+                                    onTap: _pickDate,
+                                    hasError: _dateError,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _FieldLabel('Fiş No*'),
+                                  const SizedBox(height: 8),
+                                  _TextFieldBox(
+                                    controller: _receiptNoController,
+                                    hintText: 'REC-12345',
+                                    validator: _receiptNoValidator,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        _FieldLabel.rich(
+                          main: 'İşlem Türü',
+                          suffix: ' (Opsiyonel)',
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: ReceiptCategory.values.map((category) {
+                            return _ChoiceChipButton(
+                              label: category.label,
+                              selected: _selectedCategory == category,
+                              onTap: () =>
+                                  setState(() => _selectedCategory = category),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 20),
+                        _FieldLabel('Toplam Tutar*'),
+                        const SizedBox(height: 8),
+                        _TextFieldBox(
+                          controller: _totalAmountController,
+                          hintText: '0.00',
+                          prefixText: '₺ ',
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [_CurrencyInputFormatter()],
+                          textAlign: TextAlign.right,
+                          validator: _totalAmountValidator,
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _FieldLabel('KDV Oranı (%)'),
+                                  const SizedBox(height: 8),
+                                  _DropdownFieldBox(
+                                    value: _selectedKdvRate,
+                                    hintText: 'Oran Seç',
+                                    items: const ['1', '8', '10', '18', '20'],
+                                    onChanged: (value) {
+                                      setState(() => _selectedKdvRate = value);
+                                      _recalculateKdv();
+                                    },
+                                    validator: (value) =>
+                                        (value == null || value.isEmpty)
+                                            ? 'KDV oranı seçiniz'
+                                            : null,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _FieldLabel('KDV Tutarı*'),
+                                  const SizedBox(height: 8),
+                                  _TextFieldBox(
+                                    controller: _kdvAmountController,
+                                    hintText: '0.00',
+                                    prefixText: '₺ ',
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.right,
+                                    readOnly: true,
+                                    fillColor: const Color(0xFFF2F4F7),
+                                    validator: _kdvAmountValidator,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        _FieldLabel.rich(
+                          main: 'Ödeme Türü',
+                          suffix: ' (Opsiyonel)',
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            _ChoiceChipButton(
+                              label: 'Nakit',
+                              selected: _paymentType == 'cash',
+                              onTap: () =>
+                                  setState(() => _paymentType = 'cash'),
+                            ),
+                            _ChoiceChipButton(
+                              label: 'Kredi Kartı',
+                              selected: _paymentType == 'card',
+                              onTap: () =>
+                                  setState(() => _paymentType = 'card'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -460,10 +626,12 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
         child: SizedBox(
           height: 56,
           child: ElevatedButton(
-            onPressed: (_isUploading || _saving) ? null : _save,
+            onPressed:
+                (_isUploading || _saving || !_fieldsEnabled) ? null : _save,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1570EF),
               foregroundColor: Colors.white,
+              disabledBackgroundColor: const Color(0xFFD0D5DD),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -481,7 +649,7 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
                       color: Colors.white,
                     ),
                   )
-                : const Text('Fişi Kaydet'),
+                : const Text('Fişi Kaydet ve Excele Ekle'),
           ),
         ),
       ),
@@ -524,6 +692,10 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
     return null;
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Widget helpers (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _FieldLabel extends StatelessWidget {
   const _FieldLabel(this.text)
@@ -792,7 +964,7 @@ class _InvoiceImagePickerBox extends StatelessWidget {
 
   final XFile? imageFile;
   final Uint8List? imageBytes;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool hasError;
 
   @override
