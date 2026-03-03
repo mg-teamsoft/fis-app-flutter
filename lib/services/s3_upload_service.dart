@@ -40,6 +40,23 @@ class S3UploadService {
     );
   }
 
+  /// Like [initUpload] but returns the raw response map so callers can inspect
+  /// fields like `status` (e.g. `"duplicate"`) before parsing.
+  Future<Map<String, dynamic>> initUploadRaw({
+    required String contentType,
+    String? filename,
+    required String checksumCRC32,
+    required String sha256,
+  }) async {
+    final res = await _api.dio.post('/api/file/init', data: {
+      'contentType': contentType,
+      'filename': filename,
+      'checksumCRC32': checksumCRC32,
+      'sha256': sha256,
+    });
+    return res.data as Map<String, dynamic>;
+  }
+
   /// PUT file to S3 using presigned URL (no auth header!)
   Future<void> putToS3({
     required String presignedUrl,
