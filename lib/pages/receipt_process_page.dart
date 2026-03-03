@@ -29,6 +29,19 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
   bool _processing = false;
   final Map<String, Future<Uint8List>> _bytesCache = {};
 
+  String _extractDioErrorMessage(DioException e) {
+    final data = e.response?.data;
+    if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      final backendMessage =
+          map['error']?.toString() ?? map['message']?.toString();
+      if (backendMessage != null && backendMessage.trim().isNotEmpty) {
+        return backendMessage;
+      }
+    }
+    return e.message ?? 'İşlem hatası';
+  }
+
   Future<void> _process() async {
     setState(() => _processing = true);
     final items = widget.files.map((f) => SelectedItem(f)).toList();
@@ -108,7 +121,9 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(e.message ?? 'İşlem hatası')));
+      ).showSnackBar(
+        SnackBar(content: Text(_extractDioErrorMessage(e))),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
