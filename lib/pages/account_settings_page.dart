@@ -81,11 +81,20 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       setState(() {
         _user = user;
         final up = Provider.of<UserPlanProvider?>(context, listen: false);
-        _currentPlanKey = up?.planKey ??
-            userPlan?.planKey ??
-            (subscriptionPlans.isNotEmpty
-                ? subscriptionPlans.first.planKey
-                : null);
+        final providerPlanKey = up?.planKey.trim().toUpperCase();
+        final serverPlanKey = userPlan?.planKey.trim();
+        final providerHasAppleEntitlement = providerPlanKey != null &&
+            providerPlanKey.isNotEmpty &&
+            providerPlanKey != 'FREE';
+        _currentPlanKey = providerHasAppleEntitlement
+            ? providerPlanKey
+            : (serverPlanKey != null && serverPlanKey.isNotEmpty)
+                ? serverPlanKey
+                : (providerPlanKey != null && providerPlanKey.isNotEmpty)
+                    ? providerPlanKey
+                    : (subscriptionPlans.isNotEmpty
+                        ? subscriptionPlans.first.planKey
+                        : null);
         _currentPlan = sortedAllPlans
                 .where((plan) => plan.planKey == _currentPlanKey)
                 .isNotEmpty

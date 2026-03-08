@@ -19,6 +19,14 @@ class S3InitResponse {
 class S3UploadService {
   final _api = ApiClient();
 
+  Map<String, dynamic> _normalizeMap(dynamic raw) {
+    if (raw is Map<String, dynamic>) return raw;
+    if (raw is Map) {
+      return raw.map((k, v) => MapEntry(k.toString(), v));
+    }
+    return <String, dynamic>{};
+  }
+
   Future<S3InitResponse> initUpload({
     required String contentType,
     String? filename,
@@ -31,12 +39,28 @@ class S3UploadService {
       'checksumCRC32': checksumCRC32,
       'sha256': sha256,
     });
-    final data = res.data as Map<String, dynamic>;
+    final data = _normalizeMap(res.data);
+    final key = data['key']?.toString();
+    final presignedUrl = data['presignedUrl']?.toString();
+    if (key == null ||
+        key.isEmpty ||
+        presignedUrl == null ||
+        presignedUrl.isEmpty) {
+      throw DioException(
+        requestOptions: res.requestOptions,
+        response: res,
+        message: 'Invalid /file/init response: key or presignedUrl is missing',
+        type: DioExceptionType.badResponse,
+      );
+    }
+    final headersRaw = data['headers'];
+    final headers = headersRaw is Map
+        ? headersRaw.map((k, v) => MapEntry(k.toString(), v.toString()))
+        : <String, String>{};
     return S3InitResponse(
-      key: data['key'] as String,
-      presignedUrl: data['presignedUrl'] as String,
-      headers: (data['headers'] as Map)
-          .map((k, v) => MapEntry(k.toString(), v.toString())),
+      key: key,
+      presignedUrl: presignedUrl,
+      headers: headers,
     );
   }
 
@@ -54,7 +78,7 @@ class S3UploadService {
       'checksumCRC32': checksumCRC32,
       'sha256': sha256,
     });
-    return res.data as Map<String, dynamic>;
+    return _normalizeMap(res.data);
   }
 
   /// PUT file to S3 using presigned URL (no auth header!)
