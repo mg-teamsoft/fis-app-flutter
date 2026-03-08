@@ -42,6 +42,23 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
     return e.message ?? 'İşlem hatası';
   }
 
+  Future<void> _showErrorDialog(String message) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hata'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Tamam'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _process() async {
     setState(() => _processing = true);
     final items = widget.files.map((f) => SelectedItem(f)).toList();
@@ -119,16 +136,10 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
       );
     } on DioException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
-        SnackBar(content: Text(_extractDioErrorMessage(e))),
-      );
+      await _showErrorDialog(_extractDioErrorMessage(e));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      await _showErrorDialog(e.toString());
     } finally {
       if (mounted) setState(() => _processing = false);
     }

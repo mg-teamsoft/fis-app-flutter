@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
@@ -270,17 +269,64 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
     );
   }
 
+  Future<void> _showErrorDialog(String message) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hata'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Tamam'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _extractBackendMessage(DioException e,
+      {String fallback = 'Sunucu hatası'}) {
+    final data = e.response?.data;
+    if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      final msg = map['error']?.toString() ?? map['message']?.toString();
+      if (msg != null && msg.trim().isNotEmpty) {
+        return msg;
+      }
+    } else if (data is String && data.trim().isNotEmpty) {
+      return data;
+    }
+    final dioMsg = e.message;
+    if (dioMsg != null && dioMsg.trim().isNotEmpty) {
+      return dioMsg;
+    }
+    return fallback;
+  }
+
   Future<void> _save() async {
+    debugPrint(
+      '[ManualForm][_save] triggered: saving=$_saving fieldsEnabled=$_fieldsEnabled',
+    );
     if (_saving || !_fieldsEnabled) return;
 
     final isFormValid = _formKey.currentState?.validate() ?? false;
     final newDateError = _selectedDate == null;
+    debugPrint(
+      '[ManualForm][_save] validation: isFormValid=$isFormValid dateSelected=${_selectedDate != null}',
+    );
 
     setState(() {
       _dateError = newDateError;
     });
 
-    if (!isFormValid || newDateError) return;
+    if (!isFormValid || newDateError) {
+      debugPrint(
+        '[ManualForm][_save] aborted: form/date invalid (dateError=$newDateError)',
+      );
+      return;
+    }
 
     setState(() => _saving = true);
     try {
@@ -290,6 +336,9 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
           double.tryParse(_kdvAmountController.text.trim()) ?? 0.0;
       final vatRate = int.tryParse(_selectedKdvRate ?? '') ?? 0;
       final transactionDate = DateFormat('dd.MM.yyyy').format(_selectedDate!);
+      debugPrint(
+        '[ManualForm][_save] parsed values: total=$totalAmount vatAmount=$vatAmount vatRate=$vatRate date=$transactionDate',
+      );
 
       final Map<String, dynamic> payload = {
         'businessName': _businessNameController.text.trim(),
@@ -303,20 +352,28 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
         'imageUrl': _uploadedImageUrl ?? '',
         if (_uploadedKey != null) 'sourceKey': _uploadedKey,
       };
+      debugPrint('[ManualForm][_save] payload: $payload');
 
       // POST to /api/receipts
+      debugPrint('[ManualForm][_save] calling ReceiptApiService.createReceipt');
       final result = await ReceiptApiService().createReceipt(payload);
+      debugPrint('[ManualForm][_save] createReceipt success: $result');
       if (!mounted) return;
 
       // Push to Excel: _uploadedKey is always set here because the form is
       // locked until /file/init + putToS3 + confirmUpload all succeed.
       String successMsg = '✅ Fiş başarıyla kaydedildi';
       try {
+        debugPrint(
+          '[ManualForm][_save] pushing to Excel: sourceKey=$_uploadedKey',
+        );
         final ok = await ExcelService().pushReceipt(_uploadedKey!, result);
+        debugPrint('[ManualForm][_save] Excel push result: ok=$ok');
         successMsg = ok
             ? '✅ Fiş kaydedildi ve Excel\'e eklendi'
             : '✅ Fiş kaydedildi (Excel güncellenemedi)';
-      } catch (_) {
+      } catch (e) {
+        debugPrint('[ManualForm][_save] Excel push failed: $e');
         successMsg = '✅ Fiş kaydedildi (Excel güncellenemedi)';
       }
       if (!mounted) return;
@@ -334,15 +391,18 @@ class _ReceiptManualFormPageState extends State<ReceiptManualFormPage> {
         (route) => route.isFirst,
       );
     } on DioException catch (e) {
+      debugPrint(
+        '[ManualForm][_save] DioException: status=${e.response?.statusCode} message=${e.message} data=${e.response?.data}',
+      );
       if (!mounted) return;
-      final msg = (e.response?.data is Map)
-          ? (e.response!.data['message'] ?? e.message)
-          : (e.message ?? 'Sunucu hatası');
-      _showSnackBar('Hata: $msg');
+      final msg = _extractBackendMessage(e);
+      await _showErrorDialog(msg);
     } catch (e) {
+      debugPrint('[ManualForm][_save] unexpected error: $e');
       if (!mounted) return;
       _showSnackBar(e.toString());
     } finally {
+      debugPrint('[ManualForm][_save] finished; resetting saving flag');
       if (mounted) setState(() => _saving = false);
     }
   }

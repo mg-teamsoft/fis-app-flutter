@@ -12,7 +12,8 @@ class UserPlan {
     this.endDate,
   });
 
-  bool get isPaid => planKey == "MONTHLY" || planKey == "YEARLY";
+  bool get isPaid =>
+      planKey.startsWith("MONTHLY") || planKey.startsWith("YEARLY");
   bool get canScan => remainingQuota > 0;
 
   factory UserPlan.fromJson(Map<String, dynamic> json) {
@@ -28,12 +29,17 @@ class UserPlan {
         ? readInt('remainingQuota')
         : readInt('quota');
 
+    final rawPlanKey = (json["planKey"] ?? "FREE").toString().trim();
+    final normalizedPlanKey =
+        rawPlanKey.isEmpty ? "FREE" : rawPlanKey.toUpperCase();
+
+    final endDateRaw = json["endDate"] ?? json["expiresAt"];
+
     return UserPlan(
-      planKey: (json["planKey"] ?? "FREE").toString(),
+      planKey: normalizedPlanKey,
       remainingQuota: remaining,
-      endDate: json["endDate"] != null
-          ? DateTime.tryParse(json["endDate"].toString())
-          : null,
+      endDate:
+          endDateRaw != null ? DateTime.tryParse(endDateRaw.toString()) : null,
     );
   }
 }
