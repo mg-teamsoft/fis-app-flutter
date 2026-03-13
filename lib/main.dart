@@ -1,3 +1,6 @@
+import 'package:fis_app_flutter/page/forgot_password.dart';
+import 'package:fis_app_flutter/page/login.dart';
+import 'package:fis_app_flutter/page/register.dart';
 import 'package:fis_app_flutter/pages/forgot_password_page.dart';
 import 'package:fis_app_flutter/pages/login_page.dart';
 import 'package:fis_app_flutter/pages/main_layout.dart';
@@ -19,10 +22,11 @@ import 'package:provider/provider.dart';
 // ✅ add these imports (adjust paths to your project)
 import 'services/api_client.dart';
 import 'providers/user_plan_provider.dart';
+import 'theme/theme.dart';
 
 Future<void> main() async {
   usePathUrlStrategy(); // Enables path-based URLs so /resetPassword?token=... works
-  WidgetsFlutterBinding.ensureInitialized();
+  
   await initializeDateFormatting('tr_TR');
 
   FlutterError.onError = (details) {
@@ -31,6 +35,7 @@ Future<void> main() async {
 
   runZonedGuarded(
     () {
+      WidgetsFlutterBinding.ensureInitialized();
       runApp(const MyApp());
     },
     (error, stack) {
@@ -61,13 +66,21 @@ class MyApp extends StatelessWidget {
             ctx.read<UserPlanProvider>(),
           ),
         ),
+          ChangeNotifierProvider<ThemeProvider>(
+            create: (_) => ThemeProvider(),
+          ),
 
         // You can add AuthProvider here too (recommended),
         // and any other global providers.
       ],
-      child: MaterialApp(
+        child:
+            Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+          return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'My Fiş App',
+            theme: ThemeApp.light,
+            themeMode: themeProvider.themeMode,
+            darkTheme: ThemeApp.dark,
         navigatorKey: AuthNavigation.navigatorKey,
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
@@ -78,16 +91,12 @@ class MyApp extends StatelessWidget {
           Locale('en'),
           Locale('tr'),
           Locale('tr', 'TR'),
-        ],
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          fontFamily: 'Poppins',
-        ),
+            ],
         initialRoute: kIsWeb ? null : '/login',
         routes: {
-          '/': (_) => const LoginPage(),
-          '/login': (_) => const LoginPage(),
-          '/register': (_) => const RegisterPage(),
+              '/': (_) => const PageLogin(),
+              '/login': (_) => const PageLogin(),
+              '/register': (_) => const PageRegister(),
           '/home': (_) => const MainLayout(initialRoute: '/home'),
           '/receipt': (_) => const MainLayout(initialRoute: '/receipt'),
           '/excelFiles': (_) => const MainLayout(initialRoute: '/excelFiles'),
@@ -96,7 +105,7 @@ class MyApp extends StatelessWidget {
           '/settings': (_) => const MainLayout(initialRoute: '/settings'),
           '/accountSettings': (_) =>
               const MainLayout(initialRoute: '/accountSettings'),
-          '/forgotPassword': (_) => const ForgotPasswordPage(),
+              '/forgotPassword': (_) => const PageForgotPassword(),
           '/resetPassword': (_) => const ResetPasswordPage(),
           '/receipt/process': (context) {
             final args = ModalRoute.of(context)?.settings.arguments;
@@ -124,8 +133,8 @@ class MyApp extends StatelessWidget {
             );
           }
           return null;
-        },
-      ),
-    );
+            },
+          );
+        }));
   }
 }

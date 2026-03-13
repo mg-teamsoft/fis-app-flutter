@@ -1,4 +1,5 @@
 import 'package:fis_app_flutter/models/receipt_flow_models.dart';
+import 'package:fis_app_flutter/page/home.dart';
 import 'package:fis_app_flutter/pages/about_page.dart';
 import 'package:fis_app_flutter/pages/account_settings_page.dart';
 import 'package:fis_app_flutter/pages/excel_files_page.dart';
@@ -10,6 +11,7 @@ import 'package:fis_app_flutter/pages/receipt_results_page.dart';
 import 'package:fis_app_flutter/pages/settings_page.dart';
 import 'package:fis_app_flutter/providers/user_plan_provider.dart';
 import 'package:fis_app_flutter/services/auth_service.dart';
+import 'package:fis_app_flutter/widget/scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +54,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   late final Map<String, Widget Function(BuildContext, Object?)> _pageBuilders =
       {
-    '/home': (_, __) => const HomePage(),
+    '/home': (_, __) => const PageHome(),
     '/receipt': (_, __) => const ReceiptPage(),
     '/excelFiles': (_, __) => const ExcelFilesPage(),
     '/about': (_, __) => const AboutPage(),
@@ -183,11 +185,11 @@ class _MainLayoutState extends State<MainLayout> {
       return child;
     }
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: _buildAppBar(),
-      body: SafeArea(child: child),
-      bottomNavigationBar: _buildBottomNav(),
-    );
+    return WidgetScaffold(
+        onSelected: _handleMenuSelection,
+        currentIndex: _currentNavIndex,
+        onTabSelected: (index) => _onTabTapped(index),
+        showBackButton: _currentNavIndex == 0 ? false : true,
+        body: SafeArea(child: child));
   }
 }

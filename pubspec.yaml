@@ -138,3 +138,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+fonts:
+  - family: Manrope
+    fonts:
+      - asset: assets/fonts/Manrope-Variables.tff
+      
