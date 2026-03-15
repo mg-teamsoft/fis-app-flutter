@@ -8,6 +8,7 @@ import 'package:fis_app_flutter/services/purchase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'dart:developer' as developer;
 import 'dart:async';
@@ -20,6 +21,7 @@ import 'services/api_client.dart';
 import 'providers/user_plan_provider.dart';
 
 Future<void> main() async {
+  usePathUrlStrategy(); // Enables path-based URLs so /resetPassword?token=... works
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('tr_TR');
 

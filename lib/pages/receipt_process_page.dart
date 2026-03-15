@@ -80,6 +80,8 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
           sha256: sha,
         );
         item.key = init.key;
+        // Derive the permanent public URL by stripping the presigned query string
+        item.imageUrl = init.presignedUrl.split('?').first;
 
         // 2) put to s3
         await _s3.putToS3(
