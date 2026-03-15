@@ -91,19 +91,14 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
   Future<void> _pollOne(_ItemState s) async {
     final jobId = s.item.jobId!;
     try {
-      // Expectation: JobService.getJob returns either:
-      //   { status: "success", job: { status, receipt, ... } }
-      //   or a flattened { status, receipt, ... }
       final resp = await _jobs.getJob(jobId);
 
-      // Try to normalize the job object
       final Map<String, dynamic> jobObj =
           (resp['job'] is Map<String, dynamic>) ? resp['job'] : resp;
 
       s.status = (jobObj['status'] as String?) ?? s.status;
       final message = jobObj['message']?.toString();
 
-      // Receipt may be a map or a JSON string; normalize then localize for the editor
       final raw = jobObj['receipt'];
       Map<String, dynamic>? asMap;
       if (raw == null) {
@@ -122,7 +117,6 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
       final localizedReceipt = _localizeReceipt(asMap);
       s.rawReceipt = asMap;
 
-      // If job is done, stop the countdown and prepare the editor text
       if (s.status == StatusType.done.name) {
         s.lastError = null;
         s.active = false;
@@ -130,6 +124,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         s.receipt = localizedReceipt;
         s.selected ??= localizedReceipt != null;
 
+        // Keep controller for approve flow
         final editorText = (localizedReceipt != null)
             ? const JsonEncoder.withIndent('  ').convert(localizedReceipt)
             : message ?? 'fiş datası okunamadı.';
@@ -147,7 +142,6 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         s.receipt = localizedReceipt;
         s.selected ??= false;
 
-        // Prepare / update the editable text box content
         final editorText = (localizedReceipt != null)
             ? const JsonEncoder.withIndent('  ').convert(localizedReceipt)
             : s.lastError!;
@@ -158,12 +152,10 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
           s.controller!.text = editorText;
         }
       } else {
-        // still running; keep showing progress
         s.active = true;
         s.lastError = message;
       }
     } catch (e) {
-      // On error, keep it active but surface a toast-able message in UI
       s.lastError = e.toString();
     }
 
@@ -189,34 +181,97 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
     setState(() {});
   }
 
+  // ── validation helpers ─────────────────────────────────────────────────────
+  static List<String> _collectErrors(Map<String, dynamic>? receipt) {
+    if (receipt == null) return ['Fiş verisi eksik.'];
+    final errors = <String>[];
+
+    void requireField(String key, String label) {
+      final v = receipt[key]?.toString().trim() ?? '';
+      if (v.isEmpty) errors.add('$label zorunludur.');
+    }
+
+    void requireNumeric(String key, String label) {
+      final v = receipt[key]?.toString().trim() ?? '';
+      if (v.isNotEmpty && double.tryParse(v) == null) {
+        errors.add('$label geçerli bir sayı olmalıdır.');
+      }
+    }
+
+    requireField('Şirket Adı', 'Şirket Adı');
+    requireField('İşlem Tarihi', 'İşlem Tarihi');
+    requireField('Toplam Tutar', 'Toplam Tutar');
+    requireNumeric('Toplam Tutar', 'Toplam Tutar');
+    requireNumeric('KDV Tutarı', 'KDV Tutarı');
+    requireNumeric('KDV Oranı (%)', 'KDV Oranı');
+
+    final products = receipt['Ürünler'];
+    if (products is List) {
+      for (int i = 0; i < products.length; i++) {
+        final p = products[i];
+        if (p is Map) {
+          final name = p['Ürün Adı']?.toString().trim() ?? '';
+          if (name.isEmpty) errors.add('Ürün ${i + 1}: Ürün Adı zorunludur.');
+          for (final f in ['Miktar', 'Birim Fiyat', 'Satır Toplamı']) {
+            final v = p[f]?.toString().trim() ?? '';
+            if (v.isNotEmpty && double.tryParse(v) == null) {
+              errors.add('Ürün ${i + 1}: $f geçerli bir sayı olmalıdır.');
+            }
+          }
+        }
+      }
+    }
+    return errors;
+  }
+
   Future<void> _approveAll() async {
-    if (_submitting) return; // already running
+    if (_submitting) return;
+
+    // ── pre-flight validation ──────────────────────────────────────────────
+    bool anyValidationError = false;
+    for (final s in _state.values) {
+      final isSelected = s.selected ?? (s.receipt != null);
+      if (!isSelected) continue;
+      if (s.status != StatusType.done.name) continue;
+      final errors = _collectErrors(s.receipt);
+      if (errors.isNotEmpty) {
+        s.showErrors = true;
+        anyValidationError = true;
+      }
+    }
+
+    if (anyValidationError) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('⚠️ Lütfen kırmızı alanları düzeltin.'),
+          backgroundColor: Color(0xFFB71C1C),
+        ),
+      );
+      return;
+    }
+    // ── end validation ────────────────────────────────────────────────────
+
     setState(() {
       _submitting = true;
       _hasSuccessfulSubmission = null;
     });
 
-    // Collect successes/failures
     int okCount = 0;
     int failCount = 0;
     final failures = <String>[];
 
     for (final entry in _state.entries) {
       final s = entry.value;
-
-      // Respect user selection; default to selected if receipt exists
       final isSelected = s.selected ?? (s.receipt != null);
       if (!isSelected) continue;
 
-      // Only try if we have an editor with JSON content
       final ctrl = s.controller;
       if (ctrl == null) continue;
 
-      // Skip still running / failed-without-json items
       if (s.status != StatusType.done.name) continue;
 
       try {
-        // If editor contains "can not read receipt data", skip
         final text = ctrl.text.trim();
         if (text.toLowerCase().contains('can not read receipt data')) {
           failCount++;
@@ -233,12 +288,25 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
 
         final edited = Map<String, dynamic>.from(decoded);
         final normalized = _delocalizeReceiptIfNeeded(edited);
+
         final key = s.item.key;
         if (key == null || key.isEmpty) {
           failCount++;
           failures.add('${s.item.jobId}: missing key');
           continue;
         }
+
+        // The backend's mapReceiptDataToReceiptModel mutates transactionType.kdvRate,
+        // so it must be an object. _delocalizeReceiptIfNeeded flattens it to a string;
+        // reconstruct the object here using the vatRate that was already extracted.
+        final txType = normalized['transactionType'];
+        if (txType is String) {
+          normalized['transactionType'] = <String, dynamic>{
+            'type': txType,
+            'kdvRate': normalized['vatRate'] ?? 0,
+          };
+        }
+
         final ok = await _excel.pushReceipt(key, normalized);
         if (ok) {
           okCount++;
@@ -255,17 +323,27 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
     if (!mounted) return;
 
     final msg = (failures.isEmpty)
-        ? '✅ $okCount fiş Excel’e yazıldı'
+        ? '✅ $okCount fiş Excel\'e yazıldı'
         : '✅ $okCount yazıldı • ❌ $failCount başarısız\n${failures.join('\n')}';
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
+      SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
     );
 
     setState(() {
       _submitting = false;
       _hasSuccessfulSubmission = okCount > 0;
     });
+
+    // Navigate to Excel files page on full success
+    if (okCount > 0 && failures.isEmpty) {
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/excelFiles',
+        (route) => route.isFirst,
+      );
+    }
   }
 
   @override
@@ -310,11 +388,13 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                 itemBuilder: (_, i) {
                   final it = items[i];
                   final jobId = it.jobId!;
-                  final s = _state.putIfAbsent(jobId, () => _ItemState(item: it));
+                  final s =
+                      _state.putIfAbsent(jobId, () => _ItemState(item: it));
                   final wide = MediaQuery.of(context).size.width > 700;
                   final isSelected = s.selected ?? (s.receipt != null);
                   final submitted = _hasSuccessfulSubmission == true;
-                  final controller = s.photoController ??= PhotoViewController();
+                  final controller =
+                      s.photoController ??= PhotoViewController();
 
                   final image = ClipRRect(
                     borderRadius: BorderRadius.circular(12),
@@ -333,12 +413,11 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                               return PhotoView(
                                 imageProvider: MemoryImage(snap.data!),
                                 controller: controller,
-                                backgroundDecoration:
-                                    const BoxDecoration(color: Colors.transparent),
+                                backgroundDecoration: const BoxDecoration(
+                                    color: Colors.transparent),
                                 minScale:
                                     PhotoViewComputedScale.contained * 0.95,
-                                maxScale:
-                                    PhotoViewComputedScale.covered * 4.0,
+                                maxScale: PhotoViewComputedScale.covered * 4.0,
                                 basePosition: Alignment.center,
                                 tightMode: true,
                               );
@@ -356,7 +435,8 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                           ),
                   );
 
-                  final editor = _buildEditorArea(context, s, submitted: submitted);
+                  final editor =
+                      _buildEditorArea(context, s, submitted: submitted);
                   final showControls = !submitted;
 
                   return Padding(
@@ -414,8 +494,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                               )
                             : Column(
                                 children: [
-                                  AspectRatio(
-                                      aspectRatio: 3 / 4, child: image),
+                                  AspectRatio(aspectRatio: 3 / 4, child: image),
                                   const SizedBox(height: 12),
                                   editor,
                                 ],
@@ -431,15 +510,16 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   FilledButton.icon(
-                    onPressed: (_submitting || _hasSuccessfulSubmission != null)
-                        ? null
-                        : _approveAll,
+                    onPressed:
+                        (_submitting || _state.values.any((s) => s.active))
+                            ? null
+                            : _approveAll,
                     icon: const Icon(Icons.check),
                     label: Text(
                       _submitting
                           ? "Gönderiliyor..."
-                          : _hasSuccessfulSubmission != null
-                              ? "İşlem Tamamlandı"
+                          : _state.values.any((s) => s.active)
+                              ? "İşleniyor..."
                               : "Onayla ve Excel'e Yaz",
                     ),
                   ),
@@ -479,7 +559,6 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
         (s.status != StatusType.done.name &&
             s.status != StatusType.failed.name &&
             s.status != StatusType.error.name);
-    final showReceiptText = !running;
 
     final countdownText = running ? 'Tekrar sorgu: ${s.countdown}s' : '';
 
@@ -504,32 +583,44 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                     style: const TextStyle(color: Color(0xFFD32F2F))),
               ],
             ],
-            if (showReceiptText) ...[
-              const SizedBox(height: 4),
+            if (!running) ...[
               if (s.lastError != null &&
                   (s.status == StatusType.failed.name ||
                       s.status == StatusType.error.name)) ...[
+                const SizedBox(height: 4),
                 Text('Hata: ${s.lastError}',
                     style: const TextStyle(color: Color(0xFFD32F2F))),
                 const SizedBox(height: 8),
               ],
-              TextField(
-                controller: s.controller ??
-                    (s.controller = TextEditingController(
-                      text: s.receipt != null
-                          ? const JsonEncoder.withIndent('  ')
-                              .convert(s.receipt)
-                          : 'can not read receipt data',
-                    )),
-                maxLines: 18,
-                readOnly: submitted,
-                enabled: !submitted,
-                style: const TextStyle(fontFamily: 'monospace'),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Sonuç JSON (düzenlenebilir)',
+              if (s.receipt != null)
+                _ReceiptTable(
+                  data: s.receipt!,
+                  showErrors: s.showErrors,
+                  onChanged: (updated) {
+                    s.receipt = updated;
+                    // clear errors as user edits
+                    if (s.showErrors) {
+                      final errs = _collectErrors(updated);
+                      if (errs.isEmpty) {
+                        setState(() => s.showErrors = false);
+                      }
+                    }
+                    final encoded =
+                        const JsonEncoder.withIndent('  ').convert(updated);
+                    s.controller?.text = encoded;
+                  },
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Text(
+                    s.lastError ?? 'Fiş datası okunamadı.',
+                    style: TextStyle(
+                      color: theme.colorScheme.error,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
                 ),
-              ),
             ],
           ],
         ),
@@ -556,8 +647,10 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
     'receiptNumber',
     'transactionDate',
     'products',
+    'vatAmount',
     'kdvAmount',
     'totalAmount',
+    'vatRate',
     'transactionType',
     'paymentType',
   };
@@ -573,26 +666,38 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
     }
 
     put('Şirket Adı', raw['businessName'] ?? raw['companyName']);
-    put('İşlem Tarihi', raw['transactionDate']);
-    put('Fiş No', raw['receiptNumber']);
-    put('KDV Tutarı', raw['kdvAmount']);
-    put('Toplam Tutar', raw['totalAmount']);
-    put('Ödeme Tipi', raw['paymentType']);
 
+    // Parse ISO date to dd.MM.yyyy for display
+    final rawDate = raw['transactionDate']?.toString() ?? '';
+    if (rawDate.isNotEmpty) {
+      try {
+        final dt = DateTime.parse(rawDate);
+        put('İşlem Tarihi',
+            '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}');
+      } catch (_) {
+        put('İşlem Tarihi', rawDate);
+      }
+    }
+
+    put('Fiş No', raw['receiptNumber']);
+    // vatAmount is the standard key; fall back to legacy kdvAmount
+    put('KDV Tutarı', raw['vatAmount'] ?? raw['kdvAmount']);
+    // vatRate is a top-level numeric field
+    put('KDV Oranı (%)', raw['vatRate']);
+    put('Toplam Tutar', raw['totalAmount']);
+    put('Ödeme Türü', raw['paymentType']);
+
+    // transactionType may be a plain string or an object with 'type' + 'kdvRate'
     final transactionType = raw['transactionType'];
     if (transactionType is Map) {
       final typed = Map<String, dynamic>.from(transactionType);
-      put('İşlem Tipi', typed['type'] ?? typed['name']);
-      put('KDV Oranı (%)', typed['kdvRate']);
-      final extra = Map<String, dynamic>.from(typed)
-        ..remove('type')
-        ..remove('name')
-        ..remove('kdvRate');
-      if (extra.isNotEmpty) {
-        localized['Diğer Alanlar'] = extra;
+      put('İşlem Türü', typed['type'] ?? typed['name']);
+      // kdvRate lives inside the transactionType object
+      if (typed['kdvRate'] != null) {
+        put('KDV Oranı (%)', typed['kdvRate']);
       }
     } else if (transactionType != null) {
-      put('İşlem Tipi', transactionType);
+      put('İşlem Türü', transactionType);
     }
 
     final products = raw['products'];
@@ -607,6 +712,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
       }
     }
 
+    // Carry through any extra unknown DB fields into 'Diğer Alanlar'
     final extras = <String, dynamic>{};
     raw.forEach((key, value) {
       if (!_englishReceiptKeys.contains(key)) {
@@ -669,37 +775,13 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
     put('receiptNumber',
         source['Fiş No'] ?? source['fisNumarasi'] ?? source['fisNo']);
     put('transactionDate', source['İşlem Tarihi'] ?? source['islemTarihi']);
-    put('kdvAmount', source['KDV Tutarı'] ?? source['kdvTutari']);
+    put('vatAmount', source['KDV Tutarı'] ?? source['kdvTutari']);
+    put('vatRate', source['KDV Oranı (%)'] ?? source['kdvOrani']);
     put('totalAmount', source['Toplam Tutar'] ?? source['toplamTutar']);
-    put('paymentType', source['Ödeme Tipi'] ?? source['odemeTipi']);
-
-    final islemTipi = source['İşlem Tipi'] ?? source['islemTipi'];
-    if (islemTipi is Map) {
-      final map = Map<String, dynamic>.from(islemTipi);
-      final normalizedIslem = <String, dynamic>{};
-      if (map['tip'] != null) normalizedIslem['type'] = map['tip'];
-      if (map['KDV Oranı (%)'] != null) {
-        normalizedIslem['kdvRate'] = map['KDV Oranı (%)'];
-      } else if (source['KDV Oranı (%)'] != null) {
-        normalizedIslem['kdvRate'] = source['KDV Oranı (%)'];
-      }
-      final extra = Map<String, dynamic>.from(map)
-        ..remove('tip')
-        ..remove('KDV Oranı (%)');
-      if (extra.isNotEmpty) {
-        normalizedIslem.addAll(extra);
-      }
-      if (normalizedIslem.isNotEmpty) {
-        normalized['transactionType'] = normalizedIslem;
-      }
-    } else if (islemTipi != null) {
-      normalized['transactionType'] = {
-        'type': islemTipi,
-        if (source['KDV Oranı (%)'] != null) 'kdvRate': source['KDV Oranı (%)'],
-      };
-    } else if (source['KDV Oranı (%)'] != null) {
-      normalized['transactionType'] = {'kdvRate': source['KDV Oranı (%)']};
-    }
+    put('paymentType',
+        source['Ödeme Türü'] ?? source['Ödeme Tipi'] ?? source['odemeTipi']);
+    put('transactionType',
+        source['İşlem Türü'] ?? source['İşlem Tipi'] ?? source['islemTipi']);
 
     final urunler = source['Ürünler'] ?? source['urunler'];
     if (urunler is List) {
@@ -743,33 +825,411 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// _ItemState
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _ItemState {
   _ItemState({required this.item});
   final SelectedItem item;
   PhotoViewController? photoController;
   double rotationDeg = 0;
 
-  /// Job status: 'pending' | StatusType.processing.name | StatusType.done.name | StatusType.failed.name …
   String status = StatusType.processing.name;
-
-  /// Whether this item is selected for submission (null means "decide from data")
   bool? selected;
-
-  /// 10-second countdown until next poll.
+  bool showErrors = false;
   int countdown = 10;
-
-  /// Whether this item still needs polling (true until done/failed).
   bool active = true;
-
-  /// Last backend error (if any).
   String? lastError;
-
-  /// Original receipt payload from backend
   Map<String, dynamic>? rawReceipt;
-
-  /// Localized receipt map (null if not available)
   Map<String, dynamic>? receipt;
-
-  /// Editor controller (holds pretty JSON or message)
   TextEditingController? controller;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Receipt table widget  (editable)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Called whenever the user edits any field.  [updated] is the full, mutated
+/// receipt map using the same Turkish localized keys as [data].
+typedef ReceiptChangedCallback = void Function(Map<String, dynamic> updated);
+
+class _ReceiptTable extends StatefulWidget {
+  const _ReceiptTable(
+      {required this.data, this.onChanged, this.showErrors = false});
+
+  final Map<String, dynamic> data;
+  final ReceiptChangedCallback? onChanged;
+  final bool showErrors;
+
+  @override
+  State<_ReceiptTable> createState() => _ReceiptTableState();
+}
+
+class _ReceiptTableState extends State<_ReceiptTable> {
+  // ── scalar field controllers ──────────────────────────────────────────────
+  late final TextEditingController _businessName;
+  late final TextEditingController _date;
+  late final TextEditingController _receiptNo;
+  late final TextEditingController _transType;
+  late final TextEditingController _paymentType;
+  late final TextEditingController _vatRate;
+  late final TextEditingController _vat;
+  late final TextEditingController _total;
+
+  // ── working copy of the data map (mutated on every edit) ─────────────────
+  late Map<String, dynamic> _current;
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Helpers
+  // ─────────────────────────────────────────────────────────────────────────
+  T? _pick<T>(List<String> keys) {
+    for (final k in keys) {
+      final v = _current[k];
+      if (v != null) return v as T?;
+    }
+    return null;
+  }
+
+  String _fmt(dynamic v) {
+    if (v == null) return '';
+    if (v is Map) return v.values.join(' / ');
+    return v.toString();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Init
+  // ─────────────────────────────────────────────────────────────────────────
+  @override
+  void initState() {
+    super.initState();
+    _current = Map<String, dynamic>.from(widget.data);
+    _initControllers();
+  }
+
+  void _initControllers() {
+    _businessName = TextEditingController(
+        text:
+            _pick<String>(['Şirket Adı', 'businessName', 'companyName']) ?? '');
+    _date = TextEditingController(
+        text: _pick<String>(['İşlem Tarihi', 'transactionDate']) ?? '');
+    _receiptNo = TextEditingController(
+        text: _pick<String>(['Fiş No', 'receiptNumber']) ?? '');
+
+    _transType = TextEditingController(
+        text: _fmt(
+            _pick<dynamic>(['İşlem Türü', 'İşlem Tipi', 'transactionType'])));
+    _paymentType = TextEditingController(
+        text: _pick<String>(['Ödeme Türü', 'Ödeme Tipi', 'paymentType']) ?? '');
+    _vatRate = TextEditingController(
+        text: _fmt(_pick<dynamic>(['KDV Oranı (%)', 'vatRate'])));
+
+    _vat = TextEditingController(
+        text: _fmt(_pick<dynamic>(['KDV Tutarı', 'kdvAmount', 'vatAmount'])));
+    _total = TextEditingController(
+        text: _fmt(_pick<dynamic>(['Toplam Tutar', 'totalAmount'])));
+
+    // Attach listeners for all editable scalar controllers
+    for (final ctrl in [
+      _businessName,
+      _date,
+      _receiptNo,
+      _transType,
+      _paymentType,
+      _vatRate,
+      _vat,
+      _total,
+    ]) {
+      ctrl.addListener(_onScalarChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final ctrl in [
+      _businessName,
+      _date,
+      _receiptNo,
+      _transType,
+      _paymentType,
+      _vatRate,
+      _vat,
+      _total
+    ]) {
+      ctrl.dispose();
+    }
+    super.dispose();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Change propagation
+  // ─────────────────────────────────────────────────────────────────────────
+  void _onScalarChanged() {
+    _current['Şirket Adı'] = _businessName.text;
+    _current['İşlem Tarihi'] = _date.text;
+    _current['Fiş No'] = _receiptNo.text;
+    _current['İşlem Tipi'] = _transType.text;
+    _current['Ödeme Tipi'] = _paymentType.text;
+    _current['KDV Oranı (%)'] = _vatRate.text;
+    _current['KDV Tutarı'] = _vat.text;
+    _current['Toplam Tutar'] = _total.text;
+    // Remove old English keys that may have come from the backend
+    for (final k in [
+      'businessName',
+      'companyName',
+      'transactionDate',
+      'receiptNumber',
+      'transactionType',
+      'paymentType',
+      'kdvAmount',
+      'vatAmount',
+      'vatRate',
+      'totalAmount'
+    ]) {
+      _current.remove(k);
+    }
+    widget.onChanged?.call(Map<String, dynamic>.from(_current));
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Build helpers
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /// Returns an error string if validation fails (only when showErrors is on).
+  String? _errorOf(
+    TextEditingController ctrl, {
+    bool required = false,
+    bool numeric = false,
+  }) {
+    if (!widget.showErrors) return null;
+    final val = ctrl.text.trim();
+    if (required && val.isEmpty) return 'Bu alan zorunludur';
+    if (numeric && val.isNotEmpty && double.tryParse(val) == null) {
+      return 'Geçerli bir sayı girin';
+    }
+    return null;
+  }
+
+  InputDecoration _dec(String hint, {String? errorText}) => InputDecoration(
+        hintText: hint,
+        errorText: errorText,
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(6),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(6),
+          borderSide: errorText != null
+              ? const BorderSide(color: Color(0xFFD32F2F), width: 1.5)
+              : BorderSide.none,
+        ),
+        filled: false,
+      );
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Build
+  // ─────────────────────────────────────────────────────────────────────────
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final labelStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+      fontWeight: FontWeight.w500,
+    );
+    final highlightStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontWeight: FontWeight.w700,
+      fontSize: 15,
+      color: theme.colorScheme.primary,
+    );
+
+    // ── scalar rows (text-only) ───────────────────────────────────────────
+    // İşlem Türü, Ödeme Türü, KDV Oranı are rendered as dropdowns below.
+    final scalarRows = <({
+      String label,
+      TextEditingController ctrl,
+      bool highlight,
+      bool readOnly,
+      String? err,
+    })>[
+      (
+        label: 'Şirket Adı',
+        ctrl: _businessName,
+        highlight: false,
+        readOnly: false,
+        err: _errorOf(_businessName, required: true)
+      ),
+      (
+        label: 'Tarih',
+        ctrl: _date,
+        highlight: false,
+        readOnly: false,
+        err: _errorOf(_date, required: true)
+      ),
+      (
+        label: 'Fiş No',
+        ctrl: _receiptNo,
+        highlight: false,
+        readOnly: false,
+        err: _errorOf(_receiptNo)
+      ),
+      // KDV Tutarı — editable, value comes from backend
+      (
+        label: 'KDV Tutarı',
+        ctrl: _vat,
+        highlight: false,
+        readOnly: false,
+        err: _errorOf(_vat, numeric: true)
+      ),
+      (
+        label: 'Toplam Tutar',
+        ctrl: _total,
+        highlight: true,
+        readOnly: false,
+        err: _errorOf(_total, required: true, numeric: true)
+      ),
+      (
+        label: 'İşlem Türü',
+        ctrl: _transType,
+        highlight: false,
+        readOnly: false,
+        err: _errorOf(_transType)
+      ),
+      (
+        label: 'Ödeme Türü',
+        ctrl: _paymentType,
+        highlight: false,
+        readOnly: false,
+        err: _errorOf(_paymentType)
+      ),
+      (
+        label: 'KDV Oranı (%)',
+        ctrl: _vatRate,
+        highlight: false,
+        readOnly: false,
+        err: _errorOf(_vatRate, numeric: true)
+      ),
+    ];
+
+    // Reusable row padding
+    const _rowPad = EdgeInsets.symmetric(horizontal: 14, vertical: 8);
+    const _divider = Divider(height: 1);
+
+    // Helper: builds the label+TextField row used for text fields
+    Widget textRow(int i) => Padding(
+          padding: _rowPad,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: SizedBox(
+                  width: 110,
+                  child: Text(scalarRows[i].label, style: labelStyle),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: scalarRows[i].ctrl,
+                  textAlign: TextAlign.right,
+                  readOnly: scalarRows[i].readOnly,
+                  style: scalarRows[i].highlight
+                      ? highlightStyle
+                      : theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: scalarRows[i].readOnly
+                              ? theme.colorScheme.onSurfaceVariant
+                              : null,
+                        ),
+                  decoration: _dec('', errorText: scalarRows[i].err).copyWith(
+                    fillColor: scalarRows[i].readOnly
+                        ? theme.colorScheme.surfaceContainerHighest
+                        : null,
+                    hintText:
+                        scalarRows[i].readOnly ? 'Otomatik hesaplanır' : '',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
+    final extras = _pick<Map>(['Diğer Alanlar']);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Main fields ─────────────────────────────────────────────────────
+        Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+          ),
+          child: Column(
+            children: [
+              for (int i = 0; i < scalarRows.length; i++) ...[
+                textRow(i),
+                if (i < scalarRows.length - 1) _divider,
+              ],
+            ],
+          ),
+        ),
+
+        // ── Extra fields (read-only for now) ──────────────────────────────
+        if (extras != null && extras.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            'Diğer Alanlar',
+            style: theme.textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+            ),
+            child: Column(
+              children: extras.entries.toList().asMap().entries.map((e) {
+                final i = e.key;
+                final kv = e.value;
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                              width: 110,
+                              child:
+                                  Text(kv.key.toString(), style: labelStyle)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              kv.value?.toString() ?? '—',
+                              style: theme.textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (i < extras.entries.length - 1)
+                      Divider(
+                          height: 1, color: theme.colorScheme.outlineVariant),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
 }
