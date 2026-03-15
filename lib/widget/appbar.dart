@@ -60,11 +60,15 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
                     color: isDark
                         ? Colors.orangeAccent
                         : context.appTheme.brandSecondary,
-                        size: ThemeSize.iconLarge,
+                    size: ThemeSize.iconMedium,
                   ),
                   onPressed: () {
                     ThemeProvider().toggleTheme();
                   },
+                ),
+                Icon(
+                  Icons.notifications,
+                  color: context.appTheme.warning,
                 ),
                 WidgetPopMenu(
                     onSelected: onSelected,
