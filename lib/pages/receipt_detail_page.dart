@@ -132,10 +132,17 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
   }
 }
 
-class _ReceiptImage extends StatelessWidget {
+class _ReceiptImage extends StatefulWidget {
   const _ReceiptImage({required this.imageUrl});
 
   final String imageUrl;
+
+  @override
+  State<_ReceiptImage> createState() => _ReceiptImageState();
+}
+
+class _ReceiptImageState extends State<_ReceiptImage> {
+  int _rotationQuarterTurns = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -154,21 +161,51 @@ class _ReceiptImage extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: imageUrl.isNotEmpty
-          ? InteractiveViewer(
-              panEnabled: true,
-              minScale: 1.0,
-              maxScale: 5.0,
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, error, __) {
-                  debugPrint(
-                    'Receipt image load failed. url=$imageUrl error=$error',
-                  );
-                  return const _ImagePlaceholder();
-                },
-              ),
+      child: widget.imageUrl.isNotEmpty
+          ? Stack(
+              children: [
+                Positioned.fill(
+                  child: InteractiveViewer(
+                    panEnabled: true,
+                    minScale: 1.0,
+                    maxScale: 5.0,
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: RotatedBox(
+                        quarterTurns: _rotationQuarterTurns,
+                        child: Image.network(
+                          widget.imageUrl,
+                          fit: BoxFit.fitWidth,
+                          errorBuilder: (_, error, __) {
+                            debugPrint(
+                              'Receipt image load failed. url=${widget.imageUrl} error=$error',
+                            );
+                            return const _ImagePlaceholder();
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Material(
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.8),
+                    shape: const CircleBorder(),
+                    clipBehavior: Clip.antiAlias,
+                    child: IconButton(
+                      icon: const Icon(Icons.rotate_right),
+                      onPressed: () {
+                        setState(() {
+                          _rotationQuarterTurns = (_rotationQuarterTurns + 1) % 4;
+                        });
+                      },
+                      tooltip: 'Döndür',
+                    ),
+                  ),
+                ),
+              ],
             )
           : const _ImagePlaceholder(),
     );
