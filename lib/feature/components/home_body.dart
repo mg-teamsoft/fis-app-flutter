@@ -26,6 +26,7 @@ final class BodyHome extends StatelessWidget {
 }
 
 
+// ignore: unused_element
 final class _HomeStateSection extends StatelessWidget {
   const _HomeStateSection({required this.state, required this.onLogin});
 

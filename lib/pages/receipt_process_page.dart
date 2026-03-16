@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:fis_app_flutter/models/receipt_flow_models.dart';
+import 'package:fis_app_flutter/theme/extension.dart';
 import 'package:fis_app_flutter/utils/checksum_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -149,8 +150,14 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
 
   @override
   Widget build(BuildContext uildContext) {
+    final Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(title: const Text('Fişleri İşle')),
+      appBar: AppBar(
+          centerTitle: true,
+          title: const Text(
+            'Fişleri İşle',
+            textAlign: TextAlign.center,
+          )),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -197,6 +204,16 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: _processing ? null : _process,
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  textStyle: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 icon: _processing
                     ? const SizedBox(
                         height: 18,
@@ -207,6 +224,9 @@ class _ReceiptProcessPageState extends State<ReceiptProcessPage> {
                 label: Text(_processing ? 'İşleniyor...' : 'İşle'),
               ),
             ),
+            SizedBox(
+              height: size.height * 0.01,
+            )
           ],
         ),
       ),

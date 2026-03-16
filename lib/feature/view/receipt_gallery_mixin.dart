@@ -1,101 +1,162 @@
 part of '../../page/receipt_gallery.dart';
 
 mixin MixinReceiptGallery on State<PageReceiptGallery> {
- late ReceiptApiService _receiptApiService;
-  late ScrollController _scrollController;
-  late String _searchQuery;
-  // Başlangıçta boş liste ile başlatıyoruz ki 'sort' hata vermesin
-  ReceiptGalleryPageState _state = const ReceiptGalleryPageState(
-    isLoading: true,
-    filteredReceipts: [],
-    errorMessage: '',
-  );
-  List<ReceiptSummary> _rawList = [];
+  final _receiptApiService = ReceiptApiService();
+
+  bool _isLoadingInitial = true;
+  String? _error;
+  List<ReceiptSummary> _allReceipts = [];
+
+  // Search state
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _isSearching = false;
+  List<ReceiptSummary> _filteredReceipts = [];
+  Timer? _debounce;
+  DateTimeRange? _selectedDateRange;
 
   @override
   void initState() {
     super.initState();
-    _receiptApiService = ReceiptApiService();
-    _scrollController = ScrollController();
-    _searchQuery = '';
-    _loadData();
+
   }
 
-  Future<void> _loadData() async {
-    try {
-      setState(
-          () => _state = _state.copyWith(isLoading: true, errorMessage: ''));
-
-      final data = await _receiptApiService.listReceipts();
-      _rawList = data;
-
-      // Veri geldiğinde doğrudan applyFilter çağırıyoruz
-      _applyFilter(null);
-    } catch (e) {
-      setState(() => _state = _state.copyWith(
-          isLoading: false, errorMessage: 'Veri yüklenemedi: ${e.toString()}'));
-    }
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
   }
-
-  void _initializeList(List<ReceiptSummary> data) {
-    setState(() {
-      _state = _state.copyWith(
-        filteredReceipts: data,
-        isLoading: false,
-      );
-    });
-    _applyFilter(null);
-  }
+ 
+ 
 
   void _onSearchChanged(String query) {
     setState(() {
       _searchQuery = query;
-      _applyFilter('search/$query');
+      _isSearching = true;
     });
-  }
-void _applyFilter(String? value) {
-    setState(() {
-      // 1. Önce veriyi 'raw' listeden çekip yeni bir çalışma listesi oluşturuyoruz
-      List<ReceiptSummary> workingList = List.from(_rawList);
 
-      // 2. Arama protokolü (search/ paketini aç)
-      if (value != null && value.startsWith('search/')) {
-        final query = value.replaceFirst('search/', '').toLowerCase();
-        workingList = workingList
-            .where((r) => (r.businessName).toLowerCase().contains(query))
-            .toList();
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    // Simulate search delay to show loading indicator
+    _debounce = Timer(const Duration(milliseconds: 600), () {
+      if (query.isEmpty && _selectedDateRange == null) {
+        setState(() {
+          _filteredReceipts = [];
+          _isSearching = false;
+        });
+        return;
       }
 
-      // 3. Sıralama (Senin paylaştığın if-else yapısı)
-      if (value == 'sort_a_z') {
-        workingList.sort((a, b) => a.businessName.compareTo(b.businessName));
-      } else if (value == 'sort_z_a') {
-        workingList.sort((a, b) => b.businessName.compareTo(a.businessName));
-      } else if (value == 'sort_high_price') {
-        workingList.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
-      } else if (value == 'sort_low_price') {
-        workingList.sort((a, b) => a.totalAmount.compareTo(b.totalAmount));
-      } else if (value == 'sort_last_add' || value == null) {
-        // Default ve son eklenen aynı mantık
-        workingList.sort((a, b) => (b.transactionDate ?? DateTime.now())
-            .compareTo(a.transactionDate ?? DateTime.now()));
-      } else if (value == 'sort_firt_add') {
-        workingList.sort((a, b) => (a.transactionDate ?? DateTime.now())
-            .compareTo(b.transactionDate ?? DateTime.now()));
-      }
+      final lowerQuery = query.toLowerCase();
+      final searchDateFormatter = DateFormat('d MMMM yyyy', 'tr_TR');
 
-      // 4. State'i Güncelleme (Hatanın çözüldüğü yer)
-      _state = _state.copyWith(
-        filteredReceipts: workingList, // workingList'in kendisini veriyoruz!
-        isLoading: false,
-        errorMessage: '',
-      );
+      setState(() {
+        _filteredReceipts = _allReceipts.where((receipt) {
+          bool passesDateRange = true;
+          if (_selectedDateRange != null) {
+            final date = receipt.transactionDate;
+            if (date == null) {
+              passesDateRange = false;
+            } else {
+              final start = _selectedDateRange!.start;
+              final end = _selectedDateRange!.end;
+              final dateDay = DateTime(date.year, date.month, date.day);
+              final startDay = DateTime(start.year, start.month, start.day);
+              final endDay = DateTime(end.year, end.month, end.day);
+              passesDateRange = dateDay.compareTo(startDay) >= 0 &&
+                  dateDay.compareTo(endDay) <= 0;
+            }
+          }
+          if (!passesDateRange) return false;
+
+          if (query.isEmpty) return true;
+
+          final nameMatch =
+              _fuzzyMatch(lowerQuery, receipt.businessName.toLowerCase());
+          final amountMatch =
+              _fuzzyMatch(lowerQuery, receipt.totalAmount.toString());
+
+          bool dateMatch = false;
+          if (receipt.transactionDate != null) {
+            final dateStr = searchDateFormatter
+                .format(receipt.transactionDate!)
+                .toLowerCase();
+            dateMatch = _fuzzyMatch(lowerQuery, dateStr);
+          }
+
+          return nameMatch || amountMatch || dateMatch;
+        }).toList();
+        _isSearching = false;
+      });
     });
   }
+
 
   String _capitalize(String text) {
     if (text.isEmpty) return text;
     return text[0].toUpperCase() + text.substring(1);
+  }
+
+
+  Future<void> _loadReceipts() async {
+    setState(() {
+      _isLoadingInitial = true;
+      _error = null;
+    });
+    try {
+      final receipts = await _receiptApiService.listReceipts();
+      setState(() {
+        _allReceipts = receipts;
+        _isLoadingInitial = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoadingInitial = false;
+      });
+    }
+  }
+
+  Future<void> _pickDateRange() async {
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDateRange: _selectedDateRange,
+      saveText: 'Seç',
+      cancelText: 'İptal',
+      helpText: 'Tarih Aralığı Seçin',
+    );
+    if (picked != null && picked != _selectedDateRange) {
+      setState(() {
+        _selectedDateRange = picked;
+      });
+      _onSearchChanged(_searchQuery); // Trigger search again
+    }
+  }
+
+  void _clearDateRange() {
+    setState(() {
+      _selectedDateRange = null;
+    });
+    _onSearchChanged(_searchQuery);
+  }
+
+  bool _fuzzyMatch(String pattern, String str) {
+    if (pattern.isEmpty) return true;
+    int patternIdx = 0;
+    int strIdx = 0;
+    final pLen = pattern.length;
+    final sLen = str.length;
+
+    while (patternIdx < pLen && strIdx < sLen) {
+      if (pattern[patternIdx] == str[strIdx]) {
+        patternIdx++;
+      }
+      strIdx++;
+    }
+    return patternIdx == pLen;
   }
 
   void _openDetails(ReceiptSummary summary) {
@@ -105,9 +166,5 @@ void _applyFilter(String? value) {
         builder: (_) => ReceiptDetailPage(receiptId: summary.id),
       ),
     );
-  }
-
-  Future<void> _reload() async {
-    _loadData();
   }
 }

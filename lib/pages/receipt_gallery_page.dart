@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:fis_app_flutter/theme/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -176,7 +177,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = context.theme;
 
     Widget bodyContent;
     if (_isLoadingInitial) {
@@ -209,7 +210,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
               child: Text(
                 'Fişler',
-                style: theme.textTheme.titleMedium?.copyWith(
+                style: context.appTextTheme.titleMedium?.copyWith(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),
@@ -239,7 +240,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                             )
                           : null,
                       filled: true,
-                      fillColor: theme.colorScheme.surfaceContainerHighest
+                      fillColor: context.colorScheme.surfaceContainerHighest
                           .withOpacity(0.5),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -284,7 +285,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                           child: Container(
-                            color: theme.colorScheme.surface.withOpacity(0.4),
+                            color: context.colorScheme.surface.withOpacity(0.4),
                             child: _isSearching
                                 ? const Align(
                                     alignment: Alignment.topCenter,
@@ -313,7 +314,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
         padding: const EdgeInsets.only(top: 32),
         child: Text(
           'Sonuç bulunamadı.',
-          style: theme.textTheme.titleMedium,
+          style: context.appTextTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
       );
@@ -379,7 +380,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                       ),
                       child: Icon(
                         Icons.receipt_rounded,
-                        color: theme.colorScheme.primary,
+                        color: theme.colorScheme.onPrimary,
                         size: 24,
                       ),
                     ),
@@ -390,7 +391,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                         children: [
                           Text(
                             receipt.businessName,
-                            style: theme.textTheme.titleMedium?.copyWith(
+                            style: context.appTextTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
                             maxLines: 1,
@@ -399,7 +400,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                           const SizedBox(height: 4),
                           Text(
                             dateText,
-                            style: theme.textTheme.bodyMedium?.copyWith(
+                            style: context.appTextTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
@@ -409,7 +410,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                     const SizedBox(width: 8),
                     Text(
                       amountText,
-                      style: theme.textTheme.titleMedium?.copyWith(
+                      style: context.appTextTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: theme.colorScheme.primary,
                       ),
@@ -479,7 +480,7 @@ class _ReceiptsList extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
           child: Text(
             group.label,
-            style: theme.textTheme.titleMedium?.copyWith(
+            style: context.appTextTheme.titleMedium?.copyWith(
               color: theme.colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
@@ -599,7 +600,7 @@ class _ReceiptListTile extends StatelessWidget {
                     children: [
                       Text(
                         summary.businessName,
-                        style: theme.textTheme.titleMedium?.copyWith(
+                        style: context.appTextTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                         maxLines: 1,
@@ -608,7 +609,7 @@ class _ReceiptListTile extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         dateText,
-                        style: theme.textTheme.bodyMedium?.copyWith(
+                        style: context.appTextTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                         maxLines: 1,
@@ -620,7 +621,7 @@ class _ReceiptListTile extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   amountText,
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: context.appTextTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: theme.colorScheme.primary,
                   ),
@@ -651,7 +652,7 @@ class _GalleryEmptyState extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Henüz kayıtlı fiş bulunmuyor.',
-              style: theme.textTheme.titleMedium,
+              style: context.appTextTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
           ],
@@ -685,14 +686,14 @@ class _GalleryError extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message,
-              style: theme.textTheme.titleMedium,
+              style: context.appTextTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (details != null && details!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
                 details!,
-                style: theme.textTheme.bodySmall
+                style: context.appTextTheme.bodySmall
                     ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),

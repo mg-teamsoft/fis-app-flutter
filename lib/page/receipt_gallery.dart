@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fis_app_flutter/models/receipt_summary.dart';
 import 'package:fis_app_flutter/pages/receipt_detail_page.dart';
 import 'package:fis_app_flutter/services/receipt_api_service.dart';
@@ -30,15 +32,7 @@ class _PageReceiptGalleryState extends State<PageReceiptGallery>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.appTheme.brandPrimary,
-      body: _BodyReceiptGallery(
-        scrollController: _scrollController,
-        state: _state,
-        onRetry: _reload,
-        onOpenDetails: _openDetails,
-        capitalize: _capitalize,
-        onSearchAction: _onSearchChanged,
-        onFilter: _applyFilter,
-      ),
+      body: Scaffold()
     );
   }
 }

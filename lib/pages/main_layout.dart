@@ -6,6 +6,7 @@ import 'package:fis_app_flutter/pages/account_settings_page.dart';
 import 'package:fis_app_flutter/pages/excel_files_page.dart';
 import 'package:fis_app_flutter/pages/home_page.dart';
 import 'package:fis_app_flutter/pages/receipt_gallery_page.dart';
+import 'package:fis_app_flutter/pages/receipt_manual_form_page.dart';
 import 'package:fis_app_flutter/pages/receipt_page.dart';
 import 'package:fis_app_flutter/pages/receipt_process_page.dart';
 import 'package:fis_app_flutter/pages/receipt_results_page.dart';
@@ -60,7 +61,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/excelFiles': (_, __) => const ExcelFilesPage(),
     '/about': (_, __) => const AboutPage(),
     '/accountSettings': (_, __) => const AccountSettingsPage(),
-    '/gallery': (_, __) => PageReceiptGallery(),
+    '/gallery': (_, __) => ReceiptGalleryPage(),
     '/settings': (_, __) => const SettingsPage(),
     '/receipt/process': (_, args) {
       final files = (args is List<XFile>) ? args : const <XFile>[];
@@ -71,6 +72,7 @@ class _MainLayoutState extends State<MainLayout> {
           (args is List<SelectedItem>) ? args : const <SelectedItem>[];
       return ReceiptResultsPage(items: items);
     },
+    '/receipt/manuel': (_, __) => const ReceiptManualFormPage()
   };
 
   @override
@@ -182,9 +184,11 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     final child = _buildCurrentPage(context);
+    /*
     if (!_shellRoutes.contains(_currentRoute)) {
       return child;
     }
+    */
 
     return WidgetScaffold(
         onSelected: _handleMenuSelection,

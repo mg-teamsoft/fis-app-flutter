@@ -50,11 +50,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
   }
 
   void _openManualForm() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const ReceiptManualFormPage(),
-      ),
-    );
+    Navigator.of(context).pushNamed('/receipt/manuel');
   }
 
   String get _processButtonLabel {
@@ -91,22 +87,9 @@ class _ReceiptPageState extends State<ReceiptPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        title: const Text(
-          'Fiş Yükle',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -199,29 +182,26 @@ class _ReceiptPageState extends State<ReceiptPage> {
                         },
                       ),
               ),
+              ElevatedButton(
+                onPressed: _picked.isEmpty ? null : _processSelected,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                child: Text(_processButtonLabel),
+              ),
+              SizedBox(
+                height: size.height * 0.03,
+              )
             ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _picked.isEmpty ? null : _processSelected,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            child: Text(_processButtonLabel),
           ),
         ),
       ),

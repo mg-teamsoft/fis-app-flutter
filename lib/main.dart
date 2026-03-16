@@ -105,6 +105,7 @@ class MyApp extends StatelessWidget {
           '/settings': (_) => const MainLayout(initialRoute: '/settings'),
           '/accountSettings': (_) =>
               const MainLayout(initialRoute: '/accountSettings'),
+              
               '/forgotPassword': (_) => const PageForgotPassword(),
           '/resetPassword': (_) => const ResetPasswordPage(),
           '/receipt/process': (context) {
@@ -121,6 +122,8 @@ class MyApp extends StatelessWidget {
               initialArguments: args,
             );
           },
+              '/receipt/manuel': (_) =>
+                  const MainLayout(initialRoute: '/receipt/manuel'),
         },
         onGenerateRoute: (settings) {
           final uri = Uri.tryParse(settings.name ?? '');
