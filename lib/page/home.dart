@@ -1,7 +1,7 @@
 import 'package:fis_app_flutter/feature/home_header.dart';
 import 'package:fis_app_flutter/feature/view/home.dart';
 import 'package:fis_app_flutter/models/home_summary.dart';
-import 'package:fis_app_flutter/page/home_error.dart';
+import 'package:fis_app_flutter/page/error/home_error.dart';
 import 'package:fis_app_flutter/services/home_service.dart';
 import 'package:fis_app_flutter/theme/theme.dart';
 import 'package:fis_app_flutter/widget/button.dart';
@@ -10,7 +10,7 @@ import 'package:fis_app_flutter/widget/loading.dart';
 import 'package:flutter/material.dart';
 
 part '../feature/view/home_mixin.dart';
-part '../feature/widget/home_body.dart';
+part '../feature/components/home_body.dart';
 
 class PageHome extends StatefulWidget {
   const PageHome({super.key});

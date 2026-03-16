@@ -30,7 +30,7 @@ class FeatureHomeHeader extends StatelessWidget {
         ThemeTypography.h2(context, totalSpentText),
         SizedBox(height: ThemeSize.spacingS),
         WidgetPerChart(
-          value: 0.9,
+          value: usageFraction,
           label: hasMonthlyLimit ? percentageText : 'Limit tanımlı değil',
         ),
         SizedBox(height: ThemeSize.spacingS),

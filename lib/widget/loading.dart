@@ -1,4 +1,4 @@
-import 'package:fis_app_flutter/page/error.dart';
+import 'package:fis_app_flutter/page/error/error.dart';
 import 'package:flutter/material.dart';
 
 class WidgetLoading<T> extends StatelessWidget {

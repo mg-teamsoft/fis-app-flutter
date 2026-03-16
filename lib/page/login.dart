@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import '../feature/view/login.dart';
 
 part '../feature/view/login_mixin.dart';
-part '../feature/widget/login_body.dart';
+part '../feature/components/login_body.dart';
 
 final class PageLogin extends StatefulWidget {
   const PageLogin({super.key});

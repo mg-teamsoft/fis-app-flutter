@@ -1,0 +1,96 @@
+part of '../../../page/receipt_gallery.dart';
+
+class _ReceiptGalleryList extends StatelessWidget {
+  const _ReceiptGalleryList({
+    required this.receipts,
+    required this.onOpenDetails,
+    required this.capitalize,
+  });
+
+  final List<ReceiptSummary> receipts;
+  final void Function(ReceiptSummary) onOpenDetails;
+  final String Function(String) capitalize;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final dateFormatter = DateFormat('d MMMM', 'tr_TR');
+    final monthFormatter = DateFormat('MMMM yyyy', 'tr_TR');
+    final currencyFormatter =
+        NumberFormat.currency(locale: 'tr_TR', symbol: '₺');
+
+    // Gruplama mantığın doğru, buraya dokunmuyorum...
+    final Map<DateTime?, List<ReceiptSummary>> grouped = {};
+    for (final receipt in receipts) {
+      final date = receipt.transactionDate;
+      final key = (date == null) ? null : DateTime(date.year, date.month);
+      grouped.putIfAbsent(key, () => []).add(receipt);
+    }
+
+    final List<_ReceiptGalleryMonthGroup> groups = grouped.entries.map((entry) {
+      final items = [...entry.value]..sort((a, b) {
+          final aDate =
+              a.transactionDate ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final bDate =
+              b.transactionDate ?? DateTime.fromMillisecondsSinceEpoch(0);
+          return bDate.compareTo(aDate);
+        });
+      final label = entry.key != null
+          ? capitalize(monthFormatter.format(entry.key!))
+          : 'Tarihsiz';
+      return _ReceiptGalleryMonthGroup(
+          label: label, items: items, sortKey: entry.key);
+    }).toList()
+      ..sort((a, b) {
+        if (a.sortKey == null && b.sortKey == null) return 0;
+        if (a.sortKey == null) return 1;
+        if (b.sortKey == null) return -1;
+        return b.sortKey!.compareTo(a.sortKey!);
+      });
+
+    final List<Widget> children =
+        []; // Başlık 'Fişler' kısmını Body'ye taşıdığımız için buradan çıkardım
+
+    for (final group in groups) {
+      children.add(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+          child: Text(
+            group.label,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+
+      for (final receipt in group.items) {
+        final date = receipt.transactionDate;
+        final dateText =
+            date != null ? dateFormatter.format(date) : 'Tarih bilgisi yok';
+
+        children.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            // DİKKAT: Buradaki sınıf isminin _ReceiptGalleryListTile olduğundan emin ol
+            child: _ReceiptGalleryListTile(
+              summary: receipt,
+              dateText: dateText,
+              amountText: currencyFormatter.format(receipt.totalAmount),
+              onOpenDetails: onOpenDetails,
+            ),
+          ),
+        );
+      }
+    }
+
+    return ListView(
+      shrinkWrap: true, 
+      physics:
+          const NeverScrollableScrollPhysics(), 
+      padding: const EdgeInsets.only(bottom: 24),
+      children: children,
+    );
+  }
+}

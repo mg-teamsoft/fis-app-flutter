@@ -4,7 +4,7 @@ import 'package:fis_app_flutter/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 part '../feature/view/forgot_password_mixin.dart';
-part '../feature/widget/forgot_password_body.dart';
+part '../feature/components/forgot_password_body.dart';
 
 final class PageForgotPassword extends StatefulWidget {
   const PageForgotPassword({super.key});

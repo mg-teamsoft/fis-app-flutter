@@ -7,7 +7,7 @@ import 'package:fis_app_flutter/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 part '../feature/view/register_mixin.dart';
-part '../feature/widget/register_body.dart';
+part '../feature/components/register_body.dart';
 
 final class PageRegister extends StatefulWidget {
   const PageRegister({super.key});

@@ -1,5 +1,6 @@
 import 'package:fis_app_flutter/models/receipt_flow_models.dart';
 import 'package:fis_app_flutter/page/home.dart';
+import 'package:fis_app_flutter/page/receipt_gallery.dart';
 import 'package:fis_app_flutter/pages/about_page.dart';
 import 'package:fis_app_flutter/pages/account_settings_page.dart';
 import 'package:fis_app_flutter/pages/excel_files_page.dart';
@@ -59,7 +60,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/excelFiles': (_, __) => const ExcelFilesPage(),
     '/about': (_, __) => const AboutPage(),
     '/accountSettings': (_, __) => const AccountSettingsPage(),
-    '/gallery': (_, __) => ReceiptGalleryPage(),
+    '/gallery': (_, __) => PageReceiptGallery(),
     '/settings': (_, __) => const SettingsPage(),
     '/receipt/process': (_, args) {
       final files = (args is List<XFile>) ? args : const <XFile>[];
