@@ -5,6 +5,10 @@ class WidgetBottomBar extends StatelessWidget {
   const WidgetBottomBar(
       {super.key, required this.currentIndex, required this.onTap});
 
+  static const double _navIconSize = 24;
+  static const double _navLabelFontSize = 10;
+  static const double _navItemSpacing = 2;
+
   final int currentIndex;
   final Function(int) onTap;
   @override
@@ -27,7 +31,9 @@ class WidgetBottomBar extends StatelessWidget {
                 label: "Fişler"),
             SizedBox(width: ThemeSize.iconXL),
             _buildNavItem(context,
-                icon: Icons.group_rounded, index: '/users', label: "Kişiler"),
+                icon: Icons.group_rounded,
+                index: '/connections',
+                label: "Kişiler"),
             _buildNavItem(context,
                 icon: Icons.settings, index: '/settings', label: "Ayarlar"),
           ],
@@ -52,11 +58,21 @@ class WidgetBottomBar extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: ThemeSize.iconLarge,
+            size: _navIconSize,
             color: color,
             semanticLabel: label,
           ),
-          ThemeTypography.bodySmall(context, label, color: color)
+          const SizedBox(height: _navItemSpacing),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: color,
+                  fontSize: _navLabelFontSize,
+                  height: 1,
+                ),
+          ),
         ],
       ),
     );

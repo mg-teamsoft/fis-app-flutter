@@ -100,6 +100,7 @@ class MyApp extends StatelessWidget {
           '/home': (_) => const MainLayout(initialRoute: '/home'),
           '/receipt': (_) => const MainLayout(initialRoute: '/receipt'),
           '/excelFiles': (_) => const MainLayout(initialRoute: '/excelFiles'),
+          '/connections': (_) => const MainLayout(initialRoute: '/connections'),
           '/about': (_) => const MainLayout(initialRoute: '/about'),
           '/gallery': (_) => const MainLayout(initialRoute: '/gallery'),
           '/settings': (_) => const MainLayout(initialRoute: '/settings'),
