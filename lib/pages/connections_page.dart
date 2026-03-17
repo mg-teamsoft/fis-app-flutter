@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fis_app_flutter/config/contact_permission.dart';
 import 'package:fis_app_flutter/services/connections_service.dart';
 
 class Contact {
@@ -35,43 +36,18 @@ class _ConnectionsPageState extends State<ConnectionsPage>
   late TabController _tabController;
   final TextEditingController _emailController = TextEditingController();
   final ConnectionsService _connectionsService = ConnectionsService();
-  bool _isLoading = false;
-
-  final List<Contact> dummyContacts = [
-    Contact(
-      id: "1",
-      initials: "AT",
-      name: "Alex Thompson",
-      email: "alex.t@financial-audit.com",
-      status: "ACTIVE",
-      baseColor: Colors.blue,
-      canViewReceipts: true,
-      canDownloadFiles: true,
-    ),
-    Contact(
-      id: "2",
-      initials: "SJ",
-      name: "Sarah Jenkins",
-      email: "s.jenkins@accountants.co",
-      status: "ACTIVE",
-      baseColor: Colors.purple,
-      canViewReceipts: true,
-      canDownloadFiles: false,
-    ),
-    Contact(
-      id: "3",
-      initials: "MT",
-      name: "Marcus Thorne",
-      email: "m.thorne@enterprise.com",
-      status: "PENDING",
-      baseColor: Colors.grey,
-    ),
-  ];
+  bool _isInviteLoading = false;
+  bool _isContactsLoading = true;
+  bool _inviteCanViewReceipts = true;
+  bool _inviteCanDownloadFiles = true;
+  String? _contactsError;
+  List<Contact> _contacts = const [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadSupervisors();
   }
 
   @override
@@ -105,8 +81,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
             children: [
               _buildInviteSection(context),
               const SizedBox(height: 16),
-              ...dummyContacts
-                  .map((contact) => _buildContactCard(contact, context)),
+              ..._buildContactsSection(context),
               const SizedBox(height: 24),
               _buildFeaturedStats(context),
             ],
@@ -125,7 +100,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -161,11 +136,39 @@ class _ConnectionsPageState extends State<ConnectionsPage>
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInvitePermissionSwitch(
+                  label: "View Receipts",
+                  value: _inviteCanViewReceipts,
+                  onChanged: (value) {
+                    setState(() {
+                      _inviteCanViewReceipts = value;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildInvitePermissionSwitch(
+                  label: "Download Files",
+                  value: _inviteCanDownloadFiles,
+                  onChanged: (value) {
+                    setState(() {
+                      _inviteCanDownloadFiles = value;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _isLoading ? null : _handleInvite,
+              onPressed: _isInviteLoading ? null : _handleInvite,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2563EB),
                 foregroundColor: Colors.white,
@@ -173,7 +176,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: _isLoading
+              child: _isInviteLoading
                   ? const SizedBox(
                       width: 20,
                       height: 20,
@@ -190,6 +193,109 @@ class _ConnectionsPageState extends State<ConnectionsPage>
     );
   }
 
+  List<Widget> _buildContactsSection(BuildContext context) {
+    if (_isContactsLoading) {
+      return const [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 32),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      ];
+    }
+
+    if (_contactsError != null) {
+      return [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.red.shade100),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _contactsError!,
+                style: TextStyle(color: Colors.red.shade700),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _loadSupervisors,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ];
+    }
+
+    if (_contacts.isEmpty) {
+      return [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Text(
+            'Henüz bir supervisor bağlantısı bulunmuyor.',
+            style: TextStyle(color: Colors.grey.shade700),
+          ),
+        ),
+      ];
+    }
+
+    return _contacts
+        .map((contact) => _buildContactCard(contact, context))
+        .toList();
+  }
+
+  Widget _buildInvitePermissionSwitch({
+    required String label,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            thumbColor: WidgetStateProperty.resolveWith<Color>(
+                (Set<WidgetState> states) {
+              return Colors.white;
+            }),
+            trackColor: WidgetStateProperty.resolveWith<Color>(
+                (Set<WidgetState> states) {
+              if (states.contains(WidgetState.selected)) {
+                return const Color(0xFF2563EB);
+              }
+              return const Color(0xFFE2E8F0);
+            }),
+            trackOutlineColor: WidgetStateProperty.resolveWith<Color>(
+                (Set<WidgetState> states) {
+              return Colors.transparent;
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _handleInvite() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
@@ -199,30 +305,119 @@ class _ConnectionsPageState extends State<ConnectionsPage>
       return;
     }
 
+    final permissions = <ContactPermission>[
+      if (_inviteCanViewReceipts) ContactPermission.viewReceipts,
+      if (_inviteCanDownloadFiles) ContactPermission.downloadFiles,
+    ];
+
+    if (permissions.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lütfen en az bir yetki seçin')),
+      );
+      return;
+    }
+
     setState(() {
-      _isLoading = true;
+      _isInviteLoading = true;
     });
 
     try {
-      await _connectionsService.inviteSupervisor(email: email);
+      await _connectionsService.inviteSupervisor(
+        email: email,
+        permissions: permissions,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Davet başarıyla gönderildi!')),
         );
-        _emailController.clear();
+        setState(() {
+          _emailController.clear();
+          _inviteCanViewReceipts = true;
+          _inviteCanDownloadFiles = true;
+        });
+        _loadSupervisors();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: ${e.toString().replaceAll('Exception: ', '')}')),
+          SnackBar(
+              content:
+                  Text('Hata: ${e.toString().replaceAll('Exception: ', '')}')),
         );
       }
     } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false;
+          _isInviteLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _loadSupervisors() async {
+    setState(() {
+      _isContactsLoading = true;
+      _contactsError = null;
+    });
+
+    try {
+      final supervisors = await _connectionsService.fetchSupervisors();
+      if (!mounted) return;
+
+      setState(() {
+        _contacts = supervisors.map(_mapContact).toList();
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _contactsError = e.toString().replaceAll('Exception: ', '');
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isContactsLoading = false;
+        });
+      }
+    }
+  }
+
+  Contact _mapContact(SupervisorContactDto supervisor) {
+    return Contact(
+      id: supervisor.id,
+      initials: _buildInitials(supervisor.name, supervisor.email),
+      name: supervisor.name.isEmpty ? supervisor.email : supervisor.name,
+      email: supervisor.email,
+      status: supervisor.status,
+      baseColor: _statusColor(supervisor.status),
+      canViewReceipts:
+          supervisor.permissions.contains(ContactPermission.viewReceipts),
+      canDownloadFiles:
+          supervisor.permissions.contains(ContactPermission.downloadFiles),
+    );
+  }
+
+  String _buildInitials(String name, String email) {
+    final source = name.trim().isNotEmpty ? name.trim() : email.trim();
+    final parts =
+        source.split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    if (parts.isNotEmpty && parts.first.isNotEmpty) {
+      final single = parts.first.replaceAll('@', '');
+      return single.substring(0, single.length >= 2 ? 2 : 1).toUpperCase();
+    }
+    return '?';
+  }
+
+  Color _statusColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'ACTIVE':
+        return Colors.blue;
+      case 'PENDING':
+        return Colors.grey;
+      default:
+        return Colors.indigo;
     }
   }
 
@@ -241,7 +436,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
             style: isActive ? BorderStyle.solid : BorderStyle.none),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -253,7 +448,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: contact.baseColor.withOpacity(0.1),
+                backgroundColor: contact.baseColor.withValues(alpha: 0.1),
                 child: Text(
                   contact.initials,
                   style: TextStyle(
@@ -278,7 +473,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.1),
+                            color: statusColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -320,14 +515,20 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                             contact.canViewReceipts = v;
                           });
                         },
-                        thumbColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                        thumbColor: WidgetStateProperty.resolveWith<Color>(
+                            (Set<WidgetState> states) {
                           return Colors.white;
                         }),
-                        trackColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
-                          if (states.contains(WidgetState.selected)) return const Color(0xFF2563EB);
+                        trackColor: WidgetStateProperty.resolveWith<Color>(
+                            (Set<WidgetState> states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return const Color(0xFF2563EB);
+                          }
                           return const Color(0xFFE2E8F0);
                         }),
-                        trackOutlineColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                        trackOutlineColor:
+                            WidgetStateProperty.resolveWith<Color>(
+                                (Set<WidgetState> states) {
                           return Colors.transparent;
                         }),
                       ),
@@ -351,14 +552,20 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                             contact.canDownloadFiles = v;
                           });
                         },
-                        thumbColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                        thumbColor: WidgetStateProperty.resolveWith<Color>(
+                            (Set<WidgetState> states) {
                           return Colors.white;
                         }),
-                        trackColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
-                          if (states.contains(WidgetState.selected)) return const Color(0xFF2563EB);
+                        trackColor: WidgetStateProperty.resolveWith<Color>(
+                            (Set<WidgetState> states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return const Color(0xFF2563EB);
+                          }
                           return const Color(0xFFE2E8F0);
                         }),
-                        trackOutlineColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                        trackOutlineColor:
+                            WidgetStateProperty.resolveWith<Color>(
+                                (Set<WidgetState> states) {
                           return Colors.transparent;
                         }),
                       ),
@@ -394,7 +601,8 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                     foregroundColor: Colors.grey.shade800,
                     side: BorderSide(color: Colors.grey.shade300),
                   ),
-                  child: const Text("Cancel", style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text("Cancel",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
@@ -429,7 +637,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                 child: Icon(
                   Icons.groups,
                   size: 120,
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                 ),
               ),
               Padding(
@@ -441,7 +649,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                     Text(
                       "TEAM EFFICIENCY",
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.1,
