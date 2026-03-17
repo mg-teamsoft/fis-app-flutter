@@ -1,3 +1,4 @@
+import 'package:fis_app_flutter/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 import '../models/plan_option.dart';
@@ -100,7 +101,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+
 
     return Scaffold(
       appBar: AppBar(title: const Text('Kayıt Ol')),
@@ -155,7 +156,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Plan Seçimi',
-                    style: theme.textTheme.titleMedium
+                    style: context.appTextTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -213,8 +214,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 24),
                 if (_error != null)
                   Text(_error!,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: theme.colorScheme.error)),
+                      style: context.appTextTheme.bodyMedium
+                          ?.copyWith(color: context.colorScheme.error)),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,

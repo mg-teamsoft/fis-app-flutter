@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:math' as math;
 
+import 'package:fis_app_flutter/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:photo_view/photo_view.dart';
@@ -367,7 +368,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
             icon: Icon(
               Icons.filter_list,
               color: _showOnlySelected
-                  ? Theme.of(context).colorScheme.primary
+                  ? context.colorScheme.primary
                   : null,
             ),
             onPressed: () {
@@ -460,8 +461,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                             Expanded(
                               child: Text(
                                 'Fiş ${i + 1}',
-                                style: Theme.of(context)
-                                    .textTheme
+                                style: context.appTextTheme
                                     .titleMedium
                                     ?.copyWith(fontWeight: FontWeight.w600),
                               ),
@@ -551,9 +551,9 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
 
   Widget _buildEditorArea(BuildContext context, _ItemState s,
       {required bool submitted}) {
-    final theme = Theme.of(context);
+
     final surface =
-        theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
+        context.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
 
     final running = s.active &&
         (s.status != StatusType.done.name &&
@@ -571,7 +571,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (running) ...[
-              Text(countdownText, style: theme.textTheme.bodyMedium),
+              Text(countdownText, style: context.appTextTheme.bodyMedium),
               const SizedBox(height: 8),
               LinearProgressIndicator(
                 value: (10 - s.countdown).clamp(0, 10) / 10.0,
@@ -616,7 +616,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                   child: Text(
                     s.lastError ?? 'Fiş datası okunamadı.',
                     style: TextStyle(
-                      color: theme.colorScheme.error,
+                      color: context.colorScheme.error,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -1033,15 +1033,14 @@ class _ReceiptTableState extends State<_ReceiptTable> {
   // ─────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final labelStyle = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
+    final labelStyle = context.appTextTheme.bodySmall?.copyWith(
+      color: context.colorScheme.onSurfaceVariant,
       fontWeight: FontWeight.w500,
     );
-    final highlightStyle = theme.textTheme.bodyMedium?.copyWith(
+    final highlightStyle = context.appTextTheme.bodyMedium?.copyWith(
       fontWeight: FontWeight.w700,
       fontSize: 15,
-      color: theme.colorScheme.primary,
+      color: context.colorScheme.primary,
     );
 
     // ── scalar rows (text-only) ───────────────────────────────────────────
@@ -1137,15 +1136,15 @@ class _ReceiptTableState extends State<_ReceiptTable> {
                   readOnly: scalarRows[i].readOnly,
                   style: scalarRows[i].highlight
                       ? highlightStyle
-                      : theme.textTheme.bodyMedium?.copyWith(
+                      : context.appTextTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: scalarRows[i].readOnly
-                              ? theme.colorScheme.onSurfaceVariant
+                              ? context.colorScheme.onSurfaceVariant
                               : null,
                         ),
                   decoration: _dec('', errorText: scalarRows[i].err).copyWith(
                     fillColor: scalarRows[i].readOnly
-                        ? theme.colorScheme.surfaceContainerHighest
+                        ? context.colorScheme.surfaceContainerHighest
                         : null,
                     hintText:
                         scalarRows[i].readOnly ? 'Otomatik hesaplanır' : '',
@@ -1164,9 +1163,9 @@ class _ReceiptTableState extends State<_ReceiptTable> {
         // ── Main fields ─────────────────────────────────────────────────────
         Container(
           decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
+            color: context.colorScheme.surface,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: theme.colorScheme.outlineVariant),
+            border: Border.all(color: context.colorScheme.outlineVariant),
           ),
           child: Column(
             children: [
@@ -1183,15 +1182,15 @@ class _ReceiptTableState extends State<_ReceiptTable> {
           const SizedBox(height: 12),
           Text(
             'Diğer Alanlar',
-            style: theme.textTheme.titleSmall
+            style: context.appTextTheme.titleSmall
                 ?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Container(
             decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
+              color: context.colorScheme.surface,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: theme.colorScheme.outlineVariant),
+              border: Border.all(color: context.colorScheme.outlineVariant),
             ),
             child: Column(
               children: extras.entries.toList().asMap().entries.map((e) {
@@ -1212,7 +1211,7 @@ class _ReceiptTableState extends State<_ReceiptTable> {
                           Expanded(
                             child: Text(
                               kv.value?.toString() ?? '—',
-                              style: theme.textTheme.bodyMedium
+                              style: context.appTextTheme.bodyMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
                               textAlign: TextAlign.right,
                             ),
@@ -1222,7 +1221,7 @@ class _ReceiptTableState extends State<_ReceiptTable> {
                     ),
                     if (i < extras.entries.length - 1)
                       Divider(
-                          height: 1, color: theme.colorScheme.outlineVariant),
+                          height: 1, color: context.colorScheme.outlineVariant),
                   ],
                 );
               }).toList(),

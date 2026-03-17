@@ -1,3 +1,4 @@
+import 'package:fis_app_flutter/theme/extension.dart';
 import 'package:flutter/material.dart';
 
 import '../models/receipt_detail.dart';
@@ -254,9 +255,9 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Fişler için minimum ve maksimum tutarları ayarlayın.',
-          style: TextStyle(color: Colors.black54),
+          style: TextStyle(color: context.colorScheme.onPrimary),
         ),
         const SizedBox(height: 12),
         TextField(
@@ -300,9 +301,9 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Dahil edilecek işlem türlerini seçin.',
-          style: TextStyle(color: Colors.black54),
+          style: TextStyle(color: context.colorScheme.onPrimary),
         ),
         const SizedBox(height: 12),
         _buildCheckboxTile(ReceiptCategory.food.label, _food, (value) {
@@ -364,7 +365,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ElevatedButton(
           onPressed: (_saving || !_hasChanges) ? null : _saveSettings,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1AA37A),
+            backgroundColor: context.colorScheme.secondary,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -379,9 +380,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-              : const Text(
+              : Text(
                   'Değişiklikleri Kaydet',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                  style: TextStyle(
+                      fontSize: 16, color: context.colorScheme.onSecondary),
                 ),
         ),
       ],

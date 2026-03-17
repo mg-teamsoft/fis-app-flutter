@@ -1,3 +1,4 @@
+import 'package:fis_app_flutter/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
@@ -1065,7 +1066,7 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -1073,19 +1074,19 @@ class _ErrorView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.warning_rounded,
-                size: 48, color: theme.colorScheme.error),
+                size: 48, color: context.colorScheme.error),
             const SizedBox(height: 16),
             Text(
               message,
-              style: theme.textTheme.titleMedium,
+              style: context.appTextTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (details != null && details!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
                 details!,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                style: context.appTextTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
               ),

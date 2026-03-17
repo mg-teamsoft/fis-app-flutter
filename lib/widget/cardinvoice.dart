@@ -1,3 +1,5 @@
+import 'package:fis_app_flutter/models/receipt_summary.dart';
+import 'package:fis_app_flutter/pages/receipt_detail_page.dart';
 import 'package:fis_app_flutter/theme/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +23,7 @@ class WidgetCardInvoice extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
         onTap: () {
-          // Actions to be performed when the card is clicked...
+
         },
         child: Container(
             width: size.width,
@@ -76,5 +78,13 @@ class WidgetCardInvoice extends StatelessWidget {
                 )
               ],
             )));
+  }
+  void _openDetails(BuildContext context, ReceiptSummary summary) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReceiptDetailPage(receiptId: summary.id),
+      ),
+    );
   }
 }

@@ -141,5 +141,13 @@ flutter:
 fonts:
   - family: Manrope
     fonts:
-      - asset: assets/fonts/Manrope-Variables.tff
+      - asset: assets/fonts/Manrope-Variables.ttf
+      - asset: assets/fonts/static/Manrope-Bold.ttf
+        weight: 800
+      - asset: assets/fonts/static/Manrope-ExtraBold.ttf
+        weight: 900
+      - asset: assets/fonts/static/Manrope-Regular.ttf
+        weight: 600
+      - asset: assets/fonts/static/Manrope-Medium.ttf
+        weight: 700
       

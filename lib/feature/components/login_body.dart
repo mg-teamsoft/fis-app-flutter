@@ -31,7 +31,10 @@ class BodyLogin extends StatelessWidget {
                 SizedBox(height: size*0.075),
                 _LoginLogo(),
                 _UsernameTextField(usernameController),
-                _PasswordTextField(controller: passwordController),
+                _PasswordTextField(
+                  controller: passwordController,
+                  onPressed: onLogin,
+                ),
                 SizedBox(height: ThemeSize.spacingL),
                 _LoginStateSection(state: state, onLogin: onLogin),
                 _RegisterButton(),
@@ -81,15 +84,19 @@ final class _UsernameTextField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: 'Kullanıcı Adınız',
           prefixIcon: Icon(Icons.person, size: ThemeSize.iconLarge),
-        ));
+      ),
+      cursorColor: context.colorScheme.outline,
+      showCursor: true,
+    );
   }
 }
 
 final class _PasswordTextField extends StatelessWidget {
-  _PasswordTextField({required this.controller});
+  _PasswordTextField({required this.controller, required this.onPressed});
 
   final TextEditingController controller;
   final ValueNotifier<bool> _obscureNotifier = ValueNotifier<bool>(true);
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +114,9 @@ final class _PasswordTextField extends StatelessWidget {
               onPressed: () => _obscureNotifier.value = !_obscureNotifier.value,
             ),
           ),
+          cursorColor: context.colorScheme.outline,
+          onEditingComplete: onPressed,
+          showCursor: true,
         );
       },
     );

@@ -1,4 +1,5 @@
 import 'package:fis_app_flutter/models/receipt_detail.dart';
+import 'package:fis_app_flutter/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -26,21 +27,29 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor:
-          theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.98),
+      backgroundColor: context.colorScheme.primary.withValues(alpha: 0.98),
       appBar: AppBar(
-        title: const Text('Fiş Detayı'),
+        title: ThemeTypography.h4(
+          context,
+          'Fiş Detayı',
+        ),
+        backgroundColor: context.colorScheme.primary.withValues(alpha: 0.2),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
+            color: context.colorScheme.onPrimary,
+            iconSize: ThemeSize.iconMedium,
             onPressed: () {},
             tooltip: 'Düzenle',
           ),
           IconButton(
-            icon: const Icon(Icons.share_outlined),
+            icon: Icon(
+              Icons.share_outlined,
+              color: context.colorScheme.onPrimary,
+              size: ThemeSize.iconMedium,
+            ),
             onPressed: () {},
             tooltip: 'Paylaş',
           ),
@@ -76,15 +85,15 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
               const SizedBox(height: 24),
               Text(
                 detail.businessName,
-                style: theme.textTheme.headlineSmall?.copyWith(
+                style: context.appTextTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 _currencyFormatter.format(detail.totalAmount),
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  color: theme.colorScheme.primary,
+                style: context.appTextTheme.headlineSmall?.copyWith(
+                  color: context.colorScheme.onPrimary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -146,11 +155,11 @@ class _ReceiptImageState extends State<_ReceiptImage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final Size size = MediaQuery.of(context).size;
     return Container(
-      height: 240,
+      height: size.height * 0.25,
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: context.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -191,14 +200,17 @@ class _ReceiptImageState extends State<_ReceiptImage> {
                   top: 8,
                   right: 8,
                   child: Material(
-                    color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.8),
+                    color: context.colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.8),
                     shape: const CircleBorder(),
                     clipBehavior: Clip.antiAlias,
                     child: IconButton(
-                      icon: const Icon(Icons.rotate_right),
+                      icon: Icon(Icons.rotate_right,
+                          color: context.colorScheme.onSurface),
                       onPressed: () {
                         setState(() {
-                          _rotationQuarterTurns = (_rotationQuarterTurns + 1) % 4;
+                          _rotationQuarterTurns =
+                              (_rotationQuarterTurns + 1) % 4;
                         });
                       },
                       tooltip: 'Döndür',
@@ -217,16 +229,19 @@ class _ImagePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final Size size = MediaQuery.of(context).size;
     return Container(
-      color: theme.colorScheme.surfaceContainerHighest,
-      child: Center(
-        child: Icon(
-          Icons.image_not_supported_outlined,
-          size: 48,
-          color: theme.colorScheme.onSurfaceVariant,
+      color: context.colorScheme.surfaceContainerHighest,
+      child: Column(children: [
+        SizedBox(
+          height: size.height * 0.1,
         ),
-      ),
+        Icon(
+          Icons.image_not_supported_outlined,
+          size: ThemeSize.avatarLarge,
+          color: context.colorScheme.onSurfaceVariant,
+        ),
+      ]),
     );
   }
 }
@@ -238,11 +253,11 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
+        color: context.colorScheme.surface.withValues(alpha: 0.7),
+        borderRadius: ThemeRadius.circular20,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -277,7 +292,7 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -289,14 +304,14 @@ class _InfoRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                  style: context.appTextTheme.bodySmall?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: context.appTextTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -310,14 +325,14 @@ class _InfoRow extends StatelessWidget {
               children: [
                 Text(
                   secondaryLabel!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                  style: context.appTextTheme.bodySmall?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   secondaryValue!,
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: context.appTextTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -333,11 +348,11 @@ class _InfoRow extends StatelessWidget {
 class _DividerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Divider(
-        color: theme.colorScheme.outlineVariant,
+        color: context.colorScheme.onSurface,
         height: 1,
       ),
     );
@@ -352,18 +367,19 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 56, color: theme.colorScheme.error),
+            Icon(Icons.error_outline,
+                size: 56, color: context.colorScheme.error),
             const SizedBox(height: 16),
             Text(
               message,
-              style: theme.textTheme.titleMedium,
+              style: context.appTextTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[

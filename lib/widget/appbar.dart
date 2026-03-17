@@ -85,7 +85,7 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
                       WidgetPopMenuItem(
                         value: 'logout',
                         text: 'Çıkış Yap',
-                        icon: Icons.home,
+                        icon: Icons.logout,
                         isDestructive: true,
                       ),
                     ])
