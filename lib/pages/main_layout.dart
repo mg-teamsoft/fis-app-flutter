@@ -1,10 +1,9 @@
 import 'package:fis_app_flutter/models/receipt_flow_models.dart';
 import 'package:fis_app_flutter/page/home.dart';
-import 'package:fis_app_flutter/page/receipt_gallery.dart';
 import 'package:fis_app_flutter/pages/about_page.dart';
 import 'package:fis_app_flutter/pages/account_settings_page.dart';
+import 'package:fis_app_flutter/pages/connections_page.dart';
 import 'package:fis_app_flutter/pages/excel_files_page.dart';
-import 'package:fis_app_flutter/pages/home_page.dart';
 import 'package:fis_app_flutter/pages/receipt_gallery_page.dart';
 import 'package:fis_app_flutter/pages/receipt_manual_form_page.dart';
 import 'package:fis_app_flutter/pages/receipt_page.dart';
@@ -41,7 +40,7 @@ class _MainLayoutState extends State<MainLayout> {
   static const List<String> _navRoutes = [
     '/home',
     '/gallery',
-    '/excelFiles',
+    '/connections',
     '/settings',
   ];
 
@@ -49,6 +48,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/home',
     '/gallery',
     '/excelFiles',
+    '/connections',
     '/about',
     '/accountSettings',
     '/settings',
@@ -59,6 +59,7 @@ class _MainLayoutState extends State<MainLayout> {
     '/home': (_, __) => const PageHome(),
     '/receipt': (_, __) => const ReceiptPage(),
     '/excelFiles': (_, __) => const ExcelFilesPage(),
+    '/connections': (_, __) => const ConnectionsPage(),
     '/about': (_, __) => const AboutPage(),
     '/accountSettings': (_, __) => const AccountSettingsPage(),
     '/gallery': (_, __) => ReceiptGalleryPage(),
@@ -141,7 +142,7 @@ class _MainLayoutState extends State<MainLayout> {
         itemBuilder: (context) => const [
           PopupMenuItem(value: '/home', child: Text('Ana Sayfa')),
           PopupMenuItem(value: '/gallery', child: Text('Fişler')),
-          PopupMenuItem(value: '/excelFiles', child: Text('Kişiler')),
+          PopupMenuItem(value: '/connections', child: Text('Kişiler')),
           PopupMenuItem(value: '/settings', child: Text('Ayarlar')),
         ],
       ),

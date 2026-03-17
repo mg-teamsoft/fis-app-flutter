@@ -27,7 +27,7 @@ class WidgetBottomBar extends StatelessWidget {
                 label: "Fişler"),
             SizedBox(width: ThemeSize.iconXL),
             _buildNavItem(context,
-                icon: Icons.group_rounded, index: '/users', label: "Kişiler"),
+                icon: Icons.group_rounded, index: '/connections', label: "Kişiler"),
             _buildNavItem(context,
                 icon: Icons.settings, index: '/settings', label: "Ayarlar"),
           ],
