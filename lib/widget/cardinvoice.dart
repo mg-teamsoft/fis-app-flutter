@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 class WidgetCardInvoice extends StatelessWidget {
   const WidgetCardInvoice(
       {super.key,
+      required this.summary,
       required this.id,
       required this.name,
       required this.amoung,
@@ -14,6 +15,7 @@ class WidgetCardInvoice extends StatelessWidget {
       this.size = const Size(double.infinity, 80)});
 
   final String id;
+  final ReceiptSummary summary;
   final String date;
   final String amoung;
   final String? badge;
@@ -23,7 +25,8 @@ class WidgetCardInvoice extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
         onTap: () {
-
+          FocusScope.of(context).unfocus();
+          _openDetails(context, summary);
         },
         child: Container(
             width: size.width,
@@ -37,36 +40,31 @@ class WidgetCardInvoice extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                
                 Expanded(
                   flex: 1,
-                  child:Row(
-
-
-                  children: [
-                    
-                    SizedBox(
-                      width: ThemeSize.avatarMedium,
-                      height: ThemeSize.avatarMedium,
-                      child: Icon(Icons.receipt_long,
-                          size: ThemeSize.iconMedium,
-                          color: context.colorScheme.onPrimary),
-                    ),
-
-
-                    Expanded(
-                      flex: 1,
-                      child:ThemeTypography.titleLarge(
-                      context,
-                      name,
-                      color: context.colorScheme.onSurface,
-                      textAlign: TextAlign.start,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),)
-                    
-                  ],
-                ),),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: ThemeSize.avatarMedium,
+                        height: ThemeSize.avatarMedium,
+                        child: Icon(Icons.receipt_long,
+                            size: ThemeSize.iconMedium,
+                            color: context.colorScheme.onPrimary),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: ThemeTypography.titleLarge(
+                          context,
+                          name,
+                          color: context.colorScheme.onSurface,
+                          textAlign: TextAlign.start,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -79,6 +77,7 @@ class WidgetCardInvoice extends StatelessWidget {
               ],
             )));
   }
+
   void _openDetails(BuildContext context, ReceiptSummary summary) {
     Navigator.push(
       context,

@@ -40,6 +40,7 @@ class WidgetCardArea extends StatelessWidget {
           return Padding(
             padding: EdgeInsets.only(bottom: ThemeSize.spacingS),
             child: WidgetCardInvoice(
+              summary: item,
               id: item.receiptNumber,
               name: item.businessName,
               amoung: amountText,
