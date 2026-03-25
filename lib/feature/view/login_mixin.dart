@@ -51,8 +51,9 @@ mixin MixinLogin on State<PageLogin> {
       } else {
         _state.value = _state.value.copyWith(
             isLoading: false,
-            errorMessage:
-                'Giriş başarısız. Lütfen bilgilerinizi kontrol edip tekrar deneyin.');
+            errorMessage: res.message?.trim().isNotEmpty == true
+                ? res.message!
+                : 'Giriş başarısız. Lütfen bilgilerinizi kontrol edip tekrar deneyin.');
       }
     } on Exception catch (e) {
       _state.value = _state.value

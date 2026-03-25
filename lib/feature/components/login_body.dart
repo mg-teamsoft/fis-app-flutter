@@ -28,7 +28,7 @@ class BodyLogin extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: ThemeSize.spacingL,
               children: [
-                SizedBox(height: size*0.075),
+                SizedBox(height: size * 0.075),
                 _LoginLogo(),
                 _UsernameTextField(usernameController),
                 _PasswordTextField(controller: passwordController),
@@ -76,6 +76,7 @@ final class _UsernameTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+        cursorColor: context.colorScheme.outline,
         controller: controller,
         style: ThemeTypography.h4(context, '').style,
         decoration: InputDecoration(
@@ -97,6 +98,7 @@ final class _PasswordTextField extends StatelessWidget {
       valueListenable: _obscureNotifier,
       builder: (context, isObscure, child) {
         return TextField(
+          cursorColor: context.colorScheme.outline,
           controller: controller,
           obscureText: isObscure,
           decoration: InputDecoration(

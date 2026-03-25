@@ -40,8 +40,9 @@ class _LoginPageState extends State<LoginPage> {
       // Navigate to your app’s main page (replace with your ReceiptPage etc.)
       Navigator.of(context).pushReplacementNamed('/home');
     } else {
-      setState(() => _error =
-          'Giriş başarısız. Lütfen bilgilerinizi kontrol edip tekrar deneyin.');
+      setState(() => _error = res.message?.trim().isNotEmpty == true
+          ? res.message!
+          : 'Giriş başarısız. Lütfen bilgilerinizi kontrol edip tekrar deneyin.');
     }
   }
 
