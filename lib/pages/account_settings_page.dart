@@ -1,12 +1,12 @@
-import 'package:fis_app_flutter/theme/theme.dart';
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/plan_option.dart';
-import '../models/purchase_transaction.dart';
-import '../models/user_profile.dart';
+import '../model/plan_option.dart';
+import '../model/purchase_transaction.dart';
+import '../model/user_profile.dart';
 import '../providers/purchase_provider.dart';
 import '../providers/user_plan_provider.dart';
 import '../services/plan_service.dart';
@@ -1066,7 +1066,6 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -1078,14 +1077,14 @@ class _ErrorView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message,
-              style: context.appTextTheme.titleMedium,
+              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (details != null && details!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
                 details!,
-                style: context.appTextTheme.bodySmall?.copyWith(
+                style: context.textTheme.bodySmall?.copyWith(
                   color: context.colorScheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,

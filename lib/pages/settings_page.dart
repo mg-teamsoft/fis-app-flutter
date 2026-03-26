@@ -1,7 +1,7 @@
 import 'package:fis_app_flutter/theme/extension.dart';
 import 'package:flutter/material.dart';
 
-import '../models/receipt_detail.dart';
+import '../model/receipt_detail.dart';
 import '../services/settings_service.dart';
 
 class SettingsPage extends StatefulWidget {

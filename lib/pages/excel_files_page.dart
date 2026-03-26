@@ -1,5 +1,5 @@
-import 'package:fis_app_flutter/models/excel_file_entry.dart';
-import 'package:fis_app_flutter/models/status_type.dart';
+import 'package:fis_app_flutter/model/excel_file_entry.dart';
+import 'package:fis_app_flutter/model/status_type.dart';
 import 'package:fis_app_flutter/services/excel_service.dart';
 import 'package:fis_app_flutter/services/file_download_service.dart';
 import 'package:flutter/material.dart';

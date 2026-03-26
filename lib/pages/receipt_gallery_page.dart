@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:fis_app_flutter/theme/extension.dart';
-import 'package:fis_app_flutter/theme/theme.dart';
+
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/receipt_summary.dart';
+import '../model/receipt_summary.dart';
 import '../services/receipt_api_service.dart';
 import 'receipt_detail_page.dart';
 
@@ -53,7 +53,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
     try {
       final receipts = await _receiptApiService.listReceipts();
       setState(() {
-        _allReceipts = receipts;
+        //_allReceipts = receipts;
         _isLoadingInitial = false;
       });
     } catch (e) {
@@ -84,7 +84,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                 dividerColor: context.colorScheme.outline,
                 //Non selected days of the month color
                 textTheme: TextTheme(
-                  bodyMedium: context.appTextTheme.bodyMedium!.copyWith(
+                  bodyMedium: context.textTheme.bodyMedium!.copyWith(
                     color: context.colorScheme.onPrimary,
                   ),
                 ),
@@ -206,7 +206,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = context.theme;
+    final ThemeData theme = context.themedata;
 
     Widget bodyContent;
     if (_isLoadingInitial) {
@@ -239,7 +239,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
               child: Text(
                 'Fişler',
-                style: context.appTextTheme.headlineLarge?.copyWith(
+                style: context.textTheme.headlineLarge?.copyWith(
                   color: context.colorScheme.onPrimary.withValues(alpha: 0.8),
                   fontWeight: FontWeight.w600,
                 ),
@@ -374,7 +374,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
         padding: const EdgeInsets.only(top: 32),
         child: Text(
           'Sonuç bulunamadı.',
-          style: context.appTextTheme.titleMedium,
+          style: context.textTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
       );
@@ -452,7 +452,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                         children: [
                           Text(
                             receipt.businessName,
-                            style: context.appTextTheme.titleMedium?.copyWith(
+                            style: context.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: context.colorScheme.onSurface),
                             maxLines: 1,
@@ -468,14 +468,14 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                       children: [
                         Text(
                           amountText,
-                          style: context.appTextTheme.titleMedium?.copyWith(
+                          style: context.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w800,
                             color: theme.colorScheme.onSurface,
                           ),
                         ),
                         Text(
                           dateText,
-                          style: context.appTextTheme.titleMedium?.copyWith(
+                          style: context.textTheme.titleMedium?.copyWith(
                             color: theme.colorScheme.onSurface,
                           ),
                         ),
@@ -503,7 +503,6 @@ class _ReceiptsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final dateFormatter = DateFormat('d MMMM', 'tr_TR');
     final monthFormatter = DateFormat('MMMM yyyy', 'tr_TR');
     final currencyFormatter =
@@ -546,7 +545,7 @@ class _ReceiptsList extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
           child: Text(
             group.label,
-            style: context.appTextTheme.titleMedium?.copyWith(
+            style: context.textTheme.titleMedium?.copyWith(
               color: context.colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
@@ -611,7 +610,6 @@ class _ReceiptListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -664,7 +662,7 @@ class _ReceiptListTile extends StatelessWidget {
                 Expanded(
                   child: Text(
                     summary.businessName,
-                    style: context.appTextTheme.titleMedium?.copyWith(
+                    style: context.textTheme.titleMedium?.copyWith(
                       color: context.colorScheme.onSurface,
                       fontWeight: FontWeight.w700,
                     ),
@@ -680,7 +678,7 @@ class _ReceiptListTile extends StatelessWidget {
                   children: [
                     Text(
                       amountText,
-                      style: context.appTextTheme.titleMedium?.copyWith(
+                      style: context.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: context.colorScheme.onSurface,
                       ),
@@ -688,7 +686,7 @@ class _ReceiptListTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       dateText,
-                      style: context.appTextTheme.bodyMedium?.copyWith(
+                      style: context.textTheme.bodyMedium?.copyWith(
                         color: context.colorScheme.onSurface,
                       ),
                       maxLines: 1,
@@ -710,7 +708,6 @@ class _GalleryEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -722,7 +719,7 @@ class _GalleryEmptyState extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Henüz kayıtlı fiş bulunmuyor.',
-              style: context.appTextTheme.titleMedium,
+              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
           ],
@@ -756,14 +753,14 @@ class _GalleryError extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message,
-              style: context.appTextTheme.titleMedium,
+              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (details != null && details!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
                 details!,
-                style: context.appTextTheme.bodySmall
+                style: context.textTheme.bodySmall
                     ?.copyWith(color: context.colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),

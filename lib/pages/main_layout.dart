@@ -1,5 +1,5 @@
-import 'package:fis_app_flutter/models/receipt_flow_models.dart';
-import 'package:fis_app_flutter/page/home.dart';
+import 'package:fis_app_flutter/app/widget/scaffold.dart';
+import 'package:fis_app_flutter/model/receipt_flow_models.dart';
 import 'package:fis_app_flutter/pages/about_page.dart';
 import 'package:fis_app_flutter/pages/account_settings_page.dart';
 import 'package:fis_app_flutter/pages/connections_page.dart';
@@ -12,7 +12,6 @@ import 'package:fis_app_flutter/pages/receipt_results_page.dart';
 import 'package:fis_app_flutter/pages/settings_page.dart';
 import 'package:fis_app_flutter/providers/user_plan_provider.dart';
 import 'package:fis_app_flutter/services/auth_service.dart';
-import 'package:fis_app_flutter/widget/scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -56,7 +55,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   late final Map<String, Widget Function(BuildContext, Object?)> _pageBuilders =
       {
-    '/home': (_, __) => const PageHome(),
+    '/home': (_, __) => const ReceiptPage(),
     '/receipt': (_, __) => const ReceiptPage(),
     '/excelFiles': (_, __) => const ExcelFilesPage(),
     '/connections': (_, __) => const ConnectionsPage(),

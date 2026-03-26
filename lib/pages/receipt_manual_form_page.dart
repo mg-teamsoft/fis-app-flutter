@@ -9,10 +9,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 
-import '../models/receipt_detail.dart';
-import '../services/s3_upload_service.dart';
-import '../services/receipt_api_service.dart';
+import '../model/receipt_detail.dart';
 import '../services/excel_service.dart';
+import '../services/receipt_api_service.dart';
+import '../services/s3_upload_service.dart';
 import '../utils/checksum_utils.dart';
 import '../utils/mime_utils.dart';
 

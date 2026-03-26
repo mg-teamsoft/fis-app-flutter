@@ -1,5 +1,5 @@
-import 'package:fis_app_flutter/models/receipt_detail.dart';
-import 'package:fis_app_flutter/theme/theme.dart';
+import 'package:fis_app_flutter/app/import/theme.dart';
+import 'package:fis_app_flutter/model/receipt_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -22,7 +22,7 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
   @override
   void initState() {
     super.initState();
-    _detail = ReceiptApiService().getReceiptDetail(widget.receiptId);
+    //_detail = ReceiptApiService().getReceiptDetail(widget.receiptId);
   }
 
   @override
@@ -66,8 +66,8 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
               message: 'Fiş detayı yüklenirken bir hata oluştu.',
               onRetry: () {
                 setState(() {
-                  _detail =
-                      ReceiptApiService().getReceiptDetail(widget.receiptId);
+                  //_detail =
+                  ReceiptApiService().getReceiptDetail(widget.receiptId);
                 });
               },
             );
@@ -85,14 +85,14 @@ class _ReceiptDetailPageState extends State<ReceiptDetailPage> {
               const SizedBox(height: 24),
               Text(
                 detail.businessName,
-                style: context.appTextTheme.headlineSmall?.copyWith(
+                style: context.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 _currencyFormatter.format(detail.totalAmount),
-                style: context.appTextTheme.headlineSmall?.copyWith(
+                style: context.textTheme.headlineSmall?.copyWith(
                   color: context.colorScheme.onPrimary,
                   fontWeight: FontWeight.w700,
                 ),
@@ -253,7 +253,6 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       decoration: BoxDecoration(
         color: context.colorScheme.surface.withValues(alpha: 0.7),
@@ -292,7 +291,6 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -304,14 +302,14 @@ class _InfoRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: context.appTextTheme.bodySmall?.copyWith(
+                  style: context.textTheme.bodySmall?.copyWith(
                     color: context.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: context.appTextTheme.titleMedium?.copyWith(
+                  style: context.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -325,14 +323,14 @@ class _InfoRow extends StatelessWidget {
               children: [
                 Text(
                   secondaryLabel!,
-                  style: context.appTextTheme.bodySmall?.copyWith(
+                  style: context.textTheme.bodySmall?.copyWith(
                     color: context.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   secondaryValue!,
-                  style: context.appTextTheme.titleMedium?.copyWith(
+                  style: context.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -348,7 +346,6 @@ class _InfoRow extends StatelessWidget {
 class _DividerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Divider(
@@ -367,7 +364,6 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -379,7 +375,7 @@ class _ErrorState extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message,
-              style: context.appTextTheme.titleMedium,
+              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[

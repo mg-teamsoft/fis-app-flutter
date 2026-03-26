@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/home_summary.dart';
+import '../model/home_summary.dart';
 import '../services/home_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,12 +20,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _futureSummary = _homeService.fetchSummary();
+    _futureSummary = _homeService.fetchSummary() as Future<HomeSummary>;
   }
 
   Future<void> _reload() async {
     setState(() {
-      _futureSummary = _homeService.fetchSummary();
+      _futureSummary = _homeService.fetchSummary() as Future<HomeSummary>;
     });
     try {
       await _futureSummary;

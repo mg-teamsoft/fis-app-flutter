@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:fis_app_flutter/widget/build_action_button.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../pages/receipt_manual_form_page.dart';
+
+import '../app/import/theme.dart';
 import '../services/receipt_service.dart';
-import '../theme/theme.dart';
 
 class ReceiptPage extends StatefulWidget {
   const ReceiptPage({super.key});
@@ -62,11 +63,8 @@ class _ReceiptPageState extends State<ReceiptPage> {
     return '$count $suffix Seçildi - Devam Et';
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
@@ -109,7 +107,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
                           const SizedBox(height: 16),
                           Text(
                             'Henüz fiş seçilmedi.',
-                            style: context.appTextTheme.titleMedium?.copyWith(
+                            style: context.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -117,7 +115,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
                           Text(
                             'Galerinizden fiş seçin veya kamerayla çekin.',
                             textAlign: TextAlign.center,
-                            style: context.appTextTheme.bodyMedium?.copyWith(
+                            style: context.textTheme.bodyMedium?.copyWith(
                               color: Colors.black54,
                             ),
                           ),

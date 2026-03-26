@@ -1,18 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
-import 'dart:typed_data';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
-import 'package:fis_app_flutter/theme/theme.dart';
-import 'package:flutter/material.dart';
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
-import '../models/receipt_flow_models.dart';
-import '../services/job_service.dart';
+import '../model/receipt_flow_models.dart';
+import '../model/status_type.dart';
 import '../services/excel_service.dart';
-import '../models/status_type.dart';
+import '../services/job_service.dart';
 
 class ReceiptResultsPage extends StatefulWidget {
   final List<SelectedItem> items;
@@ -94,8 +94,9 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
     try {
       final resp = await _jobs.getJob(jobId);
 
-      final Map<String, dynamic> jobObj =
-          (resp['job'] is Map<String, dynamic>) ? resp['job'] : resp;
+      final Map<String, dynamic> jobObj = (resp['job'] is Map)
+          ? Map<String, dynamic>.from(resp['job'] as Map)
+          : Map<String, dynamic>.from(resp as Map);
 
       s.status = (jobObj['status'] as String?) ?? s.status;
       final message = jobObj['message']?.toString();
@@ -367,9 +368,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                 : 'Sadece seçilenleri göster',
             icon: Icon(
               Icons.filter_list,
-              color: _showOnlySelected
-                  ? context.colorScheme.primary
-                  : null,
+              color: _showOnlySelected ? context.colorScheme.primary : null,
             ),
             onPressed: () {
               setState(() {
@@ -461,8 +460,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
                             Expanded(
                               child: Text(
                                 'Fiş ${i + 1}',
-                                style: context.appTextTheme
-                                    .titleMedium
+                                style: context.textTheme.titleMedium
                                     ?.copyWith(fontWeight: FontWeight.w600),
                               ),
                             ),
@@ -551,7 +549,6 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
 
   Widget _buildEditorArea(BuildContext context, _ItemState s,
       {required bool submitted}) {
-
     final surface =
         context.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
 
@@ -571,7 +568,7 @@ class _ReceiptResultsPageState extends State<ReceiptResultsPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (running) ...[
-              Text(countdownText, style: context.appTextTheme.bodyMedium),
+              Text(countdownText, style: context.textTheme.bodyMedium),
               const SizedBox(height: 8),
               LinearProgressIndicator(
                 value: (10 - s.countdown).clamp(0, 10) / 10.0,
@@ -1033,11 +1030,11 @@ class _ReceiptTableState extends State<_ReceiptTable> {
   // ─────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final labelStyle = context.appTextTheme.bodySmall?.copyWith(
+    final labelStyle = context.textTheme.bodySmall?.copyWith(
       color: context.colorScheme.onSurfaceVariant,
       fontWeight: FontWeight.w500,
     );
-    final highlightStyle = context.appTextTheme.bodyMedium?.copyWith(
+    final highlightStyle = context.textTheme.bodyMedium?.copyWith(
       fontWeight: FontWeight.w700,
       fontSize: 15,
       color: context.colorScheme.primary,
@@ -1136,7 +1133,7 @@ class _ReceiptTableState extends State<_ReceiptTable> {
                   readOnly: scalarRows[i].readOnly,
                   style: scalarRows[i].highlight
                       ? highlightStyle
-                      : context.appTextTheme.bodyMedium?.copyWith(
+                      : context.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: scalarRows[i].readOnly
                               ? context.colorScheme.onSurfaceVariant
@@ -1182,7 +1179,7 @@ class _ReceiptTableState extends State<_ReceiptTable> {
           const SizedBox(height: 12),
           Text(
             'Diğer Alanlar',
-            style: context.appTextTheme.titleSmall
+            style: context.textTheme.titleSmall
                 ?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
@@ -1211,7 +1208,7 @@ class _ReceiptTableState extends State<_ReceiptTable> {
                           Expanded(
                             child: Text(
                               kv.value?.toString() ?? '—',
-                              style: context.appTextTheme.bodyMedium
+                              style: context.textTheme.bodyMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
                               textAlign: TextAlign.right,
                             ),
