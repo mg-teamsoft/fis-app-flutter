@@ -43,16 +43,20 @@ dependencies:
   flutter_secure_storage: ^9.0.0   # to store JWT tokens securely
 
   # --- State management ---
-  provider: ^6.1.1     # simple state management (alternative: riverpod, bloc)
+  provider: ^6.1.5+1     # simple state management (alternative: riverpod, bloc)
 
   # --- Local persistence ---
   shared_preferences: ^2.2.2
+
+  # --- Window Manager ---
+  window_manager: ^0.5.1
 
   # --- Permission handler ---
   permission_handler: ^12.0.1
 
   # --- Camera & image selection ---
   image_picker: ^1.0.7
+  flutter_svg: ^2.2.4
   camera: ^0.11.2    # more advanced control if you want live capture
 
   # --- Date formatting ---
@@ -88,6 +92,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  very_good_analysis: ^10.2.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -108,6 +113,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icon/
+    - assets/svg/
     - assets/1.png
     - assets/2.png
     - assets/3.png
