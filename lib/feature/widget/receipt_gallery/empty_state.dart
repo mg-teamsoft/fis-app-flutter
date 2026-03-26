@@ -1,7 +1,7 @@
-part of '../../../page/receipt_gallery.dart';
+part of '../../page/receipt_gallery.dart';
 
-class _ReceiptGalleyEmptyState extends StatelessWidget {
-  const _ReceiptGalleyEmptyState();
+final class _GalleryEmptyState extends StatelessWidget {
+  const _GalleryEmptyState();
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +16,12 @@ class _ReceiptGalleyEmptyState extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Henüz kayıtlı fiş bulunmuyor.',
-              style: context.appTextTheme.titleMedium,
+              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
           ],
         ),
       ),
     );
-    
   }
 }

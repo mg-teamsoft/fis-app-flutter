@@ -1,0 +1,115 @@
+part of '../../page/receipt_detail.dart';
+
+final class _ReceiptDetailBuilder extends StatefulWidget {
+  const _ReceiptDetailBuilder({
+    required this.id,
+    required this.size,
+    required this.initDetail,
+    required this.currencyFormatter,
+    required this.dateFormatter,
+  });
+
+  final String id;
+  final Size size;
+  final Future<ModelReceiptDetail> initDetail;
+  final NumberFormat currencyFormatter;
+  final DateFormat dateFormatter;
+
+  @override
+  State<_ReceiptDetailBuilder> createState() => __ReceiptDetailBuilderState();
+}
+
+class __ReceiptDetailBuilderState extends State<_ReceiptDetailBuilder> {
+  late Future<ModelReceiptDetail> detailPart;
+
+  @override
+  void initState() {
+    super.initState();
+    detailPart = widget.initDetail;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<ModelReceiptDetail>(
+      future: detailPart,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return _ReceiptDetailError(
+            message: 'Fiş detayı yüklenirken bir hata oluştu.',
+            onRetry: () {
+              setState(() {
+                detailPart = ReceiptApiService().getReceiptDetail(widget.id);
+              });
+            },
+          );
+        }
+
+        final detail = snapshot.data;
+        if (detail == null) {
+          return const _ReceiptDetailError(message: 'Fiş detayı bulunamadı.');
+        }
+
+        return ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            _ReceiptDetailImage(size: widget.size, imageUrl: detail.imageUrl),
+            const SizedBox(height: 24),
+            Text(
+              detail.businessName,
+              style: context.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.currencyFormatter.format(detail.totalAmount),
+              style: context.textTheme.headlineSmall?.copyWith(
+                color: context.colorScheme.onPrimary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 24),
+            _InfoCard(
+              entries: [
+                _ReceiptDetailInfoRow(
+                  label: 'Fiş No',
+                  value: detail.receiptNumber,
+                  secondaryLabel: 'İşlem Tarihi',
+                  secondaryValue: detail.transactionDate != null
+                      ? widget.dateFormatter.format(detail.transactionDate!)
+                      : '—',
+                ),
+                _DividerRow(),
+                _ReceiptDetailInfoRow(
+                  label: 'Toplam Tutar',
+                  value: widget.currencyFormatter.format(detail.totalAmount),
+                ),
+                _ReceiptDetailInfoRow(
+                  label: 'Toplam KDV Tutarı',
+                  value: widget.currencyFormatter.format(detail.vatAmount),
+                  secondaryLabel: 'KDV Oranı',
+                  secondaryValue: '${detail.vatRate.toStringAsFixed(2)}%',
+                ),
+                _ReceiptDetailInfoRow(
+                  label: 'İşlem Tipi',
+                  value: detail.transactionType?.isNotEmpty == true
+                      ? detail.transactionType!
+                      : '—',
+                ),
+                _ReceiptDetailInfoRow(
+                  label: 'Ödeme Tipi',
+                  value: detail.paymentType?.isNotEmpty == true
+                      ? detail.paymentType!
+                      : '—',
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

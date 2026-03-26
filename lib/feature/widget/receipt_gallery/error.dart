@@ -1,11 +1,10 @@
-part of '../../../page/receipt_gallery.dart';
+part of '../../page/receipt_gallery.dart';
 
-
-class _ReceiptGalleryError extends StatelessWidget {
-  const _ReceiptGalleryError({
+final class _GalleryError extends StatelessWidget {
+  const _GalleryError({
     required this.message,
-    this.details,
     required this.onRetry,
+    this.details,
   });
 
   final String message;
@@ -20,18 +19,19 @@ class _ReceiptGalleryError extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 56, color: context.colorScheme.error),
+            Icon(Icons.error_outline,
+                size: 56, color: context.colorScheme.error),
             const SizedBox(height: 16),
             Text(
               message,
-              style: context.appTextTheme.titleMedium,
+              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (details != null && details!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
                 details!,
-                style: context.appTextTheme.bodySmall
+                style: context.textTheme.bodySmall
                     ?.copyWith(color: context.colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),

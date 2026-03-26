@@ -1,33 +1,31 @@
-part of '../../../page/receipt_gallery.dart';
+part of '../../page/receipt_gallery.dart';
 
-class _ReceiptGalleryList extends StatelessWidget {
-  const _ReceiptGalleryList({
+final class _ReceiptsList extends StatelessWidget {
+  const _ReceiptsList({
     required this.receipts,
     required this.onOpenDetails,
-    required this.capitalize,
   });
 
-  final List<ReceiptSummary> receipts;
-  final void Function(ReceiptSummary) onOpenDetails;
-  final String Function(String) capitalize;
+  final List<ModelReceipt> receipts;
+  final void Function(ModelReceipt) onOpenDetails;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final dateFormatter = DateFormat('d MMMM', 'tr_TR');
     final monthFormatter = DateFormat('MMMM yyyy', 'tr_TR');
     final currencyFormatter =
         NumberFormat.currency(locale: 'tr_TR', symbol: '₺');
 
-    // Gruplama mantığın doğru, buraya dokunmuyorum...
-    final Map<DateTime?, List<ReceiptSummary>> grouped = {};
+    final grouped = <DateTime?, List<ModelReceipt>>{};
     for (final receipt in receipts) {
       final date = receipt.transactionDate;
-      final key = (date == null) ? null : DateTime(date.year, date.month);
+      final key = (date == null)
+          ? null
+          : DateTime(date.year, date.month); // normalize to month
       grouped.putIfAbsent(key, () => []).add(receipt);
     }
 
-    final List<_ReceiptGalleryMonthGroup> groups = grouped.entries.map((entry) {
+    final groups = grouped.entries.map((entry) {
       final items = [...entry.value]..sort((a, b) {
           final aDate =
               a.transactionDate ?? DateTime.fromMillisecondsSinceEpoch(0);
@@ -38,8 +36,7 @@ class _ReceiptGalleryList extends StatelessWidget {
       final label = entry.key != null
           ? capitalize(monthFormatter.format(entry.key!))
           : 'Tarihsiz';
-      return _ReceiptGalleryMonthGroup(
-          label: label, items: items, sortKey: entry.key);
+      return _ReceiptMonthGroup(label: label, items: items, sortKey: entry.key);
     }).toList()
       ..sort((a, b) {
         if (a.sortKey == null && b.sortKey == null) return 0;
@@ -48,8 +45,7 @@ class _ReceiptGalleryList extends StatelessWidget {
         return b.sortKey!.compareTo(a.sortKey!);
       });
 
-    final List<Widget> children =
-        []; // Başlık 'Fişler' kısmını Body'ye taşıdığımız için buradan çıkardım
+    final children = <Widget>[];
 
     for (final group in groups) {
       children.add(
@@ -57,8 +53,8 @@ class _ReceiptGalleryList extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
           child: Text(
             group.label,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.primary,
+            style: context.textTheme.titleMedium?.copyWith(
+              color: context.colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -69,12 +65,10 @@ class _ReceiptGalleryList extends StatelessWidget {
         final date = receipt.transactionDate;
         final dateText =
             date != null ? dateFormatter.format(date) : 'Tarih bilgisi yok';
-
         children.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            // DİKKAT: Buradaki sınıf isminin _ReceiptGalleryListTile olduğundan emin ol
-            child: _ReceiptGalleryListTile(
+            child: _ReceiptListTile(
               summary: receipt,
               dateText: dateText,
               amountText: currencyFormatter.format(receipt.totalAmount),
@@ -86,9 +80,6 @@ class _ReceiptGalleryList extends StatelessWidget {
     }
 
     return ListView(
-      shrinkWrap: true, 
-      physics:
-          const NeverScrollableScrollPhysics(), 
       padding: const EdgeInsets.only(bottom: 24),
       children: children,
     );
