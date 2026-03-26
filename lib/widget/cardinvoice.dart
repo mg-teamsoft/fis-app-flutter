@@ -1,6 +1,6 @@
-import 'package:fis_app_flutter/models/receipt_summary.dart';
+import 'package:fis_app_flutter/app/import/theme.dart';
+import 'package:fis_app_flutter/model/receipt_summary.dart';
 import 'package:fis_app_flutter/pages/receipt_detail_page.dart';
-import 'package:fis_app_flutter/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 class WidgetCardInvoice extends StatelessWidget {
@@ -32,7 +32,7 @@ class WidgetCardInvoice extends StatelessWidget {
             width: size.width,
             height: size.height,
             decoration: BoxDecoration(
-              color: context.appTheme.cardBackground.withValues(alpha: 0.7),
+              color: context.theme.cardBackground.withValues(alpha: 0.7),
               borderRadius: ThemeRadius.circular12,
             ),
             padding: ThemePadding.all10(),

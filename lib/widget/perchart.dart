@@ -1,5 +1,6 @@
 import 'dart:math' as math;
-import 'package:fis_app_flutter/theme/theme.dart';
+
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 
 class WidgetPerChart extends StatelessWidget {
@@ -76,10 +77,10 @@ class _MultiColorPainter extends CustomPainter {
 
     final gradient = SweepGradient(
       colors: [
-        context.appTheme.error,
-        context.appTheme.warning,
-        context.appTheme.info,
-        context.appTheme.success,
+        context.theme.error,
+        context.theme.warning,
+        context.theme.info,
+        context.theme.success,
       ],
       stops: const [0.0, 0.33, 0.66, 1.0],
       transform: const GradientRotation(startAngle),

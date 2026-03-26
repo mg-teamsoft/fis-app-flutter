@@ -1,5 +1,5 @@
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:fis_app_flutter/theme/theme.dart';
 
 class WidgetButton extends StatelessWidget {
   const WidgetButton(
@@ -23,7 +23,7 @@ class WidgetButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(borderRadius: radius),
-            backgroundColor: color ?? context.appTheme.brandSecondary,
+            backgroundColor: color ?? context.theme.brandSecondary,
             padding: ThemePadding.all10(),
             minimumSize: size),
         child: Row(

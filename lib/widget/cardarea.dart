@@ -1,9 +1,8 @@
-import 'package:fis_app_flutter/models/home_summary.dart';
-
-import 'package:fis_app_flutter/models/receipt_summary.dart';
+import 'package:fis_app_flutter/app/import/theme.dart';
+import 'package:fis_app_flutter/model/home_summary.dart';
+import 'package:fis_app_flutter/model/receipt_summary.dart';
 import 'package:fis_app_flutter/widget/cardinvoice.dart';
 import 'package:flutter/material.dart';
-import 'package:fis_app_flutter/theme/theme.dart';
 import 'package:intl/intl.dart';
 
 class WidgetCardArea extends StatelessWidget {
