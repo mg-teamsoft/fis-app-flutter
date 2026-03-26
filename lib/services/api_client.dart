@@ -90,20 +90,17 @@ class ApiClient {
   Future<void> saveToken(String token, {int? expUnixSeconds}) async {
     _tokenCache = token;
     _expCache = expUnixSeconds;
-    await _storage.write(key: AuthConfig.tokenKey, value: token);
+    await _writeValue(AuthConfig.tokenKey, token);
     if (expUnixSeconds != null) {
-      await _storage.write(
-        key: AuthConfig.tokenExpKey,
-        value: expUnixSeconds.toString(),
-      );
+      await _writeValue(AuthConfig.tokenExpKey, expUnixSeconds.toString());
     }
   }
 
   /// Get token if still valid
   Future<String?> getValidToken() async {
-    _tokenCache ??= await _storage.read(key: AuthConfig.tokenKey);
+    _tokenCache ??= await _readValue(AuthConfig.tokenKey);
 
-    final expStr = await _storage.read(key: AuthConfig.tokenExpKey);
+    final expStr = await _readValue(AuthConfig.tokenExpKey);
     if (expStr != null) _expCache = int.tryParse(expStr);
 
     if (_expCache != null) {
@@ -120,8 +117,40 @@ class ApiClient {
   Future<void> clearToken() async {
     _tokenCache = null;
     _expCache = null;
-    await _storage.delete(key: AuthConfig.tokenKey);
-    await _storage.delete(key: AuthConfig.tokenExpKey);
+    await _deleteValue(AuthConfig.tokenKey);
+    await _deleteValue(AuthConfig.tokenExpKey);
+  }
+
+  bool get _useSharedPrefsStorage =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
+
+  Future<void> _writeValue(String key, String value) async {
+    if (_useSharedPrefsStorage) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(key, value);
+      return;
+    }
+
+    await _storage.write(key: key, value: value);
+  }
+
+  Future<String?> _readValue(String key) async {
+    if (_useSharedPrefsStorage) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(key);
+    }
+
+    return _storage.read(key: key);
+  }
+
+  Future<void> _deleteValue(String key) async {
+    if (_useSharedPrefsStorage) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(key);
+      return;
+    }
+
+    await _storage.delete(key: key);
   }
 
   dynamic _maskSensitive(dynamic data) {

@@ -22,24 +22,48 @@ class AuthService {
         'password': password,
       });
 
-      final data = res.data as Map<String, dynamic>;
-      if (data['status'] != 'success') {
-        return AuthResult(success: false, message: data['message']?.toString());
+      final rawData = res.data;
+      if (rawData is! Map<String, dynamic>) {
+        return AuthResult(
+          success: false,
+          message: 'Unexpected login response format',
+        );
       }
 
-      final token = data['token']?.toString();
-      final exp = data['exp'] is int ? data['exp'] as int : null;
-      final user = (data['user'] as Map?) ?? {};
-      final uid = user['userId']?.toString();
-      final uname = user['userName']?.toString();
+      final data = rawData;
+      final payload = _extractPayload(data);
+      final token = _readString(
+        payload,
+        const ['token', 'accessToken', 'authToken', 'jwt'],
+      );
+      final exp = _readInt(payload, const ['exp', 'expiresAt', 'expiresIn']);
+      final user = _extractUser(data, payload);
+      final uid = _readString(user, const ['userId', 'id']);
+      final uname = _readString(user, const ['userName', 'username', 'name']);
+      final message =
+          _readString(data, const ['message', 'error', 'detail']) ??
+              _readString(payload, const ['message', 'error', 'detail']);
+      final success = _isLoginSuccessful(data, payload, token);
+
+      if (!success) {
+        return AuthResult(success: false, message: message ?? 'Login failed');
+      }
 
       if (token == null || token.isEmpty) {
-        return AuthResult(success: false, message: 'Token missing in response');
+        return AuthResult(
+          success: false,
+          message: message ?? 'Token missing in response',
+        );
       }
 
       await _api.saveToken(token, expUnixSeconds: exp);
 
-      return AuthResult(success: true, userId: uid, userName: uname);
+      return AuthResult(
+        success: true,
+        message: message,
+        userId: uid,
+        userName: uname,
+      );
     } on DioException catch (e) {
       final msg = e.response?.data is Map
           ? ((e.response!.data['message'] ?? e.message)?.toString())
@@ -154,5 +178,65 @@ class AuthService {
     } catch (e) {
       return AuthResult(success: false, message: e.toString());
     }
+  }
+
+  Map<String, dynamic> _extractPayload(Map<String, dynamic> data) {
+    final nested = data['data'];
+    if (nested is Map<String, dynamic>) {
+      return nested;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> _extractUser(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+  ) {
+    final user = data['user'] ?? payload['user'];
+    if (user is Map<String, dynamic>) {
+      return user;
+    }
+    return payload;
+  }
+
+  bool _isLoginSuccessful(
+    Map<String, dynamic> data,
+    Map<String, dynamic> payload,
+    String? token,
+  ) {
+    final status = (_readString(data, const ['status']) ??
+            _readString(payload, const ['status']) ??
+            '')
+        .toLowerCase();
+    final ok = data['ok'] == true || payload['ok'] == true;
+
+    if (status == 'success' || status == 'ok' || ok) {
+      return true;
+    }
+
+    return token != null && token.isNotEmpty;
+  }
+
+  String? _readString(Map<String, dynamic> source, List<String> keys) {
+    for (final key in keys) {
+      final value = source[key];
+      if (value == null) continue;
+      final text = value.toString().trim();
+      if (text.isNotEmpty) return text;
+    }
+    return null;
+  }
+
+  int? _readInt(Map<String, dynamic> source, List<String> keys) {
+    for (final key in keys) {
+      final value = source[key];
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      if (value != null) {
+        final parsed = int.tryParse(value.toString());
+        if (parsed != null) return parsed;
+      }
+    }
+    return null;
   }
 }

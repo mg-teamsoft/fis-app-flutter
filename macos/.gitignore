@@ -1,4 +1,6 @@
 # Flutter-related
+.DS_Store
+**/.DS_Store
 **/Flutter/ephemeral/
 **/Pods/
 
