@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:fis_app_flutter/config/api_config.dart';
+import 'package:fis_app_flutter/config/auth_config.dart';
 import 'package:fis_app_flutter/services/auth_navigation.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../config/api_config.dart';
-import '../config/auth_config.dart';
 
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
@@ -23,20 +24,24 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           final maskedBody = _maskSensitive(options.data);
-          // ignore: avoid_print
-          print(
-              '--> ${options.method} ${options.uri}\nHeaders: ${options.headers}\nBody: $maskedBody');
+
+          if (kDebugMode) {
+            print(
+                '--> ${options.method} ${options.uri}\nHeaders: ${options.headers}\nBody: $maskedBody');
+          }
           handler.next(options);
         },
         onResponse: (response, handler) {
-          // ignore: avoid_print
-          print('<-- ${response.statusCode} ${response.requestOptions.uri}');
+          if (kDebugMode) {
+            print('<-- ${response.statusCode} ${response.requestOptions.uri}');
+          }
           handler.next(response);
         },
-        onError: (DioException e, handler) {
-          // ignore: avoid_print
-          print(
-              'xxx ${e.response?.statusCode ?? ''} ${e.requestOptions.uri} ${e.message}');
+        onError: (e, handler) {
+          if (kDebugMode) {
+            print(
+                'xxx ${e.response?.statusCode ?? ''} ${e.requestOptions.uri} ${e.message}');
+          }
           handler.next(e);
         },
       ),
@@ -55,7 +60,7 @@ class ApiClient {
         onResponse: (response, handler) {
           handler.next(response);
         },
-        onError: (DioException e, handler) async {
+        onError: (e, handler) async {
           if (e.response?.statusCode == 401) {
             // Token expired or invalid
             await clearToken();
@@ -123,17 +128,23 @@ class ApiClient {
     if (data is Map) {
       final copy = <String, dynamic>{};
       data.forEach((key, value) {
-        if (key.toLowerCase().contains('password')) {
-          copy[key] = '***';
+        if (key is String) {
+          if (key.toLowerCase().contains('password')) {
+            copy[key] = '***';
+          } else {
+            copy[key] = _maskSensitive(value);
+          }
         } else {
-          copy[key] = _maskSensitive(value);
+          copy[key.toString()] = _maskSensitive(value);
         }
       });
       return copy;
     }
+
     if (data is List) {
       return data.map(_maskSensitive).toList();
     }
+
     return data;
   }
 }

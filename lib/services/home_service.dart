@@ -1,13 +1,13 @@
-import '../models/home_summary.dart';
-import 'api_client.dart';
+import 'package:fis_app_flutter/feature/model/home.dart';
+import 'package:fis_app_flutter/services/api_client.dart';
 
 class HomeService {
   final _api = ApiClient();
 
-  Future<HomeSummary> fetchSummary() async {
-    final response = await _api.dio.get('/api/home/summary');
+  Future<ModelHome> fetchSummary() async {
+    final response = await _api.dio.get<dynamic>('/api/home/summary');
     if (response.statusCode == 200) {
-      return HomeSummary.fromResponse(response.data);
+      return ModelHome.fromResponse(response.data);
     }
     throw Exception('Failed to load home summary');
   }

@@ -1,4 +1,4 @@
-import '../models/plan_option.dart';
+import '../model/plan_option.dart';
 import 'api_client.dart';
 
 class PlanService {
@@ -44,8 +44,7 @@ class PlanService {
       );
       final id =
           (activePlan['_id'] ?? activePlan['id'])?.toString().trim() ?? '';
-      final planKey =
-          activePlan['planKey']?.toString().trim() ??
+      final planKey = activePlan['planKey']?.toString().trim() ??
           activePlan['key']?.toString().trim() ??
           '';
       if (id.isEmpty || planKey.isEmpty) return null;
@@ -73,13 +72,12 @@ class PlanService {
 
   static List<PlanOption> sortPlansWithFreeFirst(List<PlanOption> plans) {
     if (plans.length <= 1) return plans;
-    final sorted = [...plans];
-    sorted.sort((a, b) {
-      final aIsFree = a.isFreePlan;
-      final bIsFree = b.isFreePlan;
-      if (aIsFree == bIsFree) return 0;
-      return aIsFree ? -1 : 1;
-    });
+    final sorted = [...plans]..sort((a, b) {
+        final aIsFree = a.isFreePlan;
+        final bIsFree = b.isFreePlan;
+        if (aIsFree == bIsFree) return 0;
+        return aIsFree ? -1 : 1;
+      });
     return sorted;
   }
 

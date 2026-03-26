@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../models/purchase_transaction.dart';
+import '../model/purchase_transaction.dart';
 import 'api_client.dart';
 
 class PurchaseTransactionService {
@@ -14,8 +14,9 @@ class PurchaseTransactionService {
     if (response.statusCode != null &&
         response.statusCode! >= 200 &&
         response.statusCode! < 300) {
-      final dynamic body =
-          response.data is String ? jsonDecode(response.data) : response.data;
+      final dynamic body = response.data is String
+          ? jsonDecode(response.data as String)
+          : response.data;
       final items = _extractTransactionList(body);
       return items
           .whereType<Map>()
