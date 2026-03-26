@@ -1,0 +1,37 @@
+import 'package:fis_app_flutter/app/import/page.dart';
+import 'package:fis_app_flutter/app/widget/scaffold.dart';
+import 'package:fis_app_flutter/providers/user_plan_provider.dart';
+import 'package:fis_app_flutter/services/auth_service.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+part './mixin_main_layout.dart';
+
+class MainLayout extends StatefulWidget {
+  const MainLayout({
+    super.key,
+    this.initialRoute = '/home',
+    this.initialArguments,
+  });
+
+  final String initialRoute;
+  final Object? initialArguments;
+
+  @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> with _MixinMainLayout {
+  @override
+  Widget build(BuildContext context) {
+    final child = _buildCurrentPage(context);
+
+    return WidgetScaffold(
+      onSelected: _handleMenuSelection,
+      currentIndex: _currentNavIndex,
+      onTabSelected: _onTabTapped,
+      showBackButton: _currentNavIndex != 0,
+      body: SafeArea(child: child),
+    );
+  }
+}
