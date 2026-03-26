@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'receipt_summary.dart';
+import 'package:fis_app_flutter/model/receipt_summary.dart';
 
 class HomeSummary {
   HomeSummary({
