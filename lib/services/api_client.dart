@@ -2,8 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:fis_app_flutter/config/api_config.dart';
 import 'package:fis_app_flutter/config/auth_config.dart';
 import 'package:fis_app_flutter/services/auth_navigation.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform, kDebugMode, kIsWeb;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
