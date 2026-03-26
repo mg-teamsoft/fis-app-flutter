@@ -2,7 +2,7 @@ final class ThemeSize {
   ThemeSize._();
 
   static const double spacingXs = 8;
-  static const double spacingS = 10;
+  static const double spacingS = 12;
   static const double spacingM = 16;
   static const double spacingL = 20;
   static const double spacingXl = 24;

@@ -44,7 +44,7 @@ final class ThemeTextStyle {
 
   static TextStyle get titleLarge => const TextStyle(
         fontFamily: _fontFamily,
-        fontSize: 22,
+        fontSize: 24,
         fontWeight: FontWeight.w500,
       );
 

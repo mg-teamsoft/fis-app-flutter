@@ -1,4 +1,4 @@
-import 'package:fis_app_flutter/theme/theme.dart';
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 
 final class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
@@ -31,24 +31,25 @@ final class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
   final Color shimmerHighlight;
 
   static AppThemeExtension light = AppThemeExtension(
-      brandPrimary: ThemeColors.light.primary,
-      brandSecondary: ThemeColors.light.secondary,
-      bar: Color(0xffBFC9D1),
-      success: const Color(0xff008000),
-      selected: const Color(0xff76D2DB),
-      warning: const Color(0xFFFFD45A),
-      error: const Color(0xFFCF0F0F),
-      info: ThemeColors.light.secondary,
-      cardBackground: ThemeColors.light.surface,
-      divider: ThemeColors.light.outline,
-      shimmerBase: const Color(0xFFF7F6E5),
-      shimmerHighlight: const Color(0xFFF5F5F5));
+    brandPrimary: ThemeColors.light.primary,
+    brandSecondary: ThemeColors.light.secondary,
+    bar: const Color(0xffBFC9D1),
+    success: const Color(0xff008000),
+    selected: const Color(0xff76D2DB),
+    warning: const Color(0xFFFFD45A),
+    error: const Color(0xFFCF0F0F),
+    info: const Color(0xff0052ae),
+    cardBackground: ThemeColors.light.surface,
+    divider: ThemeColors.light.outline,
+    shimmerBase: const Color(0xFFF7F6E5),
+    shimmerHighlight: const Color(0xFFF5F5F5),
+  );
 
   static AppThemeExtension dark = AppThemeExtension(
     brandPrimary: ThemeColors.dark.primary,
     brandSecondary: ThemeColors.dark.secondary,
-    bar: Color(0xff000000),
-    success: Color(0xff008000),
+    bar: const Color(0xff000000),
+    success: const Color(0xff008000),
     selected: const Color(0xff3A9AFF),
     warning: const Color(0xFFFFB74D),
     info: ThemeColors.dark.secondary,
@@ -92,7 +93,9 @@ final class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
 
   @override
   ThemeExtension<AppThemeExtension> lerp(
-      ThemeExtension<AppThemeExtension>? other, double t) {
+    ThemeExtension<AppThemeExtension>? other,
+    double t,
+  ) {
     if (other is! AppThemeExtension) {
       return this;
     }
@@ -115,12 +118,11 @@ final class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
 }
 
 extension AppThemeExtensionContext on BuildContext {
-  AppThemeExtension get appTheme =>
-      Theme.of(this).extension<AppThemeExtension>()!;
+  AppThemeExtension get theme => Theme.of(this).extension<AppThemeExtension>()!;
 }
 
 extension AppTextThemeContext on BuildContext {
-  TextTheme get appTextTheme => Theme.of(this).textTheme;
-  ThemeData get theme => Theme.of(this);
+  TextTheme get textTheme => ThemeTextStyle.textTheme;
+  ThemeData get themedata => Theme.of(this);
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
 }

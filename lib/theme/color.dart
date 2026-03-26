@@ -3,36 +3,57 @@ import 'dart:ui';
 final class ThemeColors {
   ThemeColors._();
 
-  // Light Colors
-  static const Color _primaryLight = Color(0xffF6F7F8);
-  static const Color _onPrimaryLight = Color(0xff0F172A);
-  static const Color _primaryContainerLight = Color(0xffF3F4F4);
-  static const Color _onPrimaryContainerLight = Color(0xff111F35);
-  static const Color _secondaryLight = Color(0xff1179d4);
-  static const Color _onSecondaryLight = Color(0xfff6f7f8);
-  static const Color _secondaryContainerLight = Color(0xffD1E4FF);
-  static const Color _onSecondaryContainerLight = Color(0xff001D36);
-  static const Color _tertilaryLight = Color(0xff4F5E71);
+  // Light Colors (The Digital Vault-Atelier / Paper Strategy)
+  static const Color _primaryLight = Color(
+    0xff0052ae,
+  );
+  static const Color _onPrimaryLight = Color(0xffffffff);
+  static const Color _primaryContainerLight = Color(
+    0xff0069dc,
+  );
+  static const Color _onPrimaryContainerLight = Color(0xffffffff);
+  static const Color _secondaryLight = Color(
+    0xffeff4ff,
+  );
+  static const Color _onSecondaryLight = Color(
+    0xff121c2a,
+  );
+  static const Color _secondaryContainerLight = Color(
+    0xffd9e3f6,
+  );
+  static const Color _onSecondaryContainerLight = Color(0xff121c2a);
+  static const Color _tertilaryLight = Color(
+    0xff993100,
+  );
   static const Color _onTertilaryLight = Color(0xffffffff);
-  static const Color _tertilaryContainerLight = Color(0xffD3E2F8);
-  static const Color _onTertilaryContainerLight = Color(0xff0B1D2C);
+  static const Color _tertilaryContainerLight = Color(0xffd9e3f6);
+  static const Color _onTertilaryContainerLight = Color(0xff121c2a);
   static const Color _errorLight = Color(0xff9B0F06);
   static const Color _onErrorLight = Color(0xffffffff);
   static const Color _errorContainerLight = Color(0xffFFDAD6);
   static const Color _onErrorContainerLight = Color(0xff410002);
-  static const Color _surfaceLight = Color(0xffB0E4CC);
-  static const Color _onSurfaceLight = Color(0xff1A1C1E);
-  static const Color _surfaceContainerHighLight = Color(0xff66D0BC);
-  static const Color _onSurfaceVariantLight = Color(0xff43474E);
+  static const Color _surfaceLight = Color(
+    0xfff8f9ff,
+  );
+  static const Color _onSurfaceLight = Color(
+    0xff121c2a,
+  );
+  static const Color _surfaceContainerHighLight = Color(
+    0xffd9e3f6,
+  );
+  static const Color _onSurfaceVariantLight = Color(
+    0xff43474E,
+  );
   static const Color _outlineLight = Color(0xff73777F);
-  static const Color _outlineVariantLight = Color(0xffC3C7CF);
+  static const Color _outlineVariantLight = Color(
+    0x26c4c5d9,
+  );
 
-  // Dark Colors
-  // Dark Colors
-  static const Color _primaryDark = Color(0xff25343F);
-  static const Color _onPrimaryDark = Color(0xffF6F7F8);
-  static const Color _primaryContainerDark = Color(0xff111F35);
-  static const Color _onPrimaryContainerDark = Color(0xffF3F4F4);
+  // Dark Colors (Midnight Vault / Deep Tones)
+  static const Color _primaryDark = Color(0xffD1E4FF);
+  static const Color _onPrimaryDark = Color(0xff002D5E);
+  static const Color _primaryContainerDark = Color(0xff00497E);
+  static const Color _onPrimaryContainerDark = Color(0xffD1E4FF);
   static const Color _secondaryDark = Color(0xff4ea3ea);
   static const Color _onSecondaryDark = Color(0xff000000);
   static const Color _secondaryContainerDark = Color(0xff00497E);
@@ -45,9 +66,9 @@ final class ThemeColors {
   static const Color _onErrorDark = Color(0xff9B0F06);
   static const Color _errorContainerDark = Color(0xff93000A);
   static const Color _onErrorContainerDark = Color(0xffFFDAD6);
-  static const Color _surfaceDark = Color(0xff79C9C5);
-  static const Color _onSurfaceDark = Color(0xffF7F6E5);
-  static const Color _surfaceContainerHighDark = Color(0xff249E94);
+  static const Color _surfaceDark = Color(0xff0B1018);
+  static const Color _onSurfaceDark = Color(0xffE2E2E6);
+  static const Color _surfaceContainerHighDark = Color(0xff1A202A);
   static const Color _onSurfaceVariantDark = Color(0xffC3C7CF);
   static const Color _outlineDark = Color(0xff8D9199);
   static const Color _outlineVariantDark = Color(0xffF6F7F8);
