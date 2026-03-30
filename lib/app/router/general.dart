@@ -12,6 +12,7 @@ final class RouterGeneral {
     '/resetPassword': (_) => const PageResetPassword(),
     '/home': (_) => const MainLayout(), // Home Page is default value
     '/receipt': (_) => const MainLayout(initialRoute: '/receipt'),
+    '/gallery': (_) => const MainLayout(initialRoute: '/gallery'),
     '/receipt/process': (context) {
       final args = ModalRoute.of(context)?.settings.arguments;
       return MainLayout(

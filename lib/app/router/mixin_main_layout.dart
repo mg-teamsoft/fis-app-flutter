@@ -27,6 +27,18 @@ mixin _MixinMainLayout on State<MainLayout> {
   late final Map<String, Widget Function(BuildContext, Object?)> _pageBuilders =
       {
     '/home': (_, __) => const PageHome(),
+    '/receipt': (_, __) => const PageReceipt(),
+    '/gallery': (_, __) => const PageReceiptGallery(),
+    '/receipt/process': (_, args) {
+      final files = (args is List<XFile>) ? args : const <XFile>[];
+      return PageReceiptProcess(files: files);
+    },
+    '/receipt/results': (_, args) {
+      final items =
+          (args is List<SelectedItem>) ? args : const <SelectedItem>[];
+      return PageReceiptResult(items: items);
+    },
+    '/receipt/manuel': (_, __) => const PageReceiptManuel(),
   };
 
   String _normalizeRoute(String route) {
