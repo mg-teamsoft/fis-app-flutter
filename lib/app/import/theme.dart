@@ -1,4 +1,4 @@
-export 'package:fis_app_flutter/providers/theme_provider.dart';
+export 'package:fis_app_flutter/app/providers/theme_provider.dart';
 export 'package:fis_app_flutter/theme/app.dart';
 export 'package:fis_app_flutter/theme/color.dart';
 export 'package:fis_app_flutter/theme/extension.dart';
