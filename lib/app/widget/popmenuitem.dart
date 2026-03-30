@@ -2,16 +2,11 @@ import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 
 class WidgetPopMenuItem extends PopupMenuItem<String> {
-  // Verileri constructor'da alıyoruz
-  final String text;
-  final IconData icon;
-  final bool isDestructive;
-
   WidgetPopMenuItem({
-    super.key,
     required String value,
     required this.text,
     required this.icon,
+    super.key,
     this.isDestructive = false,
   }) : super(
           value: value,
@@ -21,18 +16,21 @@ class WidgetPopMenuItem extends PopupMenuItem<String> {
             isDestructive: isDestructive,
           ),
         );
-}
-
-class _MenuItemContent extends StatelessWidget {
+  // Verileri constructor'da alıyoruz
   final String text;
   final IconData icon;
   final bool isDestructive;
+}
 
+class _MenuItemContent extends StatelessWidget {
   const _MenuItemContent({
     required this.text,
     required this.icon,
     required this.isDestructive,
   });
+  final String text;
+  final IconData icon;
+  final bool isDestructive;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +41,7 @@ class _MenuItemContent extends StatelessWidget {
           size: ThemeSize.iconLarge,
           color: isDestructive
               ? context.theme.error
-              : context.theme.brandSecondary,
+              : context.colorScheme.onSurface,
         ),
         const SizedBox(width: 12),
         Text(

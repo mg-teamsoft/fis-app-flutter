@@ -18,6 +18,7 @@ class WidgetPopMenu<T> extends StatelessWidget {
       icon: Icon(
         icon,
       ),
+      offset: const Offset(0, 45),
       onSelected: onSelected,
       itemBuilder: (context) => menuitems,
     );

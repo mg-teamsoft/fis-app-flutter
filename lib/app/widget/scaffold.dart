@@ -1,7 +1,7 @@
 import 'package:fis_app_flutter/app/import/theme.dart';
-import 'package:fis_app_flutter/app/widget/appbar.dart';
+import 'package:fis_app_flutter/app/services/receipt_service.dart';
+import 'package:fis_app_flutter/app/widget/appbar/appbar.dart';
 import 'package:fis_app_flutter/app/widget/bottombar.dart';
-import 'package:fis_app_flutter/services/receipt_service.dart';
 import 'package:flutter/material.dart';
 
 class WidgetScaffold extends StatelessWidget {
