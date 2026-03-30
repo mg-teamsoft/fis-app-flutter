@@ -1,3 +1,5 @@
+import 'package:fis_app_flutter/app/providers/user_plan_provider.dart';
+import 'package:fis_app_flutter/app/services/auth_service.dart';
 import 'package:fis_app_flutter/app/widget/scaffold.dart';
 import 'package:fis_app_flutter/model/receipt_flow_models.dart';
 import 'package:fis_app_flutter/pages/about_page.dart';
@@ -10,8 +12,6 @@ import 'package:fis_app_flutter/pages/receipt_page.dart';
 import 'package:fis_app_flutter/pages/receipt_process_page.dart';
 import 'package:fis_app_flutter/pages/receipt_results_page.dart';
 import 'package:fis_app_flutter/pages/settings_page.dart';
-import 'package:fis_app_flutter/providers/user_plan_provider.dart';
-import 'package:fis_app_flutter/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';

@@ -1,9 +1,9 @@
 import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 
+import '../app/services/auth_service.dart';
+import '../app/services/plan_service.dart';
 import '../model/plan_option.dart';
-import '../services/auth_service.dart';
-import '../services/plan_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});

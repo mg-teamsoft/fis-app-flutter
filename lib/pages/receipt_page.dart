@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:fis_app_flutter/widget/build_action_button.dart';
+import 'package:fis_app_flutter/app/widget/build_action_button.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../app/import/theme.dart';
-import '../services/receipt_service.dart';
+import '../app/services/receipt_service.dart';
 
 class ReceiptPage extends StatefulWidget {
   const ReceiptPage({super.key});

@@ -5,8 +5,8 @@ import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../app/services/receipt_api_service.dart';
 import '../model/receipt_summary.dart';
-import '../services/receipt_api_service.dart';
 import 'receipt_detail_page.dart';
 
 // ignore_for_file: prefer_const_constructors

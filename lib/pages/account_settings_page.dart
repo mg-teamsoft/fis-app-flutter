@@ -4,14 +4,14 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../app/providers/purchase_provider.dart';
+import '../app/providers/user_plan_provider.dart';
+import '../app/services/plan_service.dart';
+import '../app/services/purchase_transaction_service.dart';
+import '../app/services/user_service.dart';
 import '../model/plan_option.dart';
 import '../model/purchase_transaction.dart';
 import '../model/user_profile.dart';
-import '../providers/purchase_provider.dart';
-import '../providers/user_plan_provider.dart';
-import '../services/plan_service.dart';
-import '../services/purchase_transaction_service.dart';
-import '../services/user_service.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   const AccountSettingsPage({super.key});

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 
+import 'package:fis_app_flutter/app/providers/purchase_provider.dart';
+import 'package:fis_app_flutter/app/services/auth_navigation.dart';
+import 'package:fis_app_flutter/app/services/purchase_service.dart';
 import 'package:fis_app_flutter/pages/main_layout.dart';
-import 'package:fis_app_flutter/providers/purchase_provider.dart';
-import 'package:fis_app_flutter/services/auth_navigation.dart';
-import 'package:fis_app_flutter/services/purchase_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -13,10 +13,10 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
 import 'app/import/theme.dart';
-import 'pages/reset_password_page.dart';
-import 'providers/user_plan_provider.dart';
+import 'app/providers/user_plan_provider.dart';
 // ✅ add these imports (adjust paths to your project)
-import 'services/api_client.dart';
+import 'app/services/api_client.dart';
+import 'pages/reset_password_page.dart';
 
 Future<void> main() async {
   usePathUrlStrategy(); // Enables path-based URLs so /resetPassword?token=... works

@@ -3,16 +3,16 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:fis_app_flutter/app/utils/checksum_utils.dart';
 import 'package:fis_app_flutter/model/receipt_flow_models.dart';
-import 'package:fis_app_flutter/utils/checksum_utils.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 
-import '../services/job_service.dart';
-import '../services/s3_upload_service.dart';
-import '../utils/mime_utils.dart';
+import '../app/services/job_service.dart';
+import '../app/services/s3_upload_service.dart';
+import '../app/utils/mime_utils.dart';
 
 String sha256Hex(Uint8List bytes) =>
     sha256.convert(bytes).toString(); // hex lowercase

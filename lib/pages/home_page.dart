@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../app/services/home_service.dart';
 import '../model/home_summary.dart';
-import '../services/home_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

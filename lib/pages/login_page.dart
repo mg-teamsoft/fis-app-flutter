@@ -1,7 +1,8 @@
-import 'package:fis_app_flutter/providers/user_plan_provider.dart';
+import 'package:fis_app_flutter/app/providers/user_plan_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/auth_service.dart';
+
+import '../app/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

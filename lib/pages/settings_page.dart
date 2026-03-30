@@ -1,8 +1,8 @@
 import 'package:fis_app_flutter/theme/extension.dart';
 import 'package:flutter/material.dart';
 
+import '../app/services/settings_service.dart';
 import '../model/receipt_detail.dart';
-import '../services/settings_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});

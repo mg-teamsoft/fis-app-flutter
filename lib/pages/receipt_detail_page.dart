@@ -3,7 +3,7 @@ import 'package:fis_app_flutter/model/receipt_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../services/receipt_api_service.dart';
+import '../app/services/receipt_api_service.dart';
 
 class ReceiptDetailPage extends StatefulWidget {
   final String receiptId;

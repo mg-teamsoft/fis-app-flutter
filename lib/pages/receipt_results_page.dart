@@ -9,10 +9,10 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
+import '../app/services/excel_service.dart';
+import '../app/services/job_service.dart';
 import '../model/receipt_flow_models.dart';
 import '../model/status_type.dart';
-import '../services/excel_service.dart';
-import '../services/job_service.dart';
 
 class ReceiptResultsPage extends StatefulWidget {
   final List<SelectedItem> items;
