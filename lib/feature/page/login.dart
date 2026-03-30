@@ -1,6 +1,6 @@
 import 'package:fis_app_flutter/app/import/theme.dart';
-import 'package:fis_app_flutter/providers/user_plan_provider.dart';
-import 'package:fis_app_flutter/services/auth_service.dart';
+import 'package:fis_app_flutter/app/providers/user_plan_provider.dart';
+import 'package:fis_app_flutter/app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

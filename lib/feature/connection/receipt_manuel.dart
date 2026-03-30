@@ -10,7 +10,7 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
   final _totalAmountController = TextEditingController();
 
   DateTime? _selectedDate;
-  late ReceiptCategory? _selectedCategory;
+  late final ReceiptCategory? _selectedCategory;
   final String _paymentType = 'card';
   String? _selectedKdvRate;
   XFile? _invoiceImage;
@@ -28,6 +28,7 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
   void initState() {
     super.initState();
     _totalAmountController.addListener(_recalculateKdv);
+    _selectedCategory = null;
   }
 
   @override

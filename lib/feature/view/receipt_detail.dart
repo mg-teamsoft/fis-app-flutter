@@ -18,6 +18,7 @@ final class _ReceiptDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const _ReceiptDetailAppbar(),
       body: _ReceiptDetailBuilder(
         id: id,
         size: size,

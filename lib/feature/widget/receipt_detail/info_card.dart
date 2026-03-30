@@ -9,11 +9,11 @@ final class _InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: context.colorScheme.surface.withValues(alpha: 0.7),
+        color: context.colorScheme.surfaceContainerHigh.withValues(alpha: 0.7),
         borderRadius: ThemeRadius.circular20,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: context.colorScheme.onSurface.withValues(alpha: 0.04),
             offset: const Offset(0, 8),
             blurRadius: 20,
           ),

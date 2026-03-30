@@ -9,9 +9,14 @@ mixin _ConnectionReceiptDetail on State<PageReceiptDetail> {
   @override
   void initState() {
     super.initState();
-    _detail = ReceiptApiService().getReceiptDetail(widget.receiptId);
     _currencyFormatter = NumberFormat.currency(locale: 'tr_TR', symbol: '₺');
     _dateFormatter = DateFormat('d MMMM yyyy', 'tr_TR');
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _detail = ReceiptApiService().getReceiptDetail(widget.receiptId);
     _size = MediaQuery.of(context).size;
   }
 }

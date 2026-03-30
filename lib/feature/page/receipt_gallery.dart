@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:fis_app_flutter/app/import/theme.dart';
+import 'package:fis_app_flutter/app/services/receipt_api_service.dart';
 import 'package:fis_app_flutter/core/capitalize.dart';
 import 'package:fis_app_flutter/feature/model/receipt.dart';
 import 'package:fis_app_flutter/feature/page/receipt_detail.dart';
-import 'package:fis_app_flutter/services/receipt_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

@@ -8,8 +8,8 @@ final class _HomeActions extends StatelessWidget {
   Widget build(BuildContext context) {
     return TwiceButton(
       size: size!,
-      onPressedOne: () => Navigator.of(context).pushNamed('/excel'),
-      onPressedTwo: () => Navigator.of(context).pushNamed('/receipt'),
+      onPressedOne: () => Navigator.of(context).pushNamed('/receipt'),
+      onPressedTwo: () => Navigator.of(context).pushNamed('/excel'),
       titleOne: 'Fiş Yükle',
       titleTwo: 'Excel Görüntüle',
       iconOne: SvgPicture.asset('assets/svg/receipt.svg'),

@@ -77,26 +77,26 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
             //Header background color
             primaryColor: context.colorScheme.secondary,
             //Background color
-            scaffoldBackgroundColor: context.colorScheme.primary,
+            scaffoldBackgroundColor: context.colorScheme.surface,
             //Divider color
             dividerColor: context.colorScheme.outline,
             //Non selected days of the month color
             textTheme: TextTheme(
               bodyMedium: context.textTheme.bodyMedium!.copyWith(
-                color: context.colorScheme.onPrimary,
+                color: context.colorScheme.onSurface,
               ),
             ),
             colorScheme: ColorScheme.fromSwatch().copyWith(
               //Selected dates background color
-              primary: context.colorScheme.secondaryContainer,
+              primary: context.colorScheme.primary,
               //Month title and week days color
-              onSurface: context.colorScheme.onPrimary,
+              onSurface: context.colorScheme.onSurface,
               //Header elements and selected dates text color
-              onPrimary: context.colorScheme.onPrimary,
+              onPrimary: context.colorScheme.onSurface,
             ),
             appBarTheme: const AppBarTheme().copyWith(
-              backgroundColor: context.colorScheme.surface,
-              foregroundColor: context.colorScheme.onSurface,
+              backgroundColor: context.colorScheme.surfaceContainerHigh,
+              foregroundColor: context.colorScheme.onSurfaceVariant,
             ),
           ),
           child: child!,

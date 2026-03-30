@@ -1,11 +1,12 @@
 import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/feature/model/receipt_detail.dart';
-import 'package:fis_app_flutter/services/receipt_api_service.dart';
+import 'package:fis_app_flutter/app/services/receipt_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 part '../connection/receipt_detail.dart';
 part '../view/receipt_detail.dart';
+part '../widget/receipt_detail/appbar.dart';
 part '../widget/receipt_detail/builder.dart';
 part '../widget/receipt_detail/divider_row.dart';
 part '../widget/receipt_detail/error.dart';

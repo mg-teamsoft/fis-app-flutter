@@ -63,11 +63,11 @@ class __ReceiptDetailBuilderState extends State<_ReceiptDetailBuilder> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: ThemeSize.spacingS),
             Text(
               widget.currencyFormatter.format(detail.totalAmount),
               style: context.textTheme.headlineSmall?.copyWith(
-                color: context.colorScheme.onPrimary,
+                color: context.colorScheme.onSurface,
                 fontWeight: FontWeight.w700,
               ),
             ),

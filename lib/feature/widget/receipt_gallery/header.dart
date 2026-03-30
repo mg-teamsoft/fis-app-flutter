@@ -10,7 +10,7 @@ final class _ReceiptGalleryHeader extends StatelessWidget {
       child: Text(
         'Fişler',
         style: context.textTheme.headlineLarge?.copyWith(
-          color: context.colorScheme.onPrimary.withValues(alpha: 0.8),
+          color: context.colorScheme.onSurface.withValues(alpha: 0.8),
           fontWeight: FontWeight.w600,
         ),
         textAlign: TextAlign.center,
