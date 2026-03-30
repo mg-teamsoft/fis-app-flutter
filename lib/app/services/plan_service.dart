@@ -1,4 +1,4 @@
-import '../model/plan_option.dart';
+import '../../model/plan_option.dart';
 import 'api_client.dart';
 
 class PlanService {

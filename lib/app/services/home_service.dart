@@ -1,5 +1,5 @@
+import 'package:fis_app_flutter/app/services/api_client.dart';
 import 'package:fis_app_flutter/feature/model/home.dart';
-import 'package:fis_app_flutter/services/api_client.dart';
 
 class HomeService {
   final _api = ApiClient();

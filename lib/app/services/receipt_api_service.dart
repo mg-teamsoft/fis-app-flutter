@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:fis_app_flutter/app/services/api_client.dart';
 import 'package:fis_app_flutter/feature/model/receipt.dart';
 import 'package:fis_app_flutter/feature/model/receipt_detail.dart';
-import 'package:fis_app_flutter/services/api_client.dart';
 
 class ReceiptApiService {
   final _api = ApiClient();

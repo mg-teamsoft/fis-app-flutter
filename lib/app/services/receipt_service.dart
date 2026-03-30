@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../core/permission_service.dart';
+
+import '../../core/permission_service.dart';
 
 /// Unified service for picking or capturing receipt photos.
 class ReceiptService {
@@ -8,17 +9,17 @@ class ReceiptService {
 
   /// Pick from gallery (asks Photos/Storage permission on first use)
   static Future<XFile?> pickFromGallery(BuildContext context) async {
-    final ok = await PermissionService.ensureFor(ReceiptAction.pick, context: context);
+    final ok =
+        await PermissionService.ensureFor(ReceiptAction.pick, context: context);
     if (!ok) return null;
 
-    return _picker.pickImage(
-      source: ImageSource.gallery
-    );
+    return _picker.pickImage(source: ImageSource.gallery);
   }
 
   /// Capture with camera (asks Camera permission on first use)
   static Future<XFile?> captureWithCamera(BuildContext context) async {
-    final ok = await PermissionService.ensureFor(ReceiptAction.capture, context: context);
+    final ok = await PermissionService.ensureFor(ReceiptAction.capture,
+        context: context);
     if (!ok) return null;
 
     return _picker.pickImage(

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../model/purchase_transaction.dart';
+import '../../model/purchase_transaction.dart';
 import 'api_client.dart';
 
 class PurchaseTransactionService {

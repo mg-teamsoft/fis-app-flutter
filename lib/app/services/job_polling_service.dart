@@ -3,8 +3,8 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 
-import '../model/status_type.dart';
-import '../services/api_client.dart';
+import '../../model/status_type.dart';
+import 'api_client.dart';
 
 class JobPollingService {
   Timer? _timer;

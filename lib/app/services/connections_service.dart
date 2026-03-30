@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:fis_app_flutter/config/contact_permission.dart';
-import 'package:fis_app_flutter/services/api_client.dart';
+import 'package:fis_app_flutter/app/config/contact_permission.dart';
+import 'package:fis_app_flutter/app/services/api_client.dart';
 
 class SupervisorContactDto {
   SupervisorContactDto({
