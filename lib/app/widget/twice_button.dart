@@ -8,8 +8,8 @@ class TwiceButton extends StatelessWidget {
     required this.onPressedTwo,
     required this.titleOne,
     required this.titleTwo,
-    required this.iconOne,
-    required this.iconTwo,
+    this.iconOne,
+    this.iconTwo,
     this.textStyle,
     this.backgroundColorOne,
     this.backgroundColorTwo,
@@ -21,24 +21,19 @@ class TwiceButton extends StatelessWidget {
   final VoidCallback onPressedTwo;
   final String titleOne;
   final String titleTwo;
-  final Widget iconOne;
-  final Widget iconTwo;
+  final Widget? iconOne;
+  final Widget? iconTwo;
   final Color? backgroundColorOne;
   final Color? backgroundColorTwo;
   final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
-    const edgePadding = 24.0 * 2;
-    final itemWidth = (size.width - edgePadding - ThemeSize.spacingS) * 0.4;
-    final itemHeight = (size.height - edgePadding - ThemeSize.spacingS) * 0.2;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildItem(
           context,
-          width: itemWidth,
-          height: itemHeight,
           title: titleOne,
           icon: iconOne,
           onTap: onPressedOne,
@@ -47,8 +42,6 @@ class TwiceButton extends StatelessWidget {
         const SizedBox(width: ThemeSize.spacingS),
         _buildItem(
           context,
-          width: itemWidth,
-          height: itemHeight,
           title: titleTwo,
           icon: iconTwo,
           onTap: onPressedTwo,
@@ -61,15 +54,11 @@ class TwiceButton extends StatelessWidget {
   Widget _buildItem(
     BuildContext context, {
     required String title,
-    required Widget icon,
-    required double width,
-    required double height,
+    required Widget? icon,
     required VoidCallback onTap,
     required Color color,
   }) {
-    return SizedBox(
-      width: width,
-      height: height,
+    return Expanded(
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
@@ -79,19 +68,21 @@ class TwiceButton extends StatelessWidget {
           ),
           padding: const ThemePadding.all16(),
         ),
-        child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            icon,
-            const SizedBox(height: ThemeSize.spacingS),
+            Align(
+              child: icon ?? const SizedBox(),
+            ),
+            const SizedBox(height: ThemeSize.spacingM),
             Text(
               title,
-              style: (textStyle ?? context.textTheme.bodyMedium)?.copyWith(
-                color: context.colorScheme.onPrimary,
+              style: (textStyle ?? context.textTheme.bodyLarge)?.copyWith(
+                color: context.colorScheme.onPrimaryContainer,
                 fontWeight: FontWeight.w700,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              textAlign: TextAlign.center,
             ),
           ],
         ),

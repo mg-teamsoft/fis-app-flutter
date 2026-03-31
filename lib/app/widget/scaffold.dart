@@ -26,8 +26,10 @@ class WidgetScaffold extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
         onPressed: () async => ReceiptService.captureWithCamera(context),
-        child: Icon(Icons.camera_alt_rounded,
-            color: context.colorScheme.onSecondary),
+        child: Icon(
+          Icons.camera_alt_rounded,
+          color: context.colorScheme.onPrimaryContainer,
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar:

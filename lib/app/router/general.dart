@@ -11,6 +11,11 @@ final class RouterGeneral {
     '/forgotPassword': (_) => const PageForgotPassword(),
     '/resetPassword': (_) => const PageResetPassword(),
     '/home': (_) => const MainLayout(), // Home Page is default value
+    '/excelFiles': (_) => const MainLayout(initialRoute: '/excelFiles'),
+    '/about': (_) => const MainLayout(initialRoute: '/about'),
+    '/settings': (_) => const MainLayout(initialRoute: '/settings'),
+    '/accountSettings': (_) =>
+        const MainLayout(initialRoute: '/accountSettings'),
     '/receipt': (_) => const MainLayout(initialRoute: '/receipt'),
     '/gallery': (_) => const MainLayout(initialRoute: '/gallery'),
     '/receipt/process': (context) {

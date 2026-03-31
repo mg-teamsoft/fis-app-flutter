@@ -1,3 +1,8 @@
+export 'package:fis_app_flutter/feature/page/about.dart';
+export 'package:fis_app_flutter/feature/page/account_settings.dart';
+export 'package:fis_app_flutter/feature/page/excel.dart';
+export 'package:fis_app_flutter/feature/page/settings.dart';
+
 export '../../feature/page/forget_password.dart';
 export '../../feature/page/home.dart';
 export '../../feature/page/login.dart';

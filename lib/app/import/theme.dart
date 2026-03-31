@@ -1,10 +1,11 @@
 export 'package:fis_app_flutter/app/providers/theme_provider.dart';
-export 'package:fis_app_flutter/theme/app.dart';
-export 'package:fis_app_flutter/theme/color.dart';
-export 'package:fis_app_flutter/theme/extension.dart';
-export 'package:fis_app_flutter/theme/padding.dart';
-export 'package:fis_app_flutter/theme/radius.dart';
-export 'package:fis_app_flutter/theme/scheme.dart';
-export 'package:fis_app_flutter/theme/size.dart';
-export 'package:fis_app_flutter/theme/text_style.dart';
-export 'package:fis_app_flutter/theme/typography.dart';
+
+export '../../core/theme/app.dart';
+export '../../core/theme/color.dart';
+export '../../core/theme/extension.dart';
+export '../../core/theme/padding.dart';
+export '../../core/theme/radius.dart';
+export '../../core/theme/scheme.dart';
+export '../../core/theme/size.dart';
+export '../../core/theme/text_style.dart';
+export '../../core/theme/typography.dart';

@@ -27,8 +27,12 @@ mixin _MixinMainLayout on State<MainLayout> {
   late final Map<String, Widget Function(BuildContext, Object?)> _pageBuilders =
       {
     '/home': (_, __) => const PageHome(),
+    '/about': (_, __) => const PageAbout(),
+    '/accountSettings': (_, __) => const PageAccountSettings(),
+    '/excelFiles': (_, __) => const PageExcel(),
     '/receipt': (_, __) => const PageReceipt(),
     '/gallery': (_, __) => const PageReceiptGallery(),
+    '/settings': (_, __) => const PageSettings(),
     '/receipt/process': (_, args) {
       final files = (args is List<XFile>) ? args : const <XFile>[];
       return PageReceiptProcess(files: files);
