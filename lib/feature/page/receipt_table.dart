@@ -2,7 +2,7 @@ import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/feature/page/receipt_result.dart';
 import 'package:flutter/material.dart';
 
-part '../connection/receipt_table.dart';
+part '../controller/receipt_table.dart';
 part '../view/receip_table.dart';
 part '../widget/receipt_table/extra_field.dart';
 part '../widget/receipt_table/input_decoration.dart';

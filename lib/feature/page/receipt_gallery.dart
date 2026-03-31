@@ -9,7 +9,7 @@ import 'package:fis_app_flutter/feature/page/receipt_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-part '../connection/receipt_gallery.dart';
+part '../controller/receipt_gallery.dart';
 part '../view/receipt_gallery.dart';
 part '../widget/receipt_gallery/build_search_result.dart';
 part '../widget/receipt_gallery/content.dart';

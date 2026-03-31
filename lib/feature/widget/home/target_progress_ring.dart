@@ -38,7 +38,8 @@ final class _TargetProgressRing extends StatelessWidget {
                   Text(
                     hasLimit ? 'Hedef' : 'Limit yok',
                     style: context.textTheme.bodyLarge?.copyWith(
-                      color: context.colorScheme.outline,
+                      color: context.colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -50,7 +51,7 @@ final class _TargetProgressRing extends StatelessWidget {
         Text(
           limitText,
           style: context.textTheme.headlineSmall?.copyWith(
-            color: context.colorScheme.outline,
+            color: context.colorScheme.onSurface,
           ),
         ),
       ],

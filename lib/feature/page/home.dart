@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 
-part '../connection/home.dart';
+part '../controller/home.dart';
 part '../view/home.dart';
 part '../widget/home/action.dart';
 part '../widget/home/error.dart';

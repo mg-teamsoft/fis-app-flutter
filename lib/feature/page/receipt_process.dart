@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 
-part '../connection/receipt_proccess.dart';
+part '../controller/receipt_proccess.dart';
 part '../view/receipt_process.dart';
 part '../widget/receipt_process/filled_button.dart';
 part '../widget/receipt_process/list.dart';

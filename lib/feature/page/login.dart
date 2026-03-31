@@ -4,7 +4,7 @@ import 'package:fis_app_flutter/app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-part '../connection/login.dart';
+part '../controller/login.dart';
 part '../view/login.dart';
 part '../widget/login/error.dart';
 part '../widget/login/forget_password_button.dart';

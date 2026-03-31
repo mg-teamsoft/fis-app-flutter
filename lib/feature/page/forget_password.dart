@@ -2,7 +2,7 @@ import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
-part '../connection/forgot_password.dart';
+part '../controller/forgot_password.dart';
 part '../view/forgot_password.dart';
 part '../widget/forgot_password/back_button.dart';
 part '../widget/forgot_password/fiiled_button.dart';

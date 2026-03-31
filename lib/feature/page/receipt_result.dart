@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
 
-part '../connection/receipt_result.dart';
+part '../controller/receipt_result.dart';
 part '../view/receipt_result.dart';
 part '../widget/receipt_result/appbar.dart';
 part '../widget/receipt_result/button_area.dart';

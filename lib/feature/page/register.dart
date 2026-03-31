@@ -5,7 +5,7 @@ import 'package:fis_app_flutter/core/enter_app.dart';
 import 'package:fis_app_flutter/model/plan_option.dart';
 import 'package:flutter/material.dart';
 
-part '../connection/register.dart';
+part '../controller/register.dart';
 part '../view/register.dart';
 part '../widget/register/error_text.dart';
 part '../widget/register/logo.dart';

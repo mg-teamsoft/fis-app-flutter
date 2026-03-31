@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-part '../connection/receipt.dart';
+part '../controller/receipt.dart';
 part '../view/receipt.dart';
 part '../widget/receipt/bottom_head.dart';
 part '../widget/receipt/mid_head.dart';

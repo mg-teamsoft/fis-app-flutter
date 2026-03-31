@@ -22,10 +22,8 @@ final class _HomeHeader extends StatelessWidget {
       children: [
         const SizedBox(height: 18),
         Text(
-          'Toplam Bakiye',
-          style: context.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          'Aylık Birikim',
+          style: context.textTheme.headlineSmall,
         ),
         const SizedBox(height: 6),
         Text(

@@ -9,11 +9,19 @@ final class _HomeActions extends StatelessWidget {
     return TwiceButton(
       size: size!,
       onPressedOne: () => Navigator.of(context).pushNamed('/receipt'),
-      onPressedTwo: () => Navigator.of(context).pushNamed('/excel'),
-      titleOne: 'Fiş Yükle',
-      titleTwo: 'Excel Görüntüle',
-      iconOne: SvgPicture.asset('assets/svg/receipt.svg'),
-      iconTwo: SvgPicture.asset('assets/svg/excel.svg'),
+      onPressedTwo: () => Navigator.of(context).pushNamed('/excelFiles'),
+      titleOne: ' Fiş Yükle',
+      titleTwo: ' Excel Aç',
+      iconOne: Icon(
+        Icons.receipt,
+        color: context.colorScheme.onPrimaryContainer,
+        size: ThemeSize.iconMedium,
+      ),
+      iconTwo: Icon(
+        Icons.table_chart,
+        color: context.colorScheme.onPrimaryContainer,
+        size: ThemeSize.iconMedium,
+      ),
       textStyle: context.textTheme.bodyLarge,
       backgroundColorTwo: context.theme.success,
     );

@@ -15,7 +15,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 
-part '../connection/receipt_manuel.dart';
+part '../controller/receipt_manuel.dart';
 part '../view/receipt_manuel.dart';
 part '../widget/receipt_manuel/choice_chip.dart';
 part '../widget/receipt_manuel/currency_inpur_formatter.dart';
