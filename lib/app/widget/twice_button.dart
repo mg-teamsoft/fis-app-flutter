@@ -64,7 +64,7 @@ class TwiceButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           shape: RoundedRectangleBorder(
-            borderRadius: ThemeRadius.circular24,
+            borderRadius: ThemeRadius.circular8,
           ),
           padding: const ThemePadding.all16(),
         ),
