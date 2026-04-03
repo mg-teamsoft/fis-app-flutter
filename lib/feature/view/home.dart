@@ -1,26 +1,30 @@
-import 'package:flutter/material.dart';
+part of '../page/home.dart';
 
-@immutable
-final class HomePageState {
-  const HomePageState({this.errorMessage = '', this.isLoading = false});
+final class _HomeView extends StatelessWidget {
+  const _HomeView({
+    required this.model,
+    required this.size,
+    required this.dateString,
+  });
 
-  final String errorMessage;
-  final bool isLoading;
-
-  HomePageState copyWith({String? errorMessage, bool? isLoading}) {
-    return HomePageState(
-        errorMessage: errorMessage ?? this.errorMessage,
-        isLoading: isLoading ?? this.isLoading);
-  }
+  final ModelHome model;
+  final Size size;
+  final String dateString;
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return false;
-    return other is HomePageState &&
-        other.errorMessage == errorMessage &&
-        other.isLoading == isLoading;
+  Widget build(BuildContext context) {
+    return Column(
+      spacing: ThemeSize.spacingL,
+      children: [
+        _HomeHeader(
+          model: model,
+          dateString: dateString,
+        ),
+        _HomeActions(
+          size: size,
+        ),
+        _HomeRecentReceipts(model: model),
+      ],
+    );
   }
-
-  @override
-  int get hashCode => errorMessage.hashCode ^ isLoading.hashCode;
 }

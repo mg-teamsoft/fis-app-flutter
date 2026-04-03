@@ -6,9 +6,8 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // App name
           const Text(
@@ -35,14 +34,22 @@ class AboutPage extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Feature list
-          _buildFeatureTile(Icons.description,
-              'Fişlerinizi taratın, kaydedin, doğrulayın ve kendiniz yönetin.'),
-          _buildFeatureTile(Icons.payments,
-              'Ödemelerinizi takip edin ve muhasebeciniz ile paylaşın.'),
           _buildFeatureTile(
-              Icons.bar_chart, 'Anlamlı finansal takip raporları oluşturun.'),
-          _buildFeatureTile(Icons.security,
-              'Resimlerinizi ve dosyalarınızı güvenli bir şekilde saklayın.'),
+            Icons.description,
+            'Fişlerinizi taratın, kaydedin, doğrulayın ve kendiniz yönetin.',
+          ),
+          _buildFeatureTile(
+            Icons.payments,
+            'Ödemelerinizi takip edin ve muhasebeciniz ile paylaşın.',
+          ),
+          _buildFeatureTile(
+            Icons.bar_chart,
+            'Anlamlı finansal takip raporları oluşturun.',
+          ),
+          _buildFeatureTile(
+            Icons.security,
+            'Resimlerinizi ve dosyalarınızı güvenli bir şekilde saklayın.',
+          ),
         ],
       ),
     );
@@ -50,7 +57,7 @@ class AboutPage extends StatelessWidget {
 
   Widget _buildFeatureTile(IconData icon, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
           Container(

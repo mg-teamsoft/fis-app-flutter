@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+
+import '../app/services/auth_service.dart';
 
 class ResetPasswordPage extends StatefulWidget {
-  final String? initialToken;
-
   const ResetPasswordPage({super.key, this.initialToken});
+  final String? initialToken;
 
   @override
   State<ResetPasswordPage> createState() => _ResetPasswordPageState();

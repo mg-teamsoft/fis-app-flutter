@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/receipt_service.dart';
+import '../app/services/receipt_service.dart';
 
 class ReceiptPage extends StatelessWidget {
   const ReceiptPage({super.key});

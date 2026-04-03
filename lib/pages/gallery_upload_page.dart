@@ -3,8 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
-import '../services/receipt_service.dart';
-import '../services/upload_service.dart';
+import '../app/services/receipt_service.dart';
+import '../app/services/upload_service.dart';
 
 class GalleryUploadPage extends StatefulWidget {
   const GalleryUploadPage({super.key});
@@ -91,7 +91,8 @@ class _GalleryUploadPageState extends State<GalleryUploadPage> {
                 onPressed: (_picked == null || _uploading) ? null : _upload,
                 icon: _uploading
                     ? const SizedBox(
-                        height: 18, width: 18,
+                        height: 18,
+                        width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.cloud_upload),

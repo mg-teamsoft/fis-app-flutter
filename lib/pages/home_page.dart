@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 
+import 'package:fis_app_flutter/core/theme/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/home_summary.dart';
-import '../services/home_service.dart';
+import '../app/services/home_service.dart';
+import '../model/home_summary.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,12 +21,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _futureSummary = _homeService.fetchSummary();
+    _futureSummary = _homeService.fetchSummary() as Future<HomeSummary>;
   }
 
   Future<void> _reload() async {
     setState(() {
-      _futureSummary = _homeService.fetchSummary();
+      _futureSummary = _homeService.fetchSummary() as Future<HomeSummary>;
     });
     try {
       await _futureSummary;
@@ -294,11 +295,15 @@ class _HomeRecentReceipts extends StatelessWidget {
     final receipts = summary.recentReceipts;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
-          'Son Fişler',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        Align(
+          alignment: Alignment.topLeft,
+          child: Text(
+            'Son Fişler',
+            style: context.textTheme.headlineMedium
+                ?.copyWith(fontWeight: FontWeight.w600),
+          ),
         ),
         const SizedBox(height: 12),
         if (receipts.isEmpty)

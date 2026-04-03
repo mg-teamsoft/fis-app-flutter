@@ -1,16 +1,17 @@
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/plan_option.dart';
-import '../models/purchase_transaction.dart';
-import '../models/user_profile.dart';
-import '../providers/purchase_provider.dart';
-import '../providers/user_plan_provider.dart';
-import '../services/plan_service.dart';
-import '../services/purchase_transaction_service.dart';
-import '../services/user_service.dart';
+import '../app/providers/purchase_provider.dart';
+import '../app/providers/user_plan_provider.dart';
+import '../app/services/plan_service.dart';
+import '../app/services/purchase_transaction_service.dart';
+import '../app/services/user_service.dart';
+import '../model/plan_option.dart';
+import '../model/purchase_transaction.dart';
+import '../model/user_profile.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   const AccountSettingsPage({super.key});
@@ -1065,7 +1066,6 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -1073,19 +1073,19 @@ class _ErrorView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.warning_rounded,
-                size: 48, color: theme.colorScheme.error),
+                size: 48, color: context.colorScheme.error),
             const SizedBox(height: 16),
             Text(
               message,
-              style: theme.textTheme.titleMedium,
+              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (details != null && details!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
                 details!,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
               ),

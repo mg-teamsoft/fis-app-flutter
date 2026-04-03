@@ -1,6 +1,6 @@
+import 'package:fis_app_flutter/app/config/contact_permission.dart';
+import 'package:fis_app_flutter/app/services/connections_service.dart';
 import 'package:flutter/material.dart';
-import 'package:fis_app_flutter/config/contact_permission.dart';
-import 'package:fis_app_flutter/services/connections_service.dart';
 import 'package:intl/intl.dart';
 
 class Contact {

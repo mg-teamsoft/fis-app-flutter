@@ -1,8 +1,9 @@
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 
-import '../models/plan_option.dart';
-import '../services/auth_service.dart';
-import '../services/plan_service.dart';
+import '../app/services/auth_service.dart';
+import '../app/services/plan_service.dart';
+import '../model/plan_option.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -100,8 +101,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(title: const Text('Kayıt Ol')),
       body: SingleChildScrollView(
@@ -155,7 +154,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Plan Seçimi',
-                    style: theme.textTheme.titleMedium
+                    style: context.textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -181,27 +180,27 @@ class _RegisterPageState extends State<RegisterPage> {
                       );
                     }
 
-    if (_selectedPlanKey == null && plans.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        setState(() => _selectedPlanKey = plans.first.planKey);
-      });
-    }
+                    if (_selectedPlanKey == null && plans.isNotEmpty) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!mounted) return;
+                        setState(() => _selectedPlanKey = plans.first.planKey);
+                      });
+                    }
 
-    final effectiveSelectedKey =
-        _selectedPlanKey ?? plans.first.planKey;
+                    final effectiveSelectedKey =
+                        _selectedPlanKey ?? plans.first.planKey;
 
                     final tiles = <Widget>[];
                     for (var i = 0; i < plans.length; i++) {
                       final plan = plans[i];
                       tiles.add(
-        _PlanTile(
-          plan: plan,
-          selected: plan.planKey == effectiveSelectedKey,
-          onTap: () => setState(
-            () => _selectedPlanKey = plan.planKey,
-          ),
-        ),
+                        _PlanTile(
+                          plan: plan,
+                          selected: plan.planKey == effectiveSelectedKey,
+                          onTap: () => setState(
+                            () => _selectedPlanKey = plan.planKey,
+                          ),
+                        ),
                       );
                       if (i < plans.length - 1) {
                         tiles.add(const SizedBox(height: 12));
@@ -213,8 +212,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 24),
                 if (_error != null)
                   Text(_error!,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: theme.colorScheme.error)),
+                      style: context.textTheme.bodyMedium
+                          ?.copyWith(color: context.colorScheme.error)),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
@@ -257,9 +256,8 @@ class _PlanTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final borderColor = selected
-        ? theme.colorScheme.primary
-        : theme.colorScheme.outlineVariant;
+    final borderColor =
+        selected ? theme.colorScheme.primary : theme.colorScheme.outlineVariant;
     final backgroundColor = selected
         ? theme.colorScheme.primary.withValues(alpha: 0.08)
         : theme.colorScheme.surface;

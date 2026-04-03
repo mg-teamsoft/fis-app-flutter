@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:fis_app_flutter/theme/extension.dart';
+
+import 'package:fis_app_flutter/app/import/theme.dart';
+import 'package:fis_app_flutter/app/services/receipt_api_service.dart';
+import 'package:fis_app_flutter/model/receipt_summary.dart';
+import 'package:fis_app_flutter/pages/receipt_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/receipt_summary.dart';
-import '../services/receipt_api_service.dart';
-import 'receipt_detail_page.dart';
-
-// ignore_for_file: prefer_const_constructors
 class ReceiptGalleryPage extends StatefulWidget {
   const ReceiptGalleryPage({super.key});
 
@@ -21,7 +20,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
 
   bool _isLoadingInitial = true;
   String? _error;
-  List<ReceiptSummary> _allReceipts = [];
+  final List<ReceiptSummary> _allReceipts = [];
 
   // Search state
   final TextEditingController _searchController = TextEditingController();
@@ -34,7 +33,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
   @override
   void initState() {
     super.initState();
-    _loadReceipts();
+    unawaited(_loadReceipts());
   }
 
   @override
@@ -52,10 +51,10 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
     try {
       final receipts = await _receiptApiService.listReceipts();
       setState(() {
-        _allReceipts = receipts;
+        //_allReceipts = receipts;
         _isLoadingInitial = false;
       });
-    } catch (e) {
+    } on Exception catch (e) {
       setState(() {
         _error = e.toString();
         _isLoadingInitial = false;
@@ -72,6 +71,34 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
       saveText: 'Seç',
       cancelText: 'İptal',
       helpText: 'Tarih Aralığı Seçin',
+      builder: (context, child) {
+        return Theme(
+            data: ThemeData.light().copyWith(
+                //Header background color
+                primaryColor: context.colorScheme.secondary,
+                //Background color
+                scaffoldBackgroundColor: context.colorScheme.primary,
+                //Divider color
+                dividerColor: context.colorScheme.outline,
+                //Non selected days of the month color
+                textTheme: TextTheme(
+                  bodyMedium: context.textTheme.bodyMedium!.copyWith(
+                    color: context.colorScheme.onPrimary,
+                  ),
+                ),
+                colorScheme: ColorScheme.fromSwatch().copyWith(
+                  //Selected dates background color
+                  primary: context.colorScheme.secondaryContainer,
+                  //Month title and week days color
+                  onSurface: context.colorScheme.onPrimary,
+                  //Header elements and selected dates text color
+                  onPrimary: context.colorScheme.onPrimary,
+                ),
+                appBarTheme: AppBarTheme().copyWith(
+                    backgroundColor: context.colorScheme.surface,
+                    foregroundColor: context.colorScheme.onSurface)),
+            child: child!);
+      },
     );
     if (picked != null && picked != _selectedDateRange) {
       setState(() {
@@ -177,7 +204,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final ThemeData theme = context.themedata;
 
     Widget bodyContent;
     if (_isLoadingInitial) {
@@ -210,8 +237,8 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
               child: Text(
                 'Fişler',
-                style: context.appTextTheme.titleMedium?.copyWith(
-                  fontSize: 18,
+                style: context.textTheme.headlineLarge?.copyWith(
+                  color: context.colorScheme.onPrimary.withValues(alpha: 0.8),
                   fontWeight: FontWeight.w600,
                 ),
                 textAlign: TextAlign.center,
@@ -228,10 +255,16 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                     onChanged: _onSearchChanged,
                     decoration: InputDecoration(
                       hintText: 'Fiş ara (şirket adına göre)...',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: context.colorScheme.onPrimary,
+                      ),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear),
+                              icon: Icon(
+                                Icons.clear,
+                                color: context.colorScheme.onPrimary,
+                              ),
                               onPressed: () {
                                 _searchController.clear();
                                 _onSearchChanged('');
@@ -240,11 +273,15 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                             )
                           : null,
                       filled: true,
-                      fillColor: context.colorScheme.surfaceContainerHighest
-                          .withOpacity(0.5),
+                      fillColor:
+                          context.colorScheme.surface.withValues(alpha: 0.2),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
+                        borderRadius: ThemeRadius.circular12,
+                        borderSide: BorderSide(
+                            color: context.colorScheme.outline
+                                .withValues(alpha: 0.2),
+                            style: BorderStyle.solid,
+                            width: 0.1),
                       ),
                     ),
                   ),
@@ -252,17 +289,37 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                   Row(
                     children: [
                       ActionChip(
-                        avatar: const Icon(Icons.date_range, size: 16),
-                        label: Text(_selectedDateRange == null
-                            ? 'Tarih Aralığı Seç'
-                            : '${DateFormat('d MMM', 'tr_TR').format(_selectedDateRange!.start)} - ${DateFormat('d MMM', 'tr_TR').format(_selectedDateRange!.end)}'),
+                        color: WidgetStatePropertyAll(
+                            context.colorScheme.secondary),
+                        avatar: Icon(Icons.date_range,
+                            size: ThemeSize.iconMedium,
+                            color: context.colorScheme.onSecondary),
+                        label: Text(
+                          _selectedDateRange == null
+                              ? 'Tarih Aralığı Seç'
+                              : '${DateFormat('d MMM', 'tr_TR').format(_selectedDateRange!.start)} - ${DateFormat('d MMM', 'tr_TR').format(_selectedDateRange!.end)}',
+                          style: ThemeTypography.bodyLarge(
+                            context,
+                            '',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: context.colorScheme.onSecondary),
+                          ).style,
+                        ),
                         onPressed: _pickDateRange,
                       ),
                       if (_selectedDateRange != null) ...[
                         const SizedBox(width: 8),
                         ActionChip(
-                          avatar: const Icon(Icons.clear, size: 16),
-                          label: const Text('Temizle'),
+                          avatar: Icon(Icons.clear,
+                              size: ThemeSize.iconMedium,
+                              color: context.colorScheme.onSurface),
+                          label: Text(
+                            'Temizle',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: context.colorScheme.onPrimary),
+                          ),
                           onPressed: _clearDateRange,
                         ),
                       ],
@@ -285,7 +342,8 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                           child: Container(
-                            color: context.colorScheme.surface.withOpacity(0.4),
+                            color: context.colorScheme.surface
+                                .withValues(alpha: 0.4),
                             child: _isSearching
                                 ? const Align(
                                     alignment: Alignment.topCenter,
@@ -314,7 +372,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
         padding: const EdgeInsets.only(top: 32),
         child: Text(
           'Sonuç bulunamadı.',
-          style: context.appTextTheme.titleMedium,
+          style: context.textTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
       );
@@ -348,12 +406,12 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
             ),
             boxShadow: [
               BoxShadow(
-                color: theme.colorScheme.shadow.withOpacity(0.08),
+                color: theme.colorScheme.shadow.withValues(alpha: 0.08),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
               BoxShadow(
-                color: theme.colorScheme.shadow.withOpacity(0.04),
+                color: theme.colorScheme.shadow.withValues(alpha: 0.04),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -369,19 +427,20 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                 _openDetails(receipt);
               },
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: ThemePadding.all16(),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: ThemePadding.all10(),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                        color: theme.colorScheme.primaryContainer
+                            .withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         Icons.receipt_rounded,
-                        color: theme.colorScheme.onPrimary,
-                        size: 24,
+                        color: theme.colorScheme.onSurface,
+                        size: ThemeSize.iconLarge,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -391,30 +450,35 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
                         children: [
                           Text(
                             receipt.businessName,
-                            style: context.appTextTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: context.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: context.colorScheme.onSurface),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            dateText,
-                            style: context.appTextTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      amountText,
-                      style: context.appTextTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          amountText,
+                          style: context.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        Text(
+                          dateText,
+                          style: context.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -437,7 +501,6 @@ class _ReceiptsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final dateFormatter = DateFormat('d MMMM', 'tr_TR');
     final monthFormatter = DateFormat('MMMM yyyy', 'tr_TR');
     final currencyFormatter =
@@ -480,8 +543,8 @@ class _ReceiptsList extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
           child: Text(
             group.label,
-            style: context.appTextTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.primary,
+            style: context.textTheme.titleMedium?.copyWith(
+              color: context.colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -545,27 +608,26 @@ class _ReceiptListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
           colors: [
-            theme.colorScheme.surface,
-            theme.colorScheme.surfaceContainerLow,
+            context.colorScheme.surface,
+            context.colorScheme.surfaceContainerLow,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.shadow.withOpacity(0.08),
+            color: context.colorScheme.shadow.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
           BoxShadow(
-            color: theme.colorScheme.shadow.withOpacity(0.04),
+            color: context.colorScheme.shadow.withValues(alpha: 0.04),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -584,48 +646,52 @@ class _ReceiptListTile extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                    color: context.colorScheme.primaryContainer
+                        .withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.receipt_rounded,
-                    color: theme.colorScheme.primary,
+                    color: context.colorScheme.onSurface,
                     size: 24,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        summary.businessName,
-                        style: context.appTextTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        dateText,
-                        style: context.appTextTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                  child: Text(
+                    summary.businessName,
+                    style: context.textTheme.titleMedium?.copyWith(
+                      color: context.colorScheme.onSurface,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  amountText,
-                  style: context.appTextTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      amountText,
+                      style: context.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: context.colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      dateText,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colorScheme.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ))
               ],
             ),
           ),
@@ -640,7 +706,6 @@ class _GalleryEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -648,11 +713,11 @@ class _GalleryEmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.receipt_long,
-                size: 56, color: theme.colorScheme.primary),
+                size: 56, color: context.colorScheme.primary),
             const SizedBox(height: 16),
             Text(
               'Henüz kayıtlı fiş bulunmuyor.',
-              style: context.appTextTheme.titleMedium,
+              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
           ],
@@ -675,26 +740,26 @@ class _GalleryError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 56, color: theme.colorScheme.error),
+            Icon(Icons.error_outline,
+                size: 56, color: context.colorScheme.error),
             const SizedBox(height: 16),
             Text(
               message,
-              style: context.appTextTheme.titleMedium,
+              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             if (details != null && details!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
                 details!,
-                style: context.appTextTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: context.textTheme.bodySmall
+                    ?.copyWith(color: context.colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
             ],
