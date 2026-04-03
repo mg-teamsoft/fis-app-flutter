@@ -18,6 +18,28 @@ class SupervisorContactDto {
   final List<ContactPermission> permissions;
 }
 
+class ContactInviteDto {
+  ContactInviteDto({
+    required this.id,
+    required this.inviteeEmail,
+    required this.status,
+    required this.permissions,
+    required this.expiresAt,
+    required this.respondedAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  final String id;
+  final String inviteeEmail;
+  final String status;
+  final List<String> permissions;
+  final DateTime? expiresAt;
+  final DateTime? respondedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+}
+
 class ConnectionsService {
   ConnectionsService({ApiClient? apiClient}) : _api = apiClient ?? ApiClient();
 
@@ -82,6 +104,54 @@ class ConnectionsService {
     }
   }
 
+  Future<List<ContactInviteDto>> fetchInvites() async {
+    try {
+      final response = await _api.dio.get('/api/contacts/invites');
+      if (response.statusCode != 200) {
+        throw Exception('Davetler alınamadı');
+      }
+
+      final items = _extractInviteList(response.data);
+      return items.map(_mapInvite).toList();
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Davetler alınamadı');
+    }
+  }
+
+  Future<void> resendInvite(String inviteId) async {
+    final normalizedInviteId = inviteId.trim();
+    if (normalizedInviteId.isEmpty) {
+      throw Exception('Geçerli bir davet kimliği bulunamadı');
+    }
+
+    try {
+      final response = await _api.dio
+          .post('/api/contacts/invites/$normalizedInviteId/resend');
+
+      if (response.statusCode != 200 &&
+          response.statusCode != 201 &&
+          response.statusCode != 204) {
+        throw Exception('Davet yeniden gönderilemedi');
+      }
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Davet yeniden gönderilemedi');
+    }
+  }
+
   List<Map<String, dynamic>> _extractContactList(dynamic data) {
     if (data is List) {
       return data
@@ -111,6 +181,20 @@ class ConnectionsService {
     }
 
     return const [];
+  }
+
+  List<Map<String, dynamic>> _extractInviteList(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      final invites = data['invites'];
+      if (invites is List) {
+        return invites
+            .whereType<Map>()
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList();
+      }
+    }
+
+    return _extractContactList(data);
   }
 
   SupervisorContactDto _mapSupervisorContact(Map<String, dynamic> json) {
@@ -155,6 +239,30 @@ class ConnectionsService {
     );
   }
 
+  ContactInviteDto _mapInvite(Map<String, dynamic> json) {
+    return ContactInviteDto(
+      id: (json['inviteId'] ?? json['_id'] ?? json['id'] ?? '').toString(),
+      inviteeEmail: _pickFirstNonEmpty([
+        json['inviteeEmail']?.toString(),
+        json['email']?.toString(),
+      ]),
+      status: _pickFirstNonEmpty([
+        json['status']?.toString(),
+        'PENDING',
+      ]).toUpperCase(),
+      permissions: (json['permissions'] is List)
+          ? (json['permissions'] as List)
+              .map((item) => item?.toString() ?? '')
+              .where((item) => item.isNotEmpty)
+              .toList()
+          : const [],
+      expiresAt: _parseDateTime(json['expiresAt']),
+      respondedAt: _parseDateTime(json['respondedAt']),
+      createdAt: _parseDateTime(json['createdAt']),
+      updatedAt: _parseDateTime(json['updatedAt']),
+    );
+  }
+
   List<ContactPermission> _parsePermissions(dynamic rawPermissions) {
     if (rawPermissions is! List) {
       return const [];
@@ -181,5 +289,13 @@ class ConnectionsService {
       }
     }
     return '';
+  }
+
+  DateTime? _parseDateTime(dynamic value) {
+    final text = value?.toString().trim();
+    if (text == null || text.isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(text);
   }
 }

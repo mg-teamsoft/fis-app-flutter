@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fis_app_flutter/config/contact_permission.dart';
 import 'package:fis_app_flutter/services/connections_service.dart';
+import 'package:intl/intl.dart';
 
 class Contact {
   final String id;
@@ -35,24 +36,38 @@ class _ConnectionsPageState extends State<ConnectionsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _emailController = TextEditingController();
+  final FocusNode _emailFocusNode = FocusNode();
   final ConnectionsService _connectionsService = ConnectionsService();
   bool _isInviteLoading = false;
   bool _isContactsLoading = true;
+  bool _isInvitesLoading = true;
+  bool _isEmailFieldFocused = false;
   bool _inviteCanViewReceipts = true;
   bool _inviteCanDownloadFiles = true;
+  Set<String> _resendingInviteIds = <String>{};
   String? _contactsError;
+  String? _invitesError;
   List<Contact> _contacts = const [];
+  List<ContactInviteDto> _invites = const [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _emailFocusNode.addListener(() {
+      if (!mounted) return;
+      setState(() {
+        _isEmailFieldFocused = _emailFocusNode.hasFocus;
+      });
+    });
     _loadSupervisors();
+    _loadInvites();
   }
 
   @override
   void dispose() {
     _emailController.dispose();
+    _emailFocusNode.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -69,21 +84,32 @@ class _ConnectionsPageState extends State<ConnectionsPage>
           unselectedLabelColor: Colors.grey.shade600,
           indicatorColor: const Color(0xFF2563EB),
           tabs: const [
-            Tab(text: "My Supervisors"),
-            Tab(text: "My Customers"),
+            Tab(text: "Mali Müşavirler"),
+            Tab(text: "Davetler"),
           ],
         ),
         const SizedBox(height: 16),
         // Expanded body for scrollable content
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 24),
+          child: TabBarView(
+            controller: _tabController,
             children: [
-              _buildInviteSection(context),
-              const SizedBox(height: 16),
-              ..._buildContactsSection(context),
-              const SizedBox(height: 24),
-              _buildFeaturedStats(context),
+              ListView(
+                padding: const EdgeInsets.only(bottom: 24),
+                children: [
+                  _buildInviteSection(context),
+                  const SizedBox(height: 16),
+                  ..._buildContactsSection(context),
+                  const SizedBox(height: 24),
+                  _buildFeaturedStats(context),
+                ],
+              ),
+              ListView(
+                padding: const EdgeInsets.only(bottom: 24),
+                children: [
+                  _buildInvitesTableSection(context),
+                ],
+              ),
             ],
           ),
         ),
@@ -110,14 +136,14 @@ class _ConnectionsPageState extends State<ConnectionsPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Invite Supervisor",
+            "Finansal Danışman Davet Et",
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 4),
           Text(
-            "Grant team members access to view or manage your financial records.",
+            "Ekip üyelerine finansal kayıtlarınızı görüntüleme veya yönetme erişimi verin.",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.grey.shade600,
                 ),
@@ -125,14 +151,30 @@ class _ConnectionsPageState extends State<ConnectionsPage>
           const SizedBox(height: 12),
           TextField(
             controller: _emailController,
+            focusNode: _emailFocusNode,
             keyboardType: TextInputType.emailAddress,
+            cursorColor: const Color(0xFF2563EB),
             decoration: InputDecoration(
-              hintText: "Email address",
+              hintText: _isEmailFieldFocused ? null : "E-posta adresi girin",
+              hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey.shade500,
+                  ),
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: Color(0xFF2563EB),
+                  width: 1.5,
+                ),
               ),
             ),
           ),
@@ -141,7 +183,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
             children: [
               Expanded(
                 child: _buildInvitePermissionSwitch(
-                  label: "View Receipts",
+                  label: "Fişleri Görüntüle",
                   value: _inviteCanViewReceipts,
                   onChanged: (value) {
                     setState(() {
@@ -153,7 +195,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
               const SizedBox(width: 12),
               Expanded(
                 child: _buildInvitePermissionSwitch(
-                  label: "Download Files",
+                  label: "Dosyaları İndir",
                   value: _inviteCanDownloadFiles,
                   onChanged: (value) {
                     setState(() {
@@ -185,7 +227,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : const Text("Invite"),
+                  : const Text("Davet Et"),
             ),
           ),
         ],
@@ -222,7 +264,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
               const SizedBox(height: 12),
               ElevatedButton(
                 onPressed: _loadSupervisors,
-                child: const Text('Retry'),
+                child: const Text('Tekrar Dene'),
               ),
             ],
           ),
@@ -240,7 +282,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
             border: Border.all(color: Colors.grey.shade200),
           ),
           child: Text(
-            'Henüz bir supervisor bağlantısı bulunmuyor.',
+            'Henüz bir danışman bağlantısı bulunmuyor.',
             style: TextStyle(color: Colors.grey.shade700),
           ),
         ),
@@ -258,20 +300,25 @@ class _ConnectionsPageState extends State<ConnectionsPage>
     required ValueChanged<bool> onChanged,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
+          FittedBox(
+            fit: BoxFit.scaleDown,
             child: Text(
               label,
+              maxLines: 1,
+              textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ),
+          const SizedBox(height: 4),
           Switch(
             value: value,
             onChanged: onChanged,
@@ -336,6 +383,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
           _inviteCanDownloadFiles = true;
         });
         _loadSupervisors();
+        _loadInvites();
       }
     } catch (e) {
       if (mounted) {
@@ -381,6 +429,69 @@ class _ConnectionsPageState extends State<ConnectionsPage>
     }
   }
 
+  Future<void> _loadInvites() async {
+    setState(() {
+      _isInvitesLoading = true;
+      _invitesError = null;
+    });
+
+    try {
+      final invites = await _connectionsService.fetchInvites();
+      if (!mounted) return;
+
+      setState(() {
+        _invites = invites;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _invitesError = e.toString().replaceAll('Exception: ', '');
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isInvitesLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleResendInvite(ContactInviteDto invite) async {
+    if (invite.id.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Geçerli bir davet bulunamadı')),
+      );
+      return;
+    }
+
+    setState(() {
+      _resendingInviteIds = {..._resendingInviteIds, invite.id};
+    });
+
+    try {
+      await _connectionsService.resendInvite(invite.id);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Davet yeniden gönderildi')),
+      );
+      await _loadInvites();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _resendingInviteIds = {..._resendingInviteIds}..remove(invite.id);
+        });
+      }
+    }
+  }
+
   Contact _mapContact(SupervisorContactDto supervisor) {
     return Contact(
       id: supervisor.id,
@@ -415,15 +526,369 @@ class _ConnectionsPageState extends State<ConnectionsPage>
       case 'ACTIVE':
         return Colors.blue;
       case 'PENDING':
-        return Colors.grey;
+        return const Color(0xFFEFB53E);
+      case 'ACCEPTED':
+        return const Color(0xFF12B76A);
+      case 'EXPIRED':
+        return const Color(0xFFF97066);
       default:
         return Colors.indigo;
+    }
+  }
+
+  String _statusLabel(String status) {
+    switch (status.toUpperCase()) {
+      case 'ACTIVE':
+        return 'Aktif';
+      case 'PENDING':
+        return 'Beklemede';
+      case 'ACCEPTED':
+        return 'Kabul Edildi';
+      case 'EXPIRED':
+        return 'Süresi Doldu';
+      default:
+        return status;
+    }
+  }
+
+  Widget _buildInvitesTableSection(BuildContext context) {
+    if (_isInvitesLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 32),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_invitesError != null) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.red.shade100),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _invitesError!,
+              style: TextStyle(color: Colors.red.shade700),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _loadInvites,
+              child: const Text('Tekrar Dene'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_invites.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Text(
+          'Henüz gönderilmiş davet bulunmuyor.',
+          style: TextStyle(color: Colors.grey.shade700),
+        ),
+      );
+    }
+
+    final pendingCount = _invites
+        .where((invite) => invite.status.toUpperCase() == 'PENDING')
+        .length;
+
+    return Column(
+      children: [
+        _buildInviteSummaryCard(context, pendingCount),
+        const SizedBox(height: 16),
+        ..._invites.map((invite) => _buildInviteCard(context, invite)),
+      ],
+    );
+  }
+
+  String _formatShortDate(DateTime? value) {
+    if (value == null) {
+      return '-';
+    }
+    return DateFormat('MMM d, yyyy', 'en_US').format(value.toLocal());
+  }
+
+  Widget _buildInviteSummaryCard(BuildContext context, int pendingCount) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F7FF),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'ÖZET',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: const Color(0xFF7B8193),
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.0,
+                ),
+          ),
+          const SizedBox(height: 6),
+          RichText(
+            text: TextSpan(
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF1D4ED8),
+                  ),
+              children: [
+                TextSpan(text: '$pendingCount'),
+                const TextSpan(
+                  text: ' Beklemede',
+                  style: TextStyle(color: Color(0xFF1D4ED8)),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Finansal danışmanlarınıza gönderilen davetiyeleri yönetin. İzinleri inceleyin ve durumu gerçek zamanlı olarak takip edin.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: const Color(0xFF667085),
+                  height: 1.4,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInviteCard(BuildContext context, ContactInviteDto invite) {
+    final statusColor = _statusColor(invite.status);
+    final isPending = invite.status.toUpperCase() == 'PENDING';
+    final isExpired = invite.status.toUpperCase() == 'EXPIRED';
+    final hasResponded = invite.respondedAt != null;
+    final isResending = _resendingInviteIds.contains(invite.id);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE9EDF5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'DAVET EDİLEN E-POSTA',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: const Color(0xFF98A2B3),
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            invite.inviteeEmail.isEmpty ? '-' : invite.inviteeEmail,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF101828),
+                ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              invite.status.toUpperCase(),
+              style: TextStyle(
+                color: statusColor,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.4,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInviteMetaItem(
+                  label: 'OLUŞTURULMA',
+                  value: _formatShortDate(invite.createdAt),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildInviteMetaItem(
+                  label: hasResponded ? 'YANIT TARİHİ' : 'BİTİŞ TARİHİ',
+                  value: _formatShortDate(
+                    hasResponded ? invite.respondedAt : invite.expiresAt,
+                  ),
+                  valueColor: !hasResponded && isExpired
+                      ? const Color(0xFFF97066)
+                      : null,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            isPending ? 'VERİLEN YETKİLER' : 'TALEP EDİLEN YETKİLER',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: const Color(0xFF98A2B3),
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: invite.permissions.isEmpty
+                ? [
+                    _buildPermissionChip('-'),
+                  ]
+                : invite.permissions
+                    .map((permission) => _buildPermissionChip(
+                          _permissionLabel(permission),
+                          icon: _permissionIcon(permission),
+                        ))
+                    .toList(),
+          ),
+          if (isExpired || isPending) ...[
+            const SizedBox(height: 14),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: isExpired && !isResending
+                    ? () => _handleResendInvite(invite)
+                    : null,
+                icon: Icon(
+                  isResending
+                      ? Icons.hourglass_top
+                      : isExpired
+                          ? Icons.refresh
+                          : Icons.schedule,
+                  size: 16,
+                  color: const Color(0xFF2E90FA),
+                ),
+                label: Text(
+                  isExpired
+                      ? (isResending
+                          ? 'Yeniden Gönderiliyor...'
+                          : 'Daveti Yeniden Gönder')
+                      : 'Yanıt Bekleniyor',
+                  style: const TextStyle(
+                    color: Color(0xFF2E90FA),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInviteMetaItem({
+    required String label,
+    required String value,
+    Color? valueColor,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF98A2B3),
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            color: valueColor ?? const Color(0xFF475467),
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPermissionChip(String label, {IconData? icon}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF2F4F7),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 12, color: const Color(0xFF667085)),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF667085),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _permissionLabel(String permission) {
+    switch (permission) {
+      case 'VIEW_RECEIPTS':
+        return 'Fişleri Görüntüle';
+      case 'DOWNLOAD_FILES':
+        return 'Dosyaları İndir';
+      default:
+        return permission.replaceAll('_', ' ');
+    }
+  }
+
+  IconData _permissionIcon(String permission) {
+    switch (permission) {
+      case 'VIEW_RECEIPTS':
+        return Icons.receipt_long_outlined;
+      case 'DOWNLOAD_FILES':
+        return Icons.download_outlined;
+      default:
+        return Icons.shield_outlined;
     }
   }
 
   Widget _buildContactCard(Contact contact, BuildContext context) {
     final bool isActive = contact.status == "ACTIVE";
     final Color statusColor = isActive ? Colors.green : Colors.orange;
+    final Color cardBorderColor =
+        isActive ? Colors.grey.shade300 : Colors.orange.shade200;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -431,9 +896,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: isActive ? Colors.grey.shade200 : Colors.grey.shade300,
-            style: isActive ? BorderStyle.solid : BorderStyle.none),
+        border: Border.all(color: cardBorderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -477,7 +940,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            contact.status,
+                            _statusLabel(contact.status),
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -506,7 +969,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                 Expanded(
                   child: Column(
                     children: [
-                      const Text("View Receipts",
+                      const Text("Fişleri Görüntüle",
                           style: TextStyle(fontSize: 12)),
                       Switch(
                         value: contact.canViewReceipts,
@@ -543,7 +1006,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                 Expanded(
                   child: Column(
                     children: [
-                      const Text("Download Files",
+                      const Text("Dosyaları İndir",
                           style: TextStyle(fontSize: 12)),
                       Switch(
                         value: contact.canDownloadFiles,
@@ -581,7 +1044,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                 TextButton(
                   onPressed: () {},
                   child: const Text(
-                    "Revoke Access",
+                    "Erişimi Kaldır",
                     style: TextStyle(
                         color: Colors.red,
                         fontSize: 13,
@@ -601,7 +1064,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                     foregroundColor: Colors.grey.shade800,
                     side: BorderSide(color: Colors.grey.shade300),
                   ),
-                  child: const Text("Cancel",
+                  child: const Text("İptal Et",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 8),
@@ -610,7 +1073,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white),
-                  child: const Text("Resend"),
+                  child: const Text("Yeniden Gönder"),
                 ),
               ],
             )
@@ -647,7 +1110,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "TEAM EFFICIENCY",
+                      "EKİP VERİMLİLİĞİ",
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 12,
@@ -657,7 +1120,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      "Collaborate seamlessly\nwith your fiscal advisors.",
+                      "Finansal danışmanlarınızla\nsorunsuz şekilde iş birliği yapın.",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 22,
@@ -677,7 +1140,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 12),
                       ),
-                      child: const Text("Learn More",
+                      child: const Text("Daha Fazla Bilgi",
                           style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
@@ -708,13 +1171,16 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                     color: Colors.green.shade600, size: 28),
               ),
               const SizedBox(height: 16),
-              const Text(
-                "2",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              Text(
+                '${_contacts.length}',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
-                "Active Supervisors",
+                "Aktif Danışmanlar",
                 style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey.shade500,
