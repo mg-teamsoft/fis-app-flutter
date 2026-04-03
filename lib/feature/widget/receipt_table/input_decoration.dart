@@ -1,6 +1,6 @@
 part of '../../page/receipt_table.dart';
 
-InputDecoration _input_Decoration(String hint, {String? errorText}) =>
+InputDecoration _inputDecoration(String hint, {String? errorText}) =>
     InputDecoration(
       hintText: hint,
       errorText: errorText,

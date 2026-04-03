@@ -1,8 +1,10 @@
 part of '../../page/receipt_manuel.dart';
 
 class _ReceiptManuelHelperHint extends StatelessWidget {
-  const _ReceiptManuelHelperHint(
-      {required this.fieldsEnabled, required this.isUploading});
+  const _ReceiptManuelHelperHint({
+    required this.fieldsEnabled,
+    required this.isUploading,
+  });
 
   final bool fieldsEnabled;
   final bool isUploading;

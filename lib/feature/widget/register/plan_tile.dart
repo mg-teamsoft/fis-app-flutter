@@ -70,8 +70,11 @@ final class _PlanTile extends StatelessWidget {
                         child: CircleAvatar(
                           radius: 12,
                           backgroundColor: context.colorScheme.primary,
-                          child: const Icon(Icons.check,
-                              color: Colors.white, size: 16),
+                          child: Icon(
+                            Icons.check,
+                            color: context.colorScheme.onPrimary,
+                            size: 16,
+                          ),
                         ),
                       ),
                   ],

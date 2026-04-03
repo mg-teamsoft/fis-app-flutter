@@ -1,11 +1,4 @@
 class ReceiptSummary {
-  final String id;
-  final String businessName;
-  final String receiptNumber;
-  final double totalAmount;
-  final DateTime? transactionDate;
-  final String? status;
-
   ReceiptSummary({
     required this.id,
     required this.businessName,
@@ -14,7 +7,6 @@ class ReceiptSummary {
     required this.transactionDate,
     this.status,
   });
-
   factory ReceiptSummary.fromJson(Map<String, dynamic> json) {
     final rawDate = json['transactionDate'];
     DateTime? parsedDate;
@@ -25,7 +17,7 @@ class ReceiptSummary {
     }
 
     final dynamic totalAmountValue = json['totalAmount'];
-    final double amount = totalAmountValue is num
+    final amount = totalAmountValue is num
         ? totalAmountValue.toDouble()
         : double.tryParse(totalAmountValue?.toString() ?? '') ?? 0.0;
 
@@ -39,4 +31,10 @@ class ReceiptSummary {
       status: json['status']?.toString(),
     );
   }
+  final String id;
+  final String businessName;
+  final String receiptNumber;
+  final double totalAmount;
+  final DateTime? transactionDate;
+  final String? status;
 }

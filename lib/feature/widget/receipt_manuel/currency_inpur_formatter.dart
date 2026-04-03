@@ -9,7 +9,7 @@ class _CurrencyInputFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     // Extract only digit characters from whatever was typed
-    final digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    final digits = newValue.text.replaceAll(RegExp('[^0-9]'), '');
 
     if (digits.isEmpty) {
       return newValue.copyWith(
@@ -30,9 +30,9 @@ class _CurrencyInputFormatter extends TextInputFormatter {
     final decPart = padded.substring(padded.length - 2);
 
     // Strip leading zeros from integer part, keep at least one digit
-    final intPart = intRaw.replaceFirst(RegExp(r'^0+'), '').isEmpty
+    final intPart = intRaw.replaceFirst(RegExp('^0+'), '').isEmpty
         ? '0'
-        : intRaw.replaceFirst(RegExp(r'^0+'), '');
+        : intRaw.replaceFirst(RegExp('^0+'), '');
 
     final result = '$intPart.$decPart';
     return newValue.copyWith(

@@ -11,6 +11,7 @@ class _ModelNotification {
     this.id,
   });
 
+  // ignore: unused_element
   factory _ModelNotification.fromJson(Map<String, dynamic> json) {
     return _ModelNotification(
       id: json['id']?.toString(),

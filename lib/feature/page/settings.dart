@@ -5,6 +5,7 @@ import 'package:fis_app_flutter/app/services/settings_service.dart';
 import 'package:fis_app_flutter/app/widget/checkbox_tile.dart';
 import 'package:fis_app_flutter/model/receipt_detail.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 
 part '../controller/settings.dart';
 part '../view/settings.dart';
@@ -43,6 +44,7 @@ final class _PageSettingsState extends State<PageSettings>
       hasChanges: _hasChanges,
       suppressChanges: _suppressChanges,
       saveSettings: _saveSettings,
+      onChanged: _onFormChanged,
     );
   }
 }

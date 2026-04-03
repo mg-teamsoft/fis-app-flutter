@@ -21,9 +21,11 @@ class _AboutFeatureTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.all(10),
-            child: Icon(icon,
-                color: context.colorScheme.onPrimaryContainer,
-                size: ThemeSize.iconLarge),
+            child: Icon(
+              icon,
+              color: context.colorScheme.onPrimaryContainer,
+              size: ThemeSize.iconLarge,
+            ),
           ),
           const SizedBox(width: ThemeSize.spacingM),
           Expanded(

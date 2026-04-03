@@ -51,8 +51,8 @@ class _ReceiptTableTextRow extends StatelessWidget {
                           ? context.colorScheme.onSurfaceVariant
                           : null,
                     ),
-              decoration: _input_Decoration('', errorText: scalarRows[row].err)
-                  .copyWith(
+              decoration:
+                  _inputDecoration('', errorText: scalarRows[row].err).copyWith(
                 fillColor: scalarRows[row].readOnly
                     ? context.colorScheme.surfaceContainerHighest
                     : null,

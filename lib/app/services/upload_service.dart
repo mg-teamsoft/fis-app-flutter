@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:fis_app_flutter/app/services/api_client.dart';
 import 'package:image_picker/image_picker.dart';
-import 'api_client.dart';
 
 class UploadResult {
+  UploadResult({required this.success, required this.message, this.data});
   final bool success;
   final String message;
   final dynamic data;
-
-  UploadResult({required this.success, required this.message, this.data});
 }
 
 class UploadService {
@@ -26,19 +25,23 @@ class UploadService {
         ),
       });
 
-      final res = await _api.dio.post('/api/upload', data: form);
+      final res =
+          await _api.dio.post<Map<String, dynamic>>('/api/upload', data: form);
       final data = res.data;
 
-      final ok = (data is Map && (data['status'] == 'success' || data['ok'] == true));
-      final msg = (data is Map ? (data['message'] ?? 'Yüklendi') : 'Yüklendi').toString();
+      final ok =
+          data is Map && (data?['status'] == 'success' || data!['ok'] == true);
+      final msg = (data is Map ? (data?['message'] ?? 'Yüklendi') : 'Yüklendi')
+          .toString();
 
       return UploadResult(success: ok, message: msg, data: data);
     } on DioException catch (e) {
-      final msg = e.response?.data is Map
-          ? (e.response!.data['message']?.toString() ?? e.message)
+      final resposeData = e.response?.data;
+      final msg = resposeData is Map<String, dynamic>
+          ? (resposeData['message']?.toString() ?? e.message)
           : e.message;
       return UploadResult(success: false, message: msg ?? 'Yükleme hatası');
-    } catch (e) {
+    } on Exception catch (e) {
       return UploadResult(success: false, message: e.toString());
     }
   }

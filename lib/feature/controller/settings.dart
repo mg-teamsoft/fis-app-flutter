@@ -2,9 +2,9 @@ part of '../page/settings.dart';
 
 mixin _ConnectionSettings on State<PageSettings> {
   final _settingsService = SettingsService();
-  final _minLimitController = TextEditingController(text: '₺100,00');
-  final _maxLimitController = TextEditingController(text: '₺5.000,00');
-  final _monthlyTargetController = TextEditingController(text: '₺15.000,00');
+  final _minLimitController = TextEditingController(text: '100,00');
+  final _maxLimitController = TextEditingController(text: '5.000,00');
+  final _monthlyTargetController = TextEditingController(text: '15.000,00');
 
   bool _food = true;
   bool _meal = true;

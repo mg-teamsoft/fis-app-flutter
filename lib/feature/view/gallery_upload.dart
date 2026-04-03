@@ -26,7 +26,10 @@ final class _GalleryUploadView extends StatelessWidget {
           _GalleryUploadImageArea(img: img),
           const SizedBox(height: ThemeSize.spacingM),
           _GalleryUploadButton(
-              uploading: uploading, picked: picked, upload: upload)
+            uploading: uploading,
+            picked: picked,
+            upload: upload,
+          ),
         ],
       ),
     );

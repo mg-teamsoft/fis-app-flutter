@@ -12,11 +12,22 @@ final class ModelHome {
 
   factory ModelHome.fromResponse(dynamic data) {
     final Map<String, dynamic> json;
-    if (data is String) {
-      final decoded = jsonDecode(data);
-      json = decoded is Map<String, dynamic> ? decoded : <String, dynamic>{};
-    } else if (data is Map<String, dynamic>) {
+
+    if (data is Map<String, dynamic>) {
       json = data;
+    } else if (data is List && data.isNotEmpty) {
+      final first = data.first;
+      json = first is Map<String, dynamic> ? first : <String, dynamic>{};
+    } else if (data is String) {
+      final decoded = jsonDecode(data);
+      if (decoded is Map<String, dynamic>) {
+        json = decoded;
+      } else if (decoded is List && decoded.isNotEmpty) {
+        final first = decoded.first;
+        json = first is Map<String, dynamic> ? first : <String, dynamic>{};
+      } else {
+        json = <String, dynamic>{};
+      }
     } else {
       json = <String, dynamic>{};
     }
@@ -27,7 +38,7 @@ final class ModelHome {
         final parsed = double.tryParse(value);
         if (parsed != null) return parsed;
       }
-      return 0.0;
+      return 0;
     }
 
     final receiptsJson = json['recentReceipts'];

@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
 
 final class ThemePadding extends EdgeInsets {
-  static const double _spacingXs = 8;
-  static const double _spacingS = 10;
-  static const double _spacingM = 16;
-  static const double _spacingL = 20;
-  static const double _spacingXl = 24;
-  static const double _spacingXXl = 32;
-
   /// [10] padding all
   const ThemePadding.all10() : super.all(_spacingS);
 
@@ -87,4 +80,11 @@ final class ThemePadding extends EdgeInsets {
   // ignore: prefer_const_constructors_in_immutables -- runtime value
   ThemePadding.verticalSymmetricFree(double vertical)
       : super.symmetric(vertical: vertical);
+
+  static const double _spacingXs = 8;
+  static const double _spacingS = 10;
+  static const double _spacingM = 16;
+  static const double _spacingL = 20;
+  static const double _spacingXl = 24;
+  static const double _spacingXXl = 32;
 }

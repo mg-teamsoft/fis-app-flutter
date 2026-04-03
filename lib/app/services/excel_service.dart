@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'api_client.dart';
+import 'package:fis_app_flutter/app/services/api_client.dart';
 
 class ExcelService {
   final _api = ApiClient();
@@ -10,8 +10,9 @@ class ExcelService {
         'key': key,
         'receiptJson': receiptJson,
       };
-      final res = await _api.dio.post('/api/excel/write', data: payload);
-      final data = res.data as Map<String, dynamic>;
+      final res = await _api.dio
+          .post<Map<String, dynamic>>('/api/excel/write', data: payload);
+      final data = res.data!;
       return data['status'] == 'success';
     } on DioException catch (e) {
       throw Exception('Failed to push receipt to Excel: ${e.message}');
@@ -23,9 +24,10 @@ class ExcelService {
   /// GET /excel/files  -> list the single file record (one per user)
   Future<List<Map<String, dynamic>>> listFiles() async {
     try {
-      final res = await _api.dio.get('/api/excel/files');
-      final list = (res.data['files'] as List?)?.cast<Map<String, dynamic>>() ??
-          const [];
+      final res = await _api.dio.get<Map<String, dynamic>>('/api/excel/files');
+      final list =
+          (res.data!['files'] as List?)?.cast<Map<String, dynamic>>() ??
+              const [];
       return list;
     } on DioException catch (e) {
       throw Exception('Failed to list Excel files: ${e.message}');
@@ -37,8 +39,9 @@ class ExcelService {
   // GET /excel/files/:id/presign -> {url, file}
   Future<String> presignGet(String idOrKey) async {
     try {
-      final res = await _api.dio.get('/api/excel/files/$idOrKey/presign');
-      return res.data['url'] as String;
+      final res = await _api.dio
+          .get<Map<String, dynamic>>('/api/excel/files/$idOrKey/presign');
+      return res.data!['url'] as String;
     } on DioException catch (e) {
       throw Exception('Failed to get presigned URL: ${e.message}');
     } catch (e) {

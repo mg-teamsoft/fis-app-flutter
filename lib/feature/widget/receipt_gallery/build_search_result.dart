@@ -97,8 +97,9 @@ final class _ReceiptGalleryBuildSearchResult extends StatelessWidget {
                           Text(
                             receipt.businessName,
                             style: context.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: context.colorScheme.onSurface),
+                              fontWeight: FontWeight.w700,
+                              color: context.colorScheme.onSurface,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -124,7 +125,7 @@ final class _ReceiptGalleryBuildSearchResult extends StatelessWidget {
                           ),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),

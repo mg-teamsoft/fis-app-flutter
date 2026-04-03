@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data';
+
 import 'package:image/image.dart' as img;
 
 String guessMime(String path) {
@@ -13,12 +13,12 @@ String guessMime(String path) {
 /// Convert any image file to JPEG before upload
 Future<File> convertToJpeg(File inputFile) async {
   // Read file as bytes
-  final Uint8List bytes = await inputFile.readAsBytes();
+  final bytes = await inputFile.readAsBytes();
 
   // Decode with image package (supports PNG, HEIC, etc. if available)
-  final img.Image? original = img.decodeImage(bytes);
+  final original = img.decodeImage(bytes);
   if (original == null) {
-    throw Exception("Could not decode image: ${inputFile.path}");
+    throw Exception('Could not decode image: ${inputFile.path}');
   }
 
   // Encode to JPEG with quality 90
@@ -26,7 +26,7 @@ Future<File> convertToJpeg(File inputFile) async {
 
   // Save into a temp file with .jpg extension
   final jpegFile = File(
-    "${inputFile.parent.path}/${DateTime.now().millisecondsSinceEpoch}.jpg",
+    '${inputFile.parent.path}/${DateTime.now().millisecondsSinceEpoch}.jpg',
   );
   await jpegFile.writeAsBytes(jpegBytes, flush: true);
 

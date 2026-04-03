@@ -5,7 +5,7 @@ class AuthNavigation {
       GlobalKey<NavigatorState>();
 
   /// Redirects to /login (clears stack) and shows an optional SnackBar message.
-  static void redirectToLogin({String? message}) {
+  static Future<void> redirectToLogin({String? message}) async {
     final nav = navigatorKey.currentState;
     if (nav == null) return;
 
@@ -16,6 +16,6 @@ class AuthNavigation {
       );
     }
 
-    nav.pushNamedAndRemoveUntil('/login', (route) => false);
+    await nav.pushNamedAndRemoveUntil('/login', (route) => false);
   }
 }

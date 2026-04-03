@@ -2,11 +2,12 @@ import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 
 class WidgetPopMenu<T> extends StatelessWidget {
-  const WidgetPopMenu(
-      {required this.menuitems,
-      required this.icon,
-      required this.onSelected,
-      super.key});
+  const WidgetPopMenu({
+    required this.menuitems,
+    required this.icon,
+    required this.onSelected,
+    super.key,
+  });
   final List<PopupMenuItem<T>> menuitems;
   final IconData icon;
   final void Function(T)? onSelected;

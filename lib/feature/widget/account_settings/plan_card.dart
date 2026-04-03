@@ -33,7 +33,9 @@ class _ActiveSettingsPlanCard extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFEAF2FF),
                         borderRadius: BorderRadius.circular(999),
@@ -59,8 +61,9 @@ class _ActiveSettingsPlanCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       '${plan.quota ?? 0} fatura/ay  •  $renewLabel',
-                      style: const TextStyle(
-                          color: Color(0xFF667085), fontSize: 28 / 2),
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.theme.divider,
+                      ),
                     ),
                   ],
                 ),

@@ -11,6 +11,7 @@ class WidgetScaffold extends StatelessWidget {
     required this.onTabSelected,
     required this.showBackButton,
     required this.body,
+    this.onBackPressed,
     super.key,
   });
   final Widget body;
@@ -18,6 +19,7 @@ class WidgetScaffold extends StatelessWidget {
   final int currentIndex;
   final void Function(int) onTabSelected;
   final bool showBackButton;
+  final VoidCallback? onBackPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +36,11 @@ class WidgetScaffold extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar:
           WidgetBottomBar(currentIndex: currentIndex, onTap: onTabSelected),
-      appBar:
-          WidgetAppbar(showBackButton: showBackButton, onSelected: onSelected),
+      appBar: WidgetAppbar(
+        showBackButton: showBackButton,
+        onSelected: onSelected,
+        onBackPressed: onBackPressed,
+      ),
       body: Padding(padding: const ThemePadding.all16(), child: body),
     );
   }

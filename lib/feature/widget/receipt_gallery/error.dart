@@ -19,8 +19,11 @@ final class _GalleryError extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline,
-                size: 56, color: context.colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 56,
+              color: context.colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(
               message,

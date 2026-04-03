@@ -1,8 +1,10 @@
 part of '../../page/forget_password.dart';
 
 final class _ForgotPasswordMessage extends StatelessWidget {
-  const _ForgotPasswordMessage(
-      {required this.statusMessage, required this.errorMessage});
+  const _ForgotPasswordMessage({
+    required this.statusMessage,
+    required this.errorMessage,
+  });
   final String? statusMessage;
   final String? errorMessage;
 

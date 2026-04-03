@@ -8,7 +8,7 @@ final class ThemeApp {
   static final ColorScheme _darkscheme = ThemeColorScheme.dark;
   static final ColorScheme _lightscheme = ThemeColorScheme.light;
 
-  static final String _fontFamily = 'Manrope';
+  static const String _fontFamily = 'Manrope';
 
   static final ThemeData _light = ThemeData(
     useMaterial3: true,
@@ -26,7 +26,7 @@ final class ThemeApp {
   static final ThemeData _dark = ThemeData(
     useMaterial3: true,
     colorScheme: _darkscheme,
-    textTheme: TextTheme().apply(
+    textTheme: const TextTheme().apply(
       bodyColor: _darkscheme.onSurface,
       displayColor: _darkscheme.onSurface,
     ),

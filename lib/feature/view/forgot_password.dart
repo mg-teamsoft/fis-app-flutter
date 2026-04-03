@@ -1,15 +1,16 @@
 part of '../page/forget_password.dart';
 
 final class _ForgotPasswordView extends StatelessWidget {
-  const _ForgotPasswordView(
-      {required this.scrollController,
-      required this.formKey,
-      required this.auth,
-      required this.loading,
-      required this.mailController,
-      required this.submit,
-      this.statusMessage,
-      this.errorMessage});
+  const _ForgotPasswordView({
+    required this.scrollController,
+    required this.formKey,
+    required this.auth,
+    required this.loading,
+    required this.mailController,
+    required this.submit,
+    this.statusMessage,
+    this.errorMessage,
+  });
 
   final TextEditingController mailController;
   final ScrollController scrollController;

@@ -1,11 +1,17 @@
 import 'dart:async';
+
+import 'package:fis_app_flutter/app/providers/user_plan_provider.dart';
 import 'package:fis_app_flutter/app/services/purchase_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
-import 'user_plan_provider.dart';
-
 class PurchaseProvider extends ChangeNotifier {
+  PurchaseProvider(
+    this.purchaseService,
+    this.userPlanProvider,
+  ) {
+    _ensurePurchaseStream();
+  }
   final InAppPurchase _iap = InAppPurchase.instance;
 
   final PurchaseService purchaseService;
@@ -19,13 +25,6 @@ class PurchaseProvider extends ChangeNotifier {
 
   List<ProductDetails> products = [];
 
-  PurchaseProvider(
-    this.purchaseService,
-    this.userPlanProvider,
-  ) {
-    _ensurePurchaseStream();
-  }
-
   Future<void> init(Set<String> productIds) async {
     try {
       debugPrint('IAP init called. productIds=$productIds');
@@ -36,7 +35,7 @@ class PurchaseProvider extends ChangeNotifier {
       isAvailable = await _iap.isAvailable();
       debugPrint('IAP isAvailable: $isAvailable');
       if (!isAvailable) {
-        throw Exception("In-app purchases are not available on this device.");
+        throw Exception('In-app purchases are not available on this device.');
       }
 
       _ensurePurchaseStream();
@@ -50,17 +49,17 @@ class PurchaseProvider extends ChangeNotifier {
       );
 
       if (resp.error != null) {
-        throw Exception("Product query failed: ${resp.error}");
+        throw Exception('Product query failed: ${resp.error}');
       }
 
       if (resp.productDetails.isEmpty) {
         throw Exception(
-          "No products returned. Check productIds and App Store Connect status.",
+          'No products returned. Check productIds and App Store Connect status.',
         );
       }
 
       products = resp.productDetails;
-    } catch (e) {
+    } on Exception catch (e) {
       error = e.toString();
     } finally {
       isLoading = false;
@@ -79,6 +78,7 @@ class PurchaseProvider extends ChangeNotifier {
       final purchaseParam = PurchaseParam(
         productDetails: product,
         // Helps correlate purchases to users on some platforms
+        // ignore: avoid_redundant_argument_values
         applicationUserName: null,
       );
 
@@ -88,7 +88,6 @@ class PurchaseProvider extends ChangeNotifier {
         // Consumable packs should use buyConsumable
         await _iap.buyConsumable(
           purchaseParam: purchaseParam,
-          autoConsume: true,
         );
       } else {
         // Subscriptions / non-consumables
@@ -96,7 +95,7 @@ class PurchaseProvider extends ChangeNotifier {
       }
 
       // Do NOT set isLoading=false here. We wait for purchaseStream updates.
-    } catch (e) {
+    } on Exception catch (e) {
       error = e.toString();
       isLoading = false;
       notifyListeners();
@@ -113,8 +112,8 @@ class PurchaseProvider extends ChangeNotifier {
         await _sub?.cancel();
         _sub = null;
       },
-      onError: (e) async {
-        error = "purchaseStream error: $e";
+      onError: (Object? e) async {
+        error = 'purchaseStream error: $e';
         debugPrint(error);
         isLoading = false;
         notifyListeners();
@@ -131,7 +130,7 @@ class PurchaseProvider extends ChangeNotifier {
       notifyListeners();
 
       await _iap.restorePurchases();
-    } catch (e) {
+    } on Exception catch (e) {
       error = e.toString();
       notifyListeners();
     } finally {
@@ -141,43 +140,45 @@ class PurchaseProvider extends ChangeNotifier {
   }
 
   Future<void> _onPurchaseUpdates(
-      List<PurchaseDetails> purchaseDetailsList) async {
+    List<PurchaseDetails> purchaseDetailsList,
+  ) async {
     debugPrint(
       'On IAP purchase updates: count=${purchaseDetailsList.length}',
     );
     for (final p in purchaseDetailsList) {
       debugPrint(
-        "Purchase update: status=${p.status} product=${p.productID} purchaseID=${p.purchaseID}",
+        'Purchase update: status=${p.status} product=${p.productID} purchaseID=${p.purchaseID}',
       );
 
       switch (p.status) {
         case PurchaseStatus.pending:
           isLoading = true;
           notifyListeners();
-          break;
+          return;
 
         case PurchaseStatus.error:
-          error = "Purchase failed: ${p.error}";
+          error = 'Purchase failed: ${p.error}';
           await _completeIfNeeded(p);
           isLoading = false;
           notifyListeners();
-          break;
+          return;
 
         case PurchaseStatus.purchased:
+          return;
         case PurchaseStatus.restored:
           isLoading = true;
           notifyListeners();
           await _verifyAndDeliver(p);
           isLoading = false;
           notifyListeners();
-          break;
+          return;
 
         case PurchaseStatus.canceled:
-          error = "Purchase canceled.";
+          error = 'Purchase canceled.';
           await _completeIfNeeded(p);
           isLoading = false;
           notifyListeners();
-          break;
+          return;
       }
     }
   }
@@ -191,8 +192,8 @@ class PurchaseProvider extends ChangeNotifier {
     if (transactionId == null || transactionId.isEmpty) {
       // If this happens, backend verify-by-transactionId cannot work.
       // You’ll need to support receipt/JWS verification instead.
-      error = "Purchase completed but transactionId is missing. "
-          "Please contact support (dev: purchaseID is null).";
+      error = 'Purchase completed but transactionId is missing. '
+          'Please contact support (dev: purchaseID is null).';
 
       await _completeIfNeeded(p);
       return;
@@ -209,14 +210,14 @@ class PurchaseProvider extends ChangeNotifier {
 
       // expected backend response:
       // { status: "ok", entitlement: { planKey, quota, ... } }
-      final entitlement = (json["entitlement"] as Map<String, dynamic>?);
+      final entitlement = json['entitlement'] as Map<String, dynamic>?;
       if (entitlement == null) {
         throw Exception("Backend response missing 'entitlement'");
       }
 
       userPlanProvider.setFromEntitlementJson(entitlement);
-    } catch (e) {
-      error = "Verification failed: $e";
+    } on Exception catch (e) {
+      error = 'Verification failed: $e';
     } finally {
       await _completeIfNeeded(p);
     }
@@ -226,7 +227,7 @@ class PurchaseProvider extends ChangeNotifier {
     if (!p.pendingCompletePurchase) return;
     try {
       await _iap.completePurchase(p);
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('IAP completePurchase failed: $e');
       // Keep non-fatal; user already purchased/failed on Apple side.
     }
@@ -234,7 +235,12 @@ class PurchaseProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _sub?.cancel();
+    unawaited(_subCancel());
     super.dispose();
+  }
+
+  Future<void> _subCancel() async {
+    await _sub?.cancel();
+    _sub = null;
   }
 }

@@ -16,10 +16,11 @@ class _ReceiptInitialView extends StatelessWidget {
               if (file != null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                      content: Text(
-                    'Galeriden seçildi: ${file.path}',
-                    style: context.textTheme.bodyMedium,
-                  )),
+                    content: Text(
+                      'Galeriden seçildi: ${file.path}',
+                      style: context.textTheme.bodyMedium,
+                    ),
+                  ),
                 );
               }
             },
@@ -36,10 +37,11 @@ class _ReceiptInitialView extends StatelessWidget {
               if (file != null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                      content: Text(
-                    'Kameradan çekildi: ${file.path}',
-                    style: context.textTheme.bodyMedium,
-                  )),
+                    content: Text(
+                      'Kameradan çekildi: ${file.path}',
+                      style: context.textTheme.bodyMedium,
+                    ),
+                  ),
                 );
               }
             },

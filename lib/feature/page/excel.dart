@@ -25,10 +25,11 @@ class _PageExcelState extends State<PageExcel> with _ConnectionExcel {
   @override
   Widget build(BuildContext context) {
     return _ExcelView(
-        scrollController: _scrollController,
-        busy: _busy,
-        open: _open,
-        download: _download,
-        future: _future);
+      scrollController: _scrollController,
+      busy: _busy,
+      open: _open,
+      download: _download,
+      future: _future,
+    );
   }
 }

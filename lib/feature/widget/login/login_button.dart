@@ -13,9 +13,10 @@ final class _LoginButton extends StatelessWidget {
       child: FilledButton(
         onPressed: isLoading ? null : onPressed,
         style: FilledButton.styleFrom(
-            shape: RoundedRectangleBorder(borderRadius: ThemeRadius.circular8),
-            padding: const ThemePadding.all10(),
-            minimumSize: const Size(120, 40)),
+          shape: RoundedRectangleBorder(borderRadius: ThemeRadius.circular8),
+          padding: const ThemePadding.all10(),
+          minimumSize: const Size(120, 40),
+        ),
         child: isLoading
             ? const SizedBox(
                 height: 18,
@@ -33,7 +34,7 @@ final class _LoginButton extends StatelessWidget {
                   ThemeTypography.h4(
                     context,
                     'Giriş Yap',
-                  )
+                  ),
                 ],
               ),
       ),

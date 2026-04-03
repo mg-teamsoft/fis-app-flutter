@@ -16,8 +16,9 @@ final class _PasswordTextField extends StatelessWidget {
           controller: controller,
           obscureText: isObscure,
           style: context.textTheme.bodyLarge?.copyWith(
-              color: context.colorScheme.onSurface,
-              fontWeight: FontWeight.w700),
+            color: context.colorScheme.onSurface,
+            fontWeight: FontWeight.w700,
+          ),
           decoration: InputDecoration(
             labelText: 'Şifreniz',
             prefixIcon: const Icon(Icons.lock, size: ThemeSize.iconLarge),

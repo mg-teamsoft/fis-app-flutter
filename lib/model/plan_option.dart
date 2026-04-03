@@ -16,27 +16,6 @@ class PlanOption {
     required this.productType,
     required this.active,
   });
-
-  final String id;
-  final String planKey;
-  final String name;
-  final String description;
-  final String priceLabel;
-  final String billingCycle;
-  final double? priceAmount;
-  final String currency;
-  final String period;
-  final int? quota;
-  final bool isPopular;
-  final String? badge;
-  final Map<String, String> storeIds;
-  final String? productType;
-  final bool active;
-  bool get isFreePlan =>
-      planKey.toLowerCase().contains('free') ||
-      priceAmount == null ||
-      priceAmount! <= 0.0;
-
   factory PlanOption.fromJson(Map<String, dynamic> json) {
     String readString(String key) => json[key]?.toString().trim() ?? '';
     bool readBool(String key) {
@@ -72,7 +51,7 @@ class PlanOption {
     String currencySymbolFor(String currency) {
       switch (currency.toUpperCase()) {
         case 'USD':
-          return '\$';
+          return r'$';
         case 'EUR':
           return '€';
         case 'GBP':
@@ -117,24 +96,21 @@ class PlanOption {
     final currencySymbol =
         currency.isNotEmpty ? currencySymbolFor(currency) : '₺';
     final formattedPrice = priceValue != null
-        ? '$currencySymbol${priceValue.toStringAsFixed(priceValue ==
-                priceValue.roundToDouble()
-            ? 0
-            : 2)}'
+        ? '$currencySymbol${priceValue.toStringAsFixed(priceValue == priceValue.roundToDouble() ? 0 : 2)}'
         : '—';
 
     final rawPeriod = readString('period');
     final billingCycle = normalizePeriod(rawPeriod);
 
-    final id = readString('id').isNotEmpty ? readString('id') : readString('_id');
+    final id =
+        readString('id').isNotEmpty ? readString('id') : readString('_id');
     final key = readString('planKey').isNotEmpty
         ? readString('planKey')
         : (readString('key').isNotEmpty ? readString('key') : id);
 
     final explanation = readString('explanation');
-    final description = explanation.isNotEmpty
-        ? explanation
-        : readString('description');
+    final description =
+        explanation.isNotEmpty ? explanation : readString('description');
 
     final badge = json['badge']?.toString();
     final storeIds = readStringMap('storeIds');
@@ -160,4 +136,24 @@ class PlanOption {
       active: active,
     );
   }
+
+  final String id;
+  final String planKey;
+  final String name;
+  final String description;
+  final String priceLabel;
+  final String billingCycle;
+  final double? priceAmount;
+  final String currency;
+  final String period;
+  final int? quota;
+  final bool isPopular;
+  final String? badge;
+  final Map<String, String> storeIds;
+  final String? productType;
+  final bool active;
+  bool get isFreePlan =>
+      planKey.toLowerCase().contains('free') ||
+      priceAmount == null ||
+      priceAmount! <= 0.0;
 }

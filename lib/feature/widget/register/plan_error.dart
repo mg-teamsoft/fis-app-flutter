@@ -3,8 +3,8 @@ part of '../../page/register.dart';
 final class _PlanErrorState extends StatelessWidget {
   const _PlanErrorState({
     required this.message,
-    this.details,
     required this.onRetry,
+    this.details,
   });
 
   final String message;
@@ -27,8 +27,11 @@ final class _PlanErrorState extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.error_outline,
-                  color: theme.colorScheme.error, size: 20),
+              Icon(
+                Icons.error_outline,
+                color: theme.colorScheme.error,
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

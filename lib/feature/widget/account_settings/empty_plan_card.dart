@@ -23,8 +23,8 @@ class _AccountSettingsEmptyPlanCard extends StatelessWidget {
 class _ErrorView extends StatelessWidget {
   const _ErrorView({
     required this.message,
-    this.details,
     required this.onRetry,
+    this.details,
   });
 
   final String message;
@@ -39,8 +39,11 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.warning_rounded,
-                size: 48, color: context.colorScheme.error),
+            Icon(
+              Icons.warning_rounded,
+              size: 48,
+              color: context.colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(
               message,

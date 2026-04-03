@@ -1,9 +1,10 @@
 part of '../../page/home.dart';
 
 final class _HomeHeader extends StatelessWidget {
-  const _HomeHeader({required this.model});
+  const _HomeHeader({required this.dateString, required this.model});
 
   final ModelHome model;
+  final String dateString;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +25,12 @@ final class _HomeHeader extends StatelessWidget {
         Text(
           'Aylık Birikim',
           style: context.textTheme.headlineSmall,
+        ),
+        Text(
+          dateString,
+          style: context.textTheme.titleSmall?.copyWith(
+            color: context.colorScheme.outline,
+          ),
         ),
         const SizedBox(height: 6),
         Text(

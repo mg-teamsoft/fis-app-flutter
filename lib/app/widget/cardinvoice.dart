@@ -4,15 +4,16 @@ import 'package:fis_app_flutter/pages/receipt_detail_page.dart';
 import 'package:flutter/material.dart';
 
 class WidgetCardInvoice extends StatelessWidget {
-  const WidgetCardInvoice(
-      {super.key,
-      required this.summary,
-      required this.id,
-      required this.name,
-      required this.amoung,
-      required this.date,
-      required this.badge,
-      this.size = const Size(double.infinity, 80)});
+  const WidgetCardInvoice({
+    required this.summary,
+    required this.id,
+    required this.name,
+    required this.amoung,
+    required this.date,
+    required this.badge,
+    super.key,
+    this.size = const Size(double.infinity, 80),
+  });
 
   final String id;
   final ReceiptSummary summary;
@@ -24,64 +25,70 @@ class WidgetCardInvoice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-          _openDetails(context, summary);
-        },
-        child: Container(
-            width: size.width,
-            height: size.height,
-            decoration: BoxDecoration(
-              color: context.theme.cardBackground.withValues(alpha: 0.7),
-              borderRadius: ThemeRadius.circular12,
-            ),
-            padding: ThemePadding.all10(),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: ThemeSize.avatarMedium,
-                        height: ThemeSize.avatarMedium,
-                        child: Icon(Icons.receipt_long,
-                            size: ThemeSize.iconMedium,
-                            color: context.colorScheme.onPrimary),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: ThemeTypography.titleLarge(
-                          context,
-                          name,
-                          color: context.colorScheme.onSurface,
-                          textAlign: TextAlign.start,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      )
-                    ],
+      onTap: () async {
+        FocusScope.of(context).unfocus();
+        await _openDetails(context, summary);
+      },
+      child: Container(
+        width: size.width,
+        height: size.height,
+        decoration: BoxDecoration(
+          color: context.theme.cardBackground.withValues(alpha: 0.7),
+          borderRadius: ThemeRadius.circular12,
+        ),
+        padding: const ThemePadding.all10(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: ThemeSize.avatarMedium,
+                    height: ThemeSize.avatarMedium,
+                    child: Icon(
+                      Icons.receipt_long,
+                      size: ThemeSize.iconMedium,
+                      color: context.colorScheme.onPrimary,
+                    ),
                   ),
+                  Expanded(
+                    child: ThemeTypography.titleLarge(
+                      context,
+                      name,
+                      color: context.colorScheme.onSurface,
+                      textAlign: TextAlign.start,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ThemeTypography.titleMedium(
+                  context,
+                  amoung,
+                  color: context.colorScheme.onSurface,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ThemeTypography.titleMedium(context, amoung,
-                        color: context.colorScheme.onSurface),
-                    ThemeTypography.titleMedium(context, date),
-                  ],
-                )
+                ThemeTypography.titleMedium(context, date),
               ],
-            )));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  void _openDetails(BuildContext context, ReceiptSummary summary) {
-    Navigator.push(
+  Future<void> _openDetails(
+    BuildContext context,
+    ReceiptSummary summary,
+  ) async {
+    await Navigator.push<void>(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (_) => ReceiptDetailPage(receiptId: summary.id),
       ),
     );

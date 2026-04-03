@@ -1,8 +1,10 @@
 part of '../../page/forget_password.dart';
 
 final class _ForgotPasswordFiiledButton extends StatelessWidget {
-  const _ForgotPasswordFiiledButton(
-      {required this.loading, required this.submit});
+  const _ForgotPasswordFiiledButton({
+    required this.loading,
+    required this.submit,
+  });
   final bool loading;
   final VoidCallback submit;
 

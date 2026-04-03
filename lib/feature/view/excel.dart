@@ -1,12 +1,13 @@
 part of '../page/excel.dart';
 
 class _ExcelView extends StatelessWidget {
-  const _ExcelView(
-      {required this.scrollController,
-      required this.busy,
-      required this.open,
-      required this.download,
-      required this.future});
+  const _ExcelView({
+    required this.scrollController,
+    required this.busy,
+    required this.open,
+    required this.download,
+    required this.future,
+  });
 
   final Future<List<ExcelFileEntry>> future;
   final ScrollController scrollController;
@@ -29,7 +30,11 @@ class _ExcelView extends StatelessWidget {
           ),
           const SizedBox(height: ThemeSize.spacingM),
           _ExcelBuilder(
-              future: future, busy: busy, open: open, download: download),
+            future: future,
+            busy: busy,
+            open: open,
+            download: download,
+          ),
         ],
       ),
     );

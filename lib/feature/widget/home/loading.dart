@@ -1,12 +1,17 @@
 part of '../../page/home.dart';
 
 final class _LoadingHome extends StatelessWidget {
-  const _LoadingHome(
-      {required this.summary, required this.reload, required this.size});
+  const _LoadingHome({
+    required this.dateString,
+    required this.summary,
+    required this.reload,
+    required this.size,
+  });
 
   final Future<ModelHome> summary;
   final Future<void> Function() reload;
   final Size size;
+  final String dateString;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +39,13 @@ final class _LoadingHome extends StatelessWidget {
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const ThemePadding.all20(),
-            children: [_HomeView(size: size, model: snapshot.data!)],
+            children: [
+              _HomeView(
+                size: size,
+                model: snapshot.data!,
+                dateString: dateString,
+              ),
+            ],
           ),
         );
       },

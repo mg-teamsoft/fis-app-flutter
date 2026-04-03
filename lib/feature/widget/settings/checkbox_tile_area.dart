@@ -2,8 +2,6 @@ part of '../../page/settings.dart';
 
 class _SettingsCheckBoxTileArea extends StatefulWidget {
   const _SettingsCheckBoxTileArea({
-    required this.suppressChanges,
-    required this.hasChanges,
     required this.food,
     required this.meal,
     required this.fuel,
@@ -12,6 +10,7 @@ class _SettingsCheckBoxTileArea extends StatefulWidget {
     required this.medication,
     required this.stationery,
     required this.makeup,
+    required this.onChanged,
   });
 
   final bool food;
@@ -23,8 +22,7 @@ class _SettingsCheckBoxTileArea extends StatefulWidget {
   final bool stationery;
   final bool makeup;
 
-  final bool suppressChanges;
-  final bool hasChanges;
+  final VoidCallback onChanged;
 
   @override
   State<_SettingsCheckBoxTileArea> createState() =>
@@ -32,28 +30,21 @@ class _SettingsCheckBoxTileArea extends StatefulWidget {
 }
 
 class _SettingsCheckBoxTileAreaState extends State<_SettingsCheckBoxTileArea> {
-  late bool food;
-  late bool meal;
-  late bool fuel;
-  late bool parking;
-  late bool electronic;
-  late bool medication;
-  late bool stationery;
-  late bool makeup;
+  late bool food = widget.food;
+  late bool meal = widget.meal;
+  late bool fuel = widget.fuel;
+  late bool parking = widget.parking;
+  late bool electronic = widget.electronic;
+  late bool medication = widget.medication;
+  late bool stationery = widget.stationery;
+  late bool makeup = widget.makeup;
 
-  late bool suppressChanges;
-  late bool hasChanges;
-  @override
-  void initState() {
-    super.initState();
-    food = widget.food;
-    meal = widget.meal;
-    fuel = widget.fuel;
-    parking = widget.parking;
-    electronic = widget.electronic;
-    medication = widget.medication;
-    stationery = widget.stationery;
-    makeup = widget.makeup;
+  void _handleUpdate(VoidCallback updateAction) {
+    setState(() {
+      updateAction();
+    });
+
+    widget.onChanged();
   }
 
   @override
@@ -63,82 +54,42 @@ class _SettingsCheckBoxTileAreaState extends State<_SettingsCheckBoxTileArea> {
         CheckBoxTile(
           title: ReceiptCategory.food.label,
           value: food,
-          onChanged: (value) {
-            setState(() {
-              food = value!;
-              if (!suppressChanges) hasChanges = true;
-            });
-          },
+          onChanged: (value) => _handleUpdate(() => food = value!),
         ),
         CheckBoxTile(
           title: ReceiptCategory.meal.label,
           value: meal,
-          onChanged: (value) {
-            setState(() {
-              meal = value!;
-              if (!suppressChanges) hasChanges = true;
-            });
-          },
+          onChanged: (value) => _handleUpdate(() => meal = value!),
         ),
         CheckBoxTile(
           title: ReceiptCategory.fuel.label,
           value: fuel,
-          onChanged: (value) {
-            setState(() {
-              fuel = value!;
-              if (!suppressChanges) hasChanges = true;
-            });
-          },
+          onChanged: (value) => _handleUpdate(() => fuel = value!),
         ),
         CheckBoxTile(
           title: ReceiptCategory.parking.label,
           value: parking,
-          onChanged: (value) {
-            setState(() {
-              parking = value!;
-              if (!suppressChanges) hasChanges = true;
-            });
-          },
+          onChanged: (value) => _handleUpdate(() => parking = value!),
         ),
         CheckBoxTile(
           title: ReceiptCategory.electronic.label,
           value: electronic,
-          onChanged: (value) {
-            setState(() {
-              electronic = value!;
-              if (!suppressChanges) hasChanges = true;
-            });
-          },
+          onChanged: (value) => _handleUpdate(() => electronic = value!),
         ),
         CheckBoxTile(
           title: ReceiptCategory.medication.label,
           value: medication,
-          onChanged: (value) {
-            setState(() {
-              medication = value!;
-              if (!suppressChanges) hasChanges = true;
-            });
-          },
+          onChanged: (value) => _handleUpdate(() => medication = value!),
         ),
         CheckBoxTile(
           title: ReceiptCategory.stationery.label,
           value: stationery,
-          onChanged: (value) {
-            setState(() {
-              stationery = value!;
-              if (!suppressChanges) hasChanges = true;
-            });
-          },
+          onChanged: (value) => _handleUpdate(() => stationery = value!),
         ),
         CheckBoxTile(
           title: ReceiptCategory.personalCare.label,
           value: makeup,
-          onChanged: (value) {
-            setState(() {
-              makeup = value!;
-              if (!suppressChanges) hasChanges = true;
-            });
-          },
+          onChanged: (value) => _handleUpdate(() => makeup = value!),
         ),
       ],
     );

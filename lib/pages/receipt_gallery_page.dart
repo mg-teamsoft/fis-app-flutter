@@ -2,14 +2,12 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:fis_app_flutter/app/import/theme.dart';
+import 'package:fis_app_flutter/app/services/receipt_api_service.dart';
+import 'package:fis_app_flutter/model/receipt_summary.dart';
+import 'package:fis_app_flutter/pages/receipt_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../app/services/receipt_api_service.dart';
-import '../model/receipt_summary.dart';
-import 'receipt_detail_page.dart';
-
-// ignore_for_file: prefer_const_constructors
 class ReceiptGalleryPage extends StatefulWidget {
   const ReceiptGalleryPage({super.key});
 
@@ -22,7 +20,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
 
   bool _isLoadingInitial = true;
   String? _error;
-  List<ReceiptSummary> _allReceipts = [];
+  final List<ReceiptSummary> _allReceipts = [];
 
   // Search state
   final TextEditingController _searchController = TextEditingController();
@@ -35,7 +33,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
   @override
   void initState() {
     super.initState();
-    _loadReceipts();
+    unawaited(_loadReceipts());
   }
 
   @override
@@ -56,7 +54,7 @@ class _ReceiptGalleryPageState extends State<ReceiptGalleryPage> {
         //_allReceipts = receipts;
         _isLoadingInitial = false;
       });
-    } catch (e) {
+    } on Exception catch (e) {
       setState(() {
         _error = e.toString();
         _isLoadingInitial = false;

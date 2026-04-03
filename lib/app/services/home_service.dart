@@ -6,8 +6,11 @@ class HomeService {
 
   Future<ModelHome> fetchSummary() async {
     final response = await _api.dio.get<dynamic>('/api/home/summary');
-    if (response.statusCode == 200) {
-      return ModelHome.fromResponse(response.data);
+    final data = response.data;
+    if (data is List && data.isNotEmpty) {
+      return ModelHome.fromResponse(data[0]);
+    } else if (data is Map<String, dynamic>) {
+      return ModelHome.fromResponse(data);
     }
     throw Exception('Failed to load home summary');
   }

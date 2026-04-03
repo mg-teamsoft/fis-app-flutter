@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:fis_app_flutter/core/theme/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -294,11 +295,15 @@ class _HomeRecentReceipts extends StatelessWidget {
     final receipts = summary.recentReceipts;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
-          'Son Fişler',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        Align(
+          alignment: Alignment.topLeft,
+          child: Text(
+            'Son Fişler',
+            style: context.textTheme.headlineMedium
+                ?.copyWith(fontWeight: FontWeight.w600),
+          ),
         ),
         const SizedBox(height: 12),
         if (receipts.isEmpty)

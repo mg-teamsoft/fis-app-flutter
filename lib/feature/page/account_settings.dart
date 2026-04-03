@@ -37,42 +37,27 @@ class _PageAccountSettingsState extends State<PageAccountSettings>
     with _ConnectionAccountSettings {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: context.colorScheme.surface,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Hesap Ayarları',
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: context.colorScheme.onSurface,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ),
-      body: _AccountSettingsView(
-        loading: _loading,
-        updatingPlan: _updatingPlan,
-        resendingVerification: _resendingVerification,
-        plans: _plans,
-        transactions: _transactions,
-        activePlan: _activePlan,
-        navSpacer: _navSpacer,
-        loadAll: _loadAll,
-        onRefresh: _onRefresh,
-        onResendVerification: _onResendVerification,
-        onBuyAdditional: _onBuyAdditional,
-        onUpdatePlan: _onUpdatePlan,
-        availablePlanBackground: _availablePlanBackground,
-        availablePlanBorder: _availablePlanBorder,
-        onResetPassword: _onResetPassword,
-        currentPlanKey: _currentPlanKey,
-        selectedPlanKey: _selectedPlanKey,
-        user: _user,
-        error: _error,
-        transactionError: _transactionError,
-      ),
+    return _AccountSettingsView(
+      loading: _loading,
+      updatingPlan: _updatingPlan,
+      resendingVerification: _resendingVerification,
+      plans: _plans,
+      transactions: _transactions,
+      activePlan: _activePlan,
+      navSpacer: _navSpacer,
+      loadAll: _loadAll,
+      onRefresh: _onRefresh,
+      onResendVerification: _onResendVerification,
+      onBuyAdditional: _onBuyAdditional,
+      onUpdatePlan: _onUpdatePlan,
+      availablePlanBackground: _availablePlanBackground,
+      availablePlanBorder: _availablePlanBorder,
+      onResetPassword: _onResetPassword,
+      currentPlanKey: _currentPlanKey,
+      selectedPlanKey: _selectedPlanKey,
+      user: _user,
+      error: _error,
+      transactionError: _transactionError,
     );
   }
 }

@@ -25,7 +25,8 @@ class ConnectionsService {
 
   Future<List<SupervisorContactDto>> fetchSupervisors() async {
     try {
-      final response = await _api.dio.get('/api/contacts/supervisors');
+      final response =
+          await _api.dio.get<Map<String, dynamic>>('/api/contacts/supervisors');
       if (response.statusCode != 200) {
         throw Exception('Bağlantılar alınamadı');
       }
@@ -58,7 +59,7 @@ class ConnectionsService {
     }
 
     try {
-      final response = await _api.dio.post(
+      final response = await _api.dio.post<Map<String, dynamic>>(
         '/api/contacts/invites',
         data: {
           'inviteeEmail': normalizedEmail,
@@ -85,8 +86,8 @@ class ConnectionsService {
   List<Map<String, dynamic>> _extractContactList(dynamic data) {
     if (data is List) {
       return data
-          .whereType<Map>()
-          .map((item) => Map<String, dynamic>.from(item))
+          .whereType<Map<String, dynamic>>()
+          .map(Map<String, dynamic>.from)
           .toList();
     }
 
@@ -103,8 +104,8 @@ class ConnectionsService {
         final value = data[key];
         if (value is List) {
           return value
-              .whereType<Map>()
-              .map((item) => Map<String, dynamic>.from(item))
+              .whereType<Map<String, dynamic>>()
+              .map(Map<String, dynamic>.from)
               .toList();
         }
       }

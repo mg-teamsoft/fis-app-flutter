@@ -2,9 +2,8 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-
-import '../../model/status_type.dart';
-import 'api_client.dart';
+import 'package:fis_app_flutter/app/services/api_client.dart';
+import 'package:fis_app_flutter/model/status_type.dart';
 
 class JobPollingService {
   Timer? _timer;
@@ -12,22 +11,23 @@ class JobPollingService {
   final CancelToken _cancelToken = CancelToken();
 
   /// Start polling every [intervalSec] secs until "done"/"failed" or [stop] called.
-  void start({
+  Future<void> start({
     required String jobId,
-    int intervalSec = 10,
     required void Function(Map<String, dynamic> job) onUpdate,
     required void Function(Object error) onError,
-  }) {
+    int intervalSec = 10,
+  }) async {
     if (_active) return;
     _active = true;
 
     Future<void> tick() async {
       if (!_active) return;
       try {
-        final res = await ApiClient()
-            .dio
-            .get('/api/job/$jobId', cancelToken: _cancelToken);
-        final data = res.data as Map<String, dynamic>;
+        final res = await ApiClient().dio.get<Map<String, dynamic>>(
+              '/api/job/$jobId',
+              cancelToken: _cancelToken,
+            );
+        final data = res.data!;
         final job = data['job'] as Map<String, dynamic>;
         onUpdate(job);
 
@@ -37,7 +37,7 @@ class JobPollingService {
           stop();
           return;
         }
-      } catch (e) {
+      } on Exception catch (e) {
         onError(e);
         // Optional: backoff or stop on certain errors
       }
@@ -47,7 +47,7 @@ class JobPollingService {
     }
 
     // fire immediately, then schedule
-    tick();
+    await tick();
   }
 
   void stop() {

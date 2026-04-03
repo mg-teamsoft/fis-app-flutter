@@ -1,17 +1,19 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-
-import '../config/api_config.dart';
-import 'api_client.dart';
+import 'package:fis_app_flutter/app/config/api_config.dart';
+import 'package:fis_app_flutter/app/services/api_client.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 class S3InitResponse {
+  S3InitResponse({
+    required this.key,
+    required this.presignedUrl,
+    required this.headers,
+  });
   final String key;
   final String presignedUrl;
   final Map<String, String> headers;
-
-  S3InitResponse(
-      {required this.key, required this.presignedUrl, required this.headers});
 
   @override
   String toString() =>
@@ -31,16 +33,19 @@ class S3UploadService {
 
   Future<S3InitResponse> initUpload({
     required String contentType,
-    String? filename,
     required String checksumCRC32,
     required String sha256,
+    String? filename,
   }) async {
-    final res = await _api.dio.post('/api/file/init', data: {
-      'contentType': contentType,
-      'filename': filename,
-      'checksumCRC32': checksumCRC32,
-      'sha256': sha256,
-    });
+    final res = await _api.dio.post<Map<String, dynamic>>(
+      '/api/file/init',
+      data: {
+        'contentType': contentType,
+        'filename': filename,
+        'checksumCRC32': checksumCRC32,
+        'sha256': sha256,
+      },
+    );
     final data = _normalizeMap(res.data);
     final key = data['key']?.toString();
     final presignedUrl = data['presignedUrl']?.toString();
@@ -70,16 +75,19 @@ class S3UploadService {
   /// fields like `status` (e.g. `"duplicate"`) before parsing.
   Future<Map<String, dynamic>> initUploadRaw({
     required String contentType,
-    String? filename,
     required String checksumCRC32,
     required String sha256,
+    String? filename,
   }) async {
-    final res = await _api.dio.post('/api/file/init', data: {
-      'contentType': contentType,
-      'filename': filename,
-      'checksumCRC32': checksumCRC32,
-      'sha256': sha256,
-    });
+    final res = await _api.dio.post<Map<String, dynamic>>(
+      '/api/file/init',
+      data: {
+        'contentType': contentType,
+        'filename': filename,
+        'checksumCRC32': checksumCRC32,
+        'sha256': sha256,
+      },
+    );
     return _normalizeMap(res.data);
   }
 
@@ -89,10 +97,12 @@ class S3UploadService {
     required File file,
     required Map<String, String> headers,
   }) async {
-    final dio = Dio(BaseOptions(
-      connectTimeout: Duration(milliseconds: ApiConfig.connectTimeoutMs),
-      receiveTimeout: Duration(milliseconds: ApiConfig.receiveTimeoutMs),
-    ));
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: Duration(milliseconds: ApiConfig.connectTimeoutMs),
+        receiveTimeout: Duration(milliseconds: ApiConfig.receiveTimeoutMs),
+      ),
+    );
 
     // Read whole file into memory -> set explicit Content-Length
     final bytes = await file.readAsBytes();
@@ -103,7 +113,7 @@ class S3UploadService {
     };
 
     try {
-      final resp = await dio.put(
+      final resp = await dio.put<Map<String, dynamic>>(
         presignedUrl,
         data: bytes,
         options: Options(
@@ -115,10 +125,12 @@ class S3UploadService {
 
       // Strong logging
       // (remove in prod)
-      // ignore: avoid_print
-      print('S3 PUT status: ${resp.statusCode}');
-      // ignore: avoid_print
-      print('S3 PUT headers: ${resp.headers}');
+
+      if (kDebugMode) {
+        print('S3 PUT status: ${resp.statusCode}');
+        print('S3 PUT headers: ${resp.headers}');
+      }
+
       if (resp.statusCode != 200) {
         // Some regions return 200 OK, some 204 No Content – both OK
         if (resp.statusCode != 204) {
@@ -132,16 +144,18 @@ class S3UploadService {
         }
       }
     } on DioException catch (e) {
-      // ignore: avoid_print
-      print('DIO S3 ERROR: ${e.message}');
-      // ignore: avoid_print
-      print('URL: $presignedUrl');
-      // ignore: avoid_print
-      print('REQ Headers: $reqHeaders');
-      // ignore: avoid_print
-      print('RESP Status: ${e.response?.statusCode}');
-      // ignore: avoid_print
-      print('RESP Data: ${e.response?.data}');
+      if (kDebugMode) {
+        print('DIO S3 ERROR: ${e.message}');
+
+        print('URL: $presignedUrl');
+
+        print('REQ Headers: $reqHeaders');
+
+        print('RESP Status: ${e.response?.statusCode}');
+
+        print('RESP Data: ${e.response?.data}');
+      }
+
       rethrow;
     }
   }
@@ -152,11 +166,14 @@ class S3UploadService {
     String? mime,
     String? sha256,
   }) async {
-    await _api.dio.post('/api/file/confirm', data: {
-      'key': key,
-      if (size != null) 'size': size,
-      if (mime != null) 'mime': mime,
-      if (sha256 != null) 'sha256': sha256,
-    });
+    await _api.dio.post<Map<String, dynamic>>(
+      '/api/file/confirm',
+      data: {
+        'key': key,
+        if (size != null) 'size': size,
+        if (mime != null) 'mime': mime,
+        if (sha256 != null) 'sha256': sha256,
+      },
+    );
   }
 }

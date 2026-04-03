@@ -22,6 +22,13 @@ mixin _MixinMainLayout on State<MainLayout> {
     '/gallery',
     '/connections',
     '/settings',
+    '/accountSettings',
+    '/about',
+    '/excelFiles',
+    '/receipt',
+    '/receipt/process',
+    '/receipt/results',
+    '/receipt/manuel',
   ];
 
   late final Map<String, Widget Function(BuildContext, Object?)> _pageBuilders =
@@ -45,16 +52,40 @@ mixin _MixinMainLayout on State<MainLayout> {
     '/receipt/manuel': (_, __) => const PageReceiptManuel(),
   };
 
+  final List<String> _routeHistory = [];
+
   String _normalizeRoute(String route) {
     return _pageBuilders.containsKey(route) ? route : '/home';
   }
 
-  void _setCurrentRoute(String route, {Object? arguments}) {
+  void _setCurrentRoute(String route, {Object? arguments, bool isBottomBarTab = false}) {
     final normalized = _normalizeRoute(route);
     setState(() {
+      if (isBottomBarTab) {
+        _routeHistory.clear();
+      } else if (_currentRoute != normalized) {
+        _routeHistory.add(_currentRoute);
+      }
       _currentRoute = normalized;
       _currentArguments = arguments;
     });
+  }
+
+  void _onBackPressed() {
+    if (_routeHistory.isNotEmpty) {
+      final previousRoute = _routeHistory.removeLast();
+      setState(() {
+        _currentRoute = previousRoute;
+        _currentArguments = null;
+      });
+    } else {
+      if (_currentRoute != '/home') {
+        setState(() {
+          _currentRoute = '/home';
+          _currentArguments = null;
+        });
+      }
+    }
   }
 
   Widget _buildCurrentPage(BuildContext context) {
@@ -69,7 +100,8 @@ mixin _MixinMainLayout on State<MainLayout> {
     if (index < 0 || index >= _navRoutes.length) return;
     final route = _navRoutes[index];
     if (route == _currentRoute) return;
-    _setCurrentRoute(route);
+    // Bottom bar tabları index 0 ile 3 arasındadır
+    _setCurrentRoute(route, isBottomBarTab: index <= 3);
   }
 
   int get _currentNavIndex {

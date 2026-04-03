@@ -34,17 +34,17 @@ mixin _ConnectionReceiptInitial on State<PageReceipt> {
     });
   }
 
-  void _processSelected() {
+  Future<void> _processSelected() async {
     if (_picked.isEmpty) return;
-    Navigator.pushNamed(
+    await Navigator.pushNamed(
       context,
       '/receipt/process',
       arguments: List<XFile>.from(_picked),
     );
   }
 
-  void _openManualForm() {
-    Navigator.of(context).pushNamed('/receipt/manuel');
+  Future<void> _openManualForm() async {
+    await Navigator.of(context).pushNamed('/receipt/manuel');
   }
 
   String get _processButtonLabel {

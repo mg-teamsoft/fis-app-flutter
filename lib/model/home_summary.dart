@@ -9,12 +9,6 @@ class HomeSummary {
     required this.limitUsageText,
     required this.recentReceipts,
   });
-
-  final double totalSpent;
-  final double monthlyLimitAmount;
-  final String limitUsageText;
-  final List<ReceiptSummary> recentReceipts;
-
   factory HomeSummary.fromResponse(dynamic data) {
     final Map<String, dynamic> json;
     if (data is String) {
@@ -32,7 +26,7 @@ class HomeSummary {
         final parsed = double.tryParse(value);
         if (parsed != null) return parsed;
       }
-      return 0.0;
+      return 0;
     }
 
     final receiptsJson = json['recentReceipts'];
@@ -50,4 +44,9 @@ class HomeSummary {
       recentReceipts: recentReceipts,
     );
   }
+
+  final double totalSpent;
+  final double monthlyLimitAmount;
+  final String limitUsageText;
+  final List<ReceiptSummary> recentReceipts;
 }

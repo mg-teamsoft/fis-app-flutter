@@ -1,12 +1,13 @@
 part of '../../page/receipt_manuel.dart';
 
 class _ReceiptManuelImagePicker extends StatelessWidget {
-  const _ReceiptManuelImagePicker(
-      {required this.invoiceImage,
-      required this.invoiceImageBytes,
-      required this.isUploading,
-      required this.imageError,
-      required this.pickInvoiceImage});
+  const _ReceiptManuelImagePicker({
+    required this.invoiceImage,
+    required this.invoiceImageBytes,
+    required this.isUploading,
+    required this.imageError,
+    required this.pickInvoiceImage,
+  });
 
   final XFile? invoiceImage;
   final Uint8List? invoiceImageBytes;

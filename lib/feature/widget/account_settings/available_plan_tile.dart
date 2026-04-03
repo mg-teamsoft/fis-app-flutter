@@ -70,8 +70,9 @@ class _AccountSettingsAvailablePlanTile extends StatelessWidget {
                     plan.description.isNotEmpty
                         ? plan.description
                         : 'Abonelik planı',
-                    style: const TextStyle(
-                        color: Color(0xFF667085), fontSize: 30 / 2),
+                    style: context.textTheme.bodyMedium?.copyWith(
+                      color: context.theme.divider,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Text(

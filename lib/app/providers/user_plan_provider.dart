@@ -1,21 +1,12 @@
+import 'package:fis_app_flutter/app/services/api_client.dart';
 import 'package:flutter/foundation.dart';
 
-import '../services/api_client.dart';
-
 class UserPlan {
-  final String planKey; // FREE, MONTHLY, YEARLY
-  final int remainingQuota;
-  final DateTime? endDate;
-
   const UserPlan({
     required this.planKey,
     required this.remainingQuota,
     this.endDate,
   });
-
-  bool get isPaid =>
-      planKey.startsWith("MONTHLY") || planKey.startsWith("YEARLY");
-  bool get canScan => remainingQuota > 0;
 
   factory UserPlan.fromJson(Map<String, dynamic> json) {
     int readInt(String key) {
@@ -30,11 +21,11 @@ class UserPlan {
         ? readInt('remainingQuota')
         : readInt('quota');
 
-    final rawPlanKey = (json["planKey"] ?? "FREE").toString().trim();
+    final rawPlanKey = (json['planKey'] ?? 'FREE').toString().trim();
     final normalizedPlanKey =
-        rawPlanKey.isEmpty ? "FREE" : rawPlanKey.toUpperCase();
+        rawPlanKey.isEmpty ? 'FREE' : rawPlanKey.toUpperCase();
 
-    final endDateRaw = json["endDate"] ?? json["expiresAt"];
+    final endDateRaw = json['endDate'] ?? json['expiresAt'];
 
     return UserPlan(
       planKey: normalizedPlanKey,
@@ -43,14 +34,20 @@ class UserPlan {
           endDateRaw != null ? DateTime.tryParse(endDateRaw.toString()) : null,
     );
   }
+  final String planKey; // FREE, MONTHLY, YEARLY
+  final int remainingQuota;
+  final DateTime? endDate;
+
+  bool get isPaid =>
+      planKey.startsWith('MONTHLY') || planKey.startsWith('YEARLY');
+  bool get canScan => remainingQuota > 0;
 }
 
 class UserPlanProvider extends ChangeNotifier {
+  UserPlanProvider(this._api);
   final ApiClient _api;
 
-  UserPlanProvider(this._api);
-
-  UserPlan _plan = const UserPlan(planKey: "FREE", remainingQuota: 0);
+  UserPlan _plan = const UserPlan(planKey: 'FREE', remainingQuota: 0);
 
   bool isLoading = false;
   String? error;
@@ -78,7 +75,7 @@ class UserPlanProvider extends ChangeNotifier {
   }
 
   void reset() {
-    _plan = const UserPlan(planKey: "FREE", remainingQuota: 0);
+    _plan = const UserPlan(planKey: 'FREE', remainingQuota: 0);
     error = null;
     isLoading = false;
     notifyListeners();
@@ -91,20 +88,21 @@ class UserPlanProvider extends ChangeNotifier {
       error = null;
       notifyListeners();
 
-      final res = await _api.dio.get("/api/user-plans/user");
+      final res =
+          await _api.dio.get<Map<String, dynamic>>('/api/user-plans/user');
 
       final data = res.data;
       if (data is! Map<String, dynamic>) {
-        throw Exception("Unexpected response format");
+        throw Exception('Unexpected response format');
       }
 
-      final planJson = data["plan"];
+      final planJson = data['plan'];
       if (planJson is! Map<String, dynamic>) {
         throw Exception("Missing or invalid 'plan' in response");
       }
 
       _plan = UserPlan.fromJson(planJson);
-    } catch (e) {
+    } on Exception catch (e) {
       error = e.toString();
     } finally {
       isLoading = false;

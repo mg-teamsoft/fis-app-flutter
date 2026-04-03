@@ -16,55 +16,60 @@ class WidgetBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-        height: ThemeSize.bottomBarHeight,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: ThemeSize.spacingS,
-        color: context.colorScheme.surface,
-        elevation: ThemeSize.spacingS,
-        shadowColor: context.colorScheme.onSurface,
-        surfaceTintColor: context.colorScheme.onSurface,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(
-              context,
-              icon: Icons.home_rounded,
-              index: '/home',
-              label: 'AnaSayfa',
-            ),
-            _buildNavItem(
-              context,
-              icon: Icons.receipt_rounded,
-              index: '/gallery',
-              label: 'Fişler',
-            ),
-            const SizedBox(width: ThemeSize.iconXL),
-            _buildNavItem(
-              context,
-              icon: Icons.group_rounded,
-              index: '/connections',
-              label: 'Kişiler',
-            ),
-            _buildNavItem(
-              context,
-              icon: Icons.settings,
-              index: '/settings',
-              label: 'Ayarlar',
-            ),
-          ],
-        ));
+      height: ThemeSize.bottomBarHeight,
+      shape: const CircularNotchedRectangle(),
+      notchMargin: ThemeSize.spacingS,
+      color: context.colorScheme.surface,
+      elevation: ThemeSize.spacingS,
+      shadowColor: context.colorScheme.onSurface,
+      surfaceTintColor: context.colorScheme.onSurface,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(
+            context,
+            icon: Icons.home_rounded,
+            index: 0,
+            label: 'AnaSayfa',
+          ),
+          _buildNavItem(
+            context,
+            icon: Icons.receipt_rounded,
+            index: 1,
+            label: 'Fişler',
+          ),
+          const SizedBox(width: ThemeSize.iconXL),
+          _buildNavItem(
+            context,
+            icon: Icons.group_rounded,
+            index: 2,
+            label: 'Kişiler',
+          ),
+          _buildNavItem(
+            context,
+            icon: Icons.settings,
+            index: 3,
+            label: 'Ayarlar',
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _buildNavItem(BuildContext context,
-      {required IconData icon, required String index, required String label}) {
-    final isSelected = ModalRoute.of(context)?.settings.name == index;
+  Widget _buildNavItem(
+    BuildContext context, {
+    required IconData icon,
+    required int index,
+    required String label,
+  }) {
+    final isSelected = currentIndex == index;
     final color = isSelected
         ? context.colorScheme.primary
         : context.colorScheme.onSurface.withValues(alpha: 0.9);
     return InkWell(
-      onTap: () async {
+      onTap: () {
         if (!isSelected) {
-          await Navigator.of(context).pushNamed(index);
+          onTap(index);
         }
       },
       child: Column(

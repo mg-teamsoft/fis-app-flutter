@@ -8,8 +8,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
-  static final ApiClient _instance = ApiClient._internal();
-
   factory ApiClient() => _instance;
   ApiClient._internal() {
     _dio = Dio(
@@ -29,7 +27,8 @@ class ApiClient {
 
           if (kDebugMode) {
             print(
-                '--> ${options.method} ${options.uri}\nHeaders: ${options.headers}\nBody: $maskedBody');
+              '--> ${options.method} ${options.uri}\nHeaders: ${options.headers}\nBody: $maskedBody',
+            );
           }
           handler.next(options);
         },
@@ -42,7 +41,8 @@ class ApiClient {
         onError: (e, handler) {
           if (kDebugMode) {
             print(
-                'xxx ${e.response?.statusCode ?? ''} ${e.requestOptions.uri} ${e.message}');
+              'xxx ${e.response?.statusCode ?? ''} ${e.requestOptions.uri} ${e.message}',
+            );
           }
           handler.next(e);
         },
@@ -68,7 +68,7 @@ class ApiClient {
             await clearToken();
 
             // Notify listeners (UI) to redirect to login
-            AuthNavigation.redirectToLogin(
+            await AuthNavigation.redirectToLogin(
               message: AuthConfig.sessionExpiredMessage,
             );
 
@@ -79,6 +79,7 @@ class ApiClient {
       ),
     );
   }
+  static final ApiClient _instance = ApiClient._internal();
 
   late final Dio _dio;
   Dio get dio => _dio;

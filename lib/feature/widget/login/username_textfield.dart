@@ -10,7 +10,9 @@ final class _UsernameTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       style: context.textTheme.bodyLarge?.copyWith(
-          color: context.colorScheme.onSurface, fontWeight: FontWeight.w700),
+        color: context.colorScheme.onSurface,
+        fontWeight: FontWeight.w700,
+      ),
       decoration: const InputDecoration(
         labelText: 'Kullanıcı Adınız',
         prefixIcon: Icon(Icons.person, size: ThemeSize.iconLarge),

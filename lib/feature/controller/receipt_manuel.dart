@@ -243,8 +243,10 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     );
   }
 
-  String _extractBackendMessage(DioException e,
-      {String fallback = 'Sunucu hatası'}) {
+  String _extractBackendMessage(
+    DioException e, {
+    String fallback = 'Sunucu hatası',
+  }) {
     final data = e.response?.data;
     if (data is Map) {
       final map = Map<String, dynamic>.from(data);
@@ -319,7 +321,7 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
 
       // Push to Excel: _uploadedKey is always set here because the form is
       // locked until /file/init + putToS3 + confirmUpload all succeed.
-      String successMsg = '✅ Fiş başarıyla kaydedildi';
+      var successMsg = '✅ Fiş başarıyla kaydedildi';
       try {
         debugPrint(
           '[ManualForm][_save] pushing to Excel: sourceKey=$_uploadedKey',
@@ -385,7 +387,8 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     if (parsed == null) return 'Geçerli bir tutar giriniz';
     if (parsed < 0) return 'Tutar negatif olamaz';
     final total = double.tryParse(
-        _totalAmountController.text.trim().replaceAll(',', '.'));
+      _totalAmountController.text.trim().replaceAll(',', '.'),
+    );
     if (total != null && parsed > total) {
       return 'KDV tutarı toplam tutarı aşamaz';
     }

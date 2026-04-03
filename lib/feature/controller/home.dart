@@ -5,6 +5,23 @@ mixin _ConnectionHome on State<PageHome> {
   late Future<ModelHome> _futureSummary;
   late ScrollController _scrollCtrl;
   late Size _size;
+  late DateTime _date;
+  late String _dateString;
+
+  final List<String> _months = [
+    'Ocak',
+    'Şubat',
+    'Mart',
+    'Nisan',
+    'Mayıs',
+    'Haziran',
+    'Temmuz',
+    'Ağustos',
+    'Eylül',
+    'Ekim',
+    'Kasım',
+    'Aralık',
+  ];
 
   @override
   void initState() {
@@ -12,6 +29,8 @@ mixin _ConnectionHome on State<PageHome> {
     _homeService = HomeService();
     _scrollCtrl = ScrollController();
     _futureSummary = _homeService.fetchSummary();
+    _date = DateTime.now();
+    _dateString = '${_months[_date.month - 1]} ${_date.year}';
   }
 
   @override

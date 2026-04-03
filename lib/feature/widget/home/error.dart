@@ -1,7 +1,10 @@
 part of '../../page/home.dart';
 
 final class _HomeError extends StatelessWidget {
-  const _HomeError({this.details, required this.onRetry});
+  const _HomeError({
+    required this.onRetry,
+    this.details,
+  });
 
   final String? details;
   final Future<void> Function() onRetry;
@@ -33,7 +36,7 @@ final class _HomeError extends StatelessWidget {
             ],
             const SizedBox(height: 16),
             FilledButton.icon(
-              onPressed: () => onRetry(),
+              onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: const Text('Tekrar dene'),
             ),

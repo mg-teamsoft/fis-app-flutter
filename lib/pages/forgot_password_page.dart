@@ -37,9 +37,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         _emailController.text.trim(),
       );
       if (!mounted) return;
-      setState(() => _statusMessage = message);
+      setState(() => _statusMessage = message.toString());
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
+        SnackBar(content: Text(_statusMessage ?? '')),
       );
     } catch (e) {
       if (!mounted) return;

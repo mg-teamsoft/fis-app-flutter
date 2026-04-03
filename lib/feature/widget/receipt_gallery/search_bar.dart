@@ -67,9 +67,11 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
             children: [
               ActionChip(
                 color: WidgetStatePropertyAll(context.colorScheme.secondary),
-                avatar: Icon(Icons.date_range,
-                    size: ThemeSize.iconMedium,
-                    color: context.colorScheme.onSecondary),
+                avatar: Icon(
+                  Icons.date_range,
+                  size: ThemeSize.iconMedium,
+                  color: context.colorScheme.onSecondary,
+                ),
                 label: Text(
                   selectedDateRange == null
                       ? 'Tarih Aralığı Seç'
@@ -78,8 +80,9 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                     context,
                     '',
                     style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: context.colorScheme.onSecondary),
+                      fontWeight: FontWeight.w600,
+                      color: context.colorScheme.onSecondary,
+                    ),
                   ).style,
                 ),
                 onPressed: pickDateRange,
@@ -87,14 +90,17 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
               if (selectedDateRange != null) ...[
                 const SizedBox(width: 8),
                 ActionChip(
-                  avatar: Icon(Icons.clear,
-                      size: ThemeSize.iconMedium,
-                      color: context.colorScheme.onSurface),
+                  avatar: Icon(
+                    Icons.clear,
+                    size: ThemeSize.iconMedium,
+                    color: context.colorScheme.onSurface,
+                  ),
                   label: Text(
                     'Temizle',
                     style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: context.colorScheme.onPrimary),
+                      fontWeight: FontWeight.w600,
+                      color: context.colorScheme.onPrimary,
+                    ),
                   ),
                   onPressed: clearDateRange,
                 ),

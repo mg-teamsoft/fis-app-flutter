@@ -1,20 +1,21 @@
 part of '../page/register.dart';
 
 class _RegisterView extends StatelessWidget {
-  const _RegisterView(
-      {required this.formKey,
-      required this.scrollController,
-      required this.validator,
-      required this.userCtrl,
-      required this.emailCtrl,
-      required this.passCtrl,
-      required this.obscure,
-      required this.plansFuture,
-      required this.selectedPlanKey,
-      required this.error,
-      required this.loading,
-      required this.onRegister,
-      required this.retryPlans});
+  const _RegisterView({
+    required this.formKey,
+    required this.scrollController,
+    required this.validator,
+    required this.userCtrl,
+    required this.emailCtrl,
+    required this.passCtrl,
+    required this.obscure,
+    required this.plansFuture,
+    required this.selectedPlanKey,
+    required this.error,
+    required this.loading,
+    required this.onRegister,
+    required this.retryPlans,
+  });
 
   final GlobalKey<FormState> formKey;
   final ScrollController scrollController;

@@ -2,10 +2,10 @@ part of '../../page/receipt_result.dart';
 
 class _ReceiptResultButtonArea extends StatelessWidget {
   const _ReceiptResultButtonArea({
-    this.hasSuccessfulSubmission,
     required this.submitting,
     required this.state,
     required this.approveAll,
+    this.hasSuccessfulSubmission,
   });
 
   final bool? hasSuccessfulSubmission;
@@ -40,9 +40,11 @@ class _ReceiptResultButtonArea extends StatelessWidget {
                     hasSuccessfulSubmission! ? '/excelFiles' : '/receipt';
                 await Navigator.pushNamed(context, route);
               },
-              icon: Icon(hasSuccessfulSubmission!
-                  ? Icons.table_view
-                  : Icons.receipt_long),
+              icon: Icon(
+                hasSuccessfulSubmission!
+                    ? Icons.table_view
+                    : Icons.receipt_long,
+              ),
               label: Text(
                 hasSuccessfulSubmission!
                     ? 'Excel Dosya Sayfasına Git'

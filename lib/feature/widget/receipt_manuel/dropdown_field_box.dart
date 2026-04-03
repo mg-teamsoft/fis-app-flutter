@@ -21,10 +21,12 @@ class _DropdownFieldBox extends StatelessWidget {
       initialValue: value,
       validator: validator,
       items: items
-          .map((item) => DropdownMenuItem<String>(
-                value: item,
-                child: Text('%$item'),
-              ))
+          .map(
+            (item) => DropdownMenuItem<String>(
+              value: item,
+              child: Text('%$item'),
+            ),
+          )
           .toList(),
       onChanged: onChanged,
       decoration: InputDecoration(

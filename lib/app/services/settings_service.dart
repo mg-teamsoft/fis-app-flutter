@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
-
-import 'api_client.dart';
+import 'package:fis_app_flutter/app/services/api_client.dart';
 
 class SettingsService {
   final _api = ApiClient();
 
   Future<Map<String, dynamic>?> fetchRules() async {
     try {
-      final res = await _api.dio.get('/api/rule');
+      final res = await _api.dio.get<Map<String, dynamic>>('/api/rule');
       final data = res.data;
       if (data is Map<String, dynamic>) {
         final payload = data['data'];
@@ -27,7 +26,7 @@ class SettingsService {
     required String rulesString,
   }) async {
     try {
-      await _api.dio.post(
+      await _api.dio.post<Map<String, dynamic>>(
         '/api/rule',
         data: {'rulesString': rulesString},
       );

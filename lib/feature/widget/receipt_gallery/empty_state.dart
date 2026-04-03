@@ -11,8 +11,11 @@ final class _GalleryEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.receipt_long,
-                size: 56, color: context.colorScheme.primary),
+            Icon(
+              Icons.receipt_long,
+              size: 56,
+              color: context.colorScheme.primary,
+            ),
             const SizedBox(height: 16),
             Text(
               'Henüz kayıtlı fiş bulunmuyor.',

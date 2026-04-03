@@ -25,14 +25,15 @@ class _PageLoginState extends State<PageLogin> with _ConnectionLogin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: _LoginView(
-      isLoading: _loading,
-      usernameController: _userCtrl,
-      passwordController: _passCtrl,
-      scrollController: _scrollController,
-      onLogin: _handleLogin,
-      size: _size,
-      error: _error,
-    ));
+      body: _LoginView(
+        isLoading: _loading,
+        usernameController: _userCtrl,
+        passwordController: _passCtrl,
+        scrollController: _scrollController,
+        onLogin: _handleLogin,
+        size: _size,
+        error: _error,
+      ),
+    );
   }
 }

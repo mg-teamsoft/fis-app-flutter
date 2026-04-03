@@ -1,8 +1,10 @@
 part of '../../page/reset_password.dart';
 
 final class _ResetPasswordPassConfirmTextfield extends StatelessWidget {
-  const _ResetPasswordPassConfirmTextfield(
-      {required this.controller, required this.confirmController});
+  const _ResetPasswordPassConfirmTextfield({
+    required this.controller,
+    required this.confirmController,
+  });
 
   final TextEditingController controller;
   final TextEditingController confirmController;

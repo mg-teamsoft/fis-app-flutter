@@ -56,8 +56,10 @@ mixin _ConnectionLogin on State<PageLogin> {
       // Navigate to your app’s main page (replace with your ReceiptPage etc.)
       await Navigator.of(context).pushReplacementNamed('/home');
     } else {
-      setState(() => _error =
-          'Giriş başarısız. Lütfen bilgilerinizi kontrol edip tekrar deneyin.');
+      setState(
+        () => _error =
+            'Giriş başarısız. Lütfen bilgilerinizi kontrol edip tekrar deneyin.',
+      );
     }
   }
 }

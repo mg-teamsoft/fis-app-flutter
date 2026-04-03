@@ -1,14 +1,16 @@
 import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 
 class FileDownloadService {
-  final Dio _dio;
   FileDownloadService([Dio? dio]) : _dio = dio ?? Dio();
+  final Dio _dio;
 
   /// Download to the app's documents directory and return the absolute path.
-  Future<String> downloadToAppDocs(String url,
-      {required String fileName}) async {
+  Future<String> downloadToAppDocs(
+    String url, {
+    required String fileName,
+  }) async {
     final dir = await getApplicationDocumentsDirectory();
     final filePath = '${dir.path}/$fileName';
 

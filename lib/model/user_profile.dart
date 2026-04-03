@@ -8,15 +8,6 @@ class UserProfile {
     this.phoneNumber,
     this.createdAt,
   });
-
-  final String id;
-  final String email;
-  final String userName;
-  final String displayName;
-  final bool emailVerified;
-  final String? phoneNumber;
-  final DateTime? createdAt;
-
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     String readString(String key) => json[key]?.toString().trim() ?? '';
     bool readBool(String key) {
@@ -29,7 +20,9 @@ class UserProfile {
 
     final id = readString('_id').isNotEmpty
         ? readString('_id')
-        : (readString('id').isNotEmpty ? readString('id') : readString('userId'));
+        : (readString('id').isNotEmpty
+            ? readString('id')
+            : readString('userId'));
 
     final displayName = readString('name').isNotEmpty
         ? readString('name')
@@ -55,4 +48,12 @@ class UserProfile {
       ),
     );
   }
+
+  final String id;
+  final String email;
+  final String userName;
+  final String displayName;
+  final bool emailVerified;
+  final String? phoneNumber;
+  final DateTime? createdAt;
 }

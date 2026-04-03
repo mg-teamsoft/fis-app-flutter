@@ -25,12 +25,14 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
 
     final rows = sortedTransactions.isEmpty
         ? <DataRow>[
-            const DataRow(cells: [
-              DataCell(Text('-')),
-              DataCell(Text('-')),
-              DataCell(Text('-')),
-              DataCell(Text('-')),
-            ]),
+            const DataRow(
+              cells: [
+                DataCell(Text('-')),
+                DataCell(Text('-')),
+                DataCell(Text('-')),
+                DataCell(Text('-')),
+              ],
+            ),
           ]
         : sortedTransactions.map((transaction) {
             final purchaseDate = transaction.purchaseDate != null
@@ -39,20 +41,26 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
             final expiresDate = transaction.expiresDate != null
                 ? dateFormatter.format(transaction.expiresDate!)
                 : '-';
-            return DataRow(cells: [
-              DataCell(Text(
-                transaction.transactionId.isNotEmpty
-                    ? transaction.transactionId
-                    : '-',
-              )),
-              DataCell(Text(
-                transaction.originalTransactionId.isNotEmpty
-                    ? transaction.originalTransactionId
-                    : '-',
-              )),
-              DataCell(Text(purchaseDate)),
-              DataCell(Text(expiresDate)),
-            ]);
+            return DataRow(
+              cells: [
+                DataCell(
+                  Text(
+                    transaction.transactionId.isNotEmpty
+                        ? transaction.transactionId
+                        : '-',
+                  ),
+                ),
+                DataCell(
+                  Text(
+                    transaction.originalTransactionId.isNotEmpty
+                        ? transaction.originalTransactionId
+                        : '-',
+                  ),
+                ),
+                DataCell(Text(purchaseDate)),
+                DataCell(Text(expiresDate)),
+              ],
+            );
           }).toList();
 
     return Container(

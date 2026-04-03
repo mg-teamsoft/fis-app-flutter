@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import '../../model/purchase_transaction.dart';
-import 'api_client.dart';
+import 'package:fis_app_flutter/app/services/api_client.dart';
+import 'package:fis_app_flutter/model/purchase_transaction.dart';
 
 class PurchaseTransactionService {
   PurchaseTransactionService({ApiClient? apiClient})
@@ -10,36 +10,51 @@ class PurchaseTransactionService {
   final ApiClient _api;
 
   Future<List<PurchaseTransaction>> listTransactions() async {
-    final response = await _api.dio.get('/api/purchases/transactions');
-    if (response.statusCode != null &&
-        response.statusCode! >= 200 &&
-        response.statusCode! < 300) {
+    final response = await _api.dio.get<dynamic>('/api/purchases/transactions');
+
+    final statusCode = response.statusCode;
+    if (statusCode != null && statusCode >= 200 && statusCode < 300) {
       final dynamic body = response.data is String
           ? jsonDecode(response.data as String)
           : response.data;
+
       final items = _extractTransactionList(body);
+
       return items
-          .whereType<Map>()
+          .whereType<Map<String, dynamic>>()
           .map((item) =>
               PurchaseTransaction.fromJson(Map<String, dynamic>.from(item)))
           .toList();
     }
+
     throw Exception(
-      'Ödeme işlemleri alınamadı (${response.statusCode ?? 'unknown'})',
+      'Ödeme işlemleri alınamadı (Kod: ${statusCode ?? 'unknown'})',
     );
   }
 
   List<dynamic> _extractTransactionList(dynamic body) {
+    if (body == null) return const [];
+
     if (body is List) return body;
-    if (body is Map<String, dynamic>) {
-      final direct = body['transactions'] ?? body['items'] ?? body['data'];
-      if (direct is List) return direct;
-      if (direct is Map<String, dynamic>) {
-        final nested =
-            direct['transactions'] ?? direct['items'] ?? direct['data'];
-        if (nested is List) return nested;
+
+    if (body is Map) {
+      final map = Map<String, dynamic>.from(body);
+
+      final dynamic candidates =
+          map['transactions'] ?? map['items'] ?? map['data'];
+
+      if (candidates is List) return candidates;
+
+      if (candidates is Map) {
+        final nestedMap = Map<String, dynamic>.from(candidates);
+        final dynamic nestedCandidates = nestedMap['transactions'] ??
+            nestedMap['items'] ??
+            nestedMap['data'];
+
+        if (nestedCandidates is List) return nestedCandidates;
       }
     }
+
     return const [];
   }
 }

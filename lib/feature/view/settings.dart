@@ -2,6 +2,7 @@ part of '../page/settings.dart';
 
 final class _SettingsView extends StatelessWidget {
   const _SettingsView({
+    required VoidCallback onChanged,
     required this.settingsService,
     required this.minLimitController,
     required this.maxLimitController,
@@ -19,7 +20,7 @@ final class _SettingsView extends StatelessWidget {
     required this.suppressChanges,
     required this.loading,
     required this.saveSettings,
-  });
+  }) : _onChanged = onChanged;
 
   final SettingsService settingsService;
   final TextEditingController minLimitController;
@@ -41,6 +42,7 @@ final class _SettingsView extends StatelessWidget {
   final bool suppressChanges;
 
   final Future<void> Function() saveSettings;
+  final VoidCallback _onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +56,9 @@ final class _SettingsView extends StatelessWidget {
         const SizedBox(height: ThemeSize.spacingL),
         Text(
           'Fişler için minimum ve maksimum tutarları ayarlayın.',
-          style: TextStyle(color: context.colorScheme.onPrimary),
+          style: context.textTheme.bodyLarge?.copyWith(
+            color: context.colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: ThemeSize.spacingM),
         _SettingsTextFieldArea(
@@ -66,8 +70,7 @@ final class _SettingsView extends StatelessWidget {
         const _SettingsTransaction(),
         const SizedBox(height: ThemeSize.spacingM),
         _SettingsCheckBoxTileArea(
-          suppressChanges: suppressChanges,
-          hasChanges: hasChanges,
+          onChanged: _onChanged,
           food: food,
           meal: meal,
           fuel: fuel,

@@ -22,7 +22,7 @@ final class _TargetProgressRing extends StatelessWidget {
           height: 180,
           width: 180,
           child: CustomPaint(
-            painter: _RingPainter(progress: clamped),
+            painter: _RingPainter(context: context, progress: clamped),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -60,8 +60,9 @@ final class _TargetProgressRing extends StatelessWidget {
 }
 
 class _RingPainter extends CustomPainter {
-  _RingPainter({required this.progress});
+  _RingPainter({required this.context, required this.progress});
 
+  final BuildContext context;
   final double progress; // 0.0 -> 1.2
 
   @override
@@ -79,15 +80,15 @@ class _RingPainter extends CustomPainter {
     if (progress <= 0) return;
     final sweep = 2 * math.pi * progress.clamp(0.0, 1.0);
 
-    const gradient = SweepGradient(
+    final gradient = SweepGradient(
       startAngle: -math.pi / 2,
       endAngle: (3 * math.pi) / 2,
-      colors: const [
-        Color(0xFF4CAF50),
-        Color(0xFFFFC107),
-        Color(0xFFF44336),
+      colors: [
+        context.theme.success,
+        context.theme.warning,
+        context.theme.error,
       ],
-      stops: [0.0, 0.65, 1.0],
+      stops: const [0.0, 0.65, 1.0],
     );
 
     final foregroundPaint = Paint()

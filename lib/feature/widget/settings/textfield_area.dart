@@ -11,6 +11,8 @@ final class _SettingsTextFieldArea extends StatelessWidget {
   final TextEditingController maxLimitController;
   final TextEditingController monthlyTargetController;
 
+  final String _moneyUnit = '₺ ';
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -18,23 +20,38 @@ final class _SettingsTextFieldArea extends StatelessWidget {
       children: [
         TextField(
           controller: minLimitController,
-          decoration: const InputDecoration(
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp('[0-9]')),
+          ],
+          decoration: InputDecoration(
+            prefixText: _moneyUnit,
             labelText: 'Minimum Tutar Limiti',
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
         ),
         TextField(
           controller: maxLimitController,
-          decoration: const InputDecoration(
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp('[0-9]')),
+          ],
+          decoration: InputDecoration(
+            prefixText: _moneyUnit,
             labelText: 'Maksimum Tutar Limiti',
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
         ),
         TextField(
           controller: monthlyTargetController,
-          decoration: const InputDecoration(
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp('[0-9]')),
+          ],
+          decoration: InputDecoration(
             labelText: 'Aylık Hedef Tutarı',
-            border: OutlineInputBorder(),
+            prefixText: _moneyUnit,
+            border: const OutlineInputBorder(),
           ),
         ),
       ],

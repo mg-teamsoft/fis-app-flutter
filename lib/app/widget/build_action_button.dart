@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 
 class WidgetBuildActionButton extends StatelessWidget {
   const WidgetBuildActionButton({
-    super.key,
     required this.onPressed,
     required this.icon,
     required this.label,
+    super.key,
   });
   final IconData icon;
   final String label;
@@ -26,11 +26,13 @@ class WidgetBuildActionButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: context.colorScheme.secondary,
           foregroundColor: context.colorScheme.onSecondary,
-          padding: ThemePadding.verticalSymmetricMedium(),
+          padding: const ThemePadding.verticalSymmetricMedium(),
           textStyle: ThemeTypography.bodyLarge(
             context,
             '',
-            style: TextStyle(fontWeight: FontWeight.w600),
+            style: context.textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ).style,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

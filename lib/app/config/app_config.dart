@@ -6,6 +6,5 @@ class AppConfig {
 
   static const mockOcr = bool.fromEnvironment(
     'MOCK_OCR',
-    defaultValue: false,
   );
 }

@@ -13,24 +13,29 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
   const WidgetAppbar({
     required this.showBackButton,
     required this.onSelected,
+    this.onBackPressed,
     super.key,
   });
 
   final bool showBackButton;
   final void Function(String)? onSelected;
+  final VoidCallback? onBackPressed;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      decoration: BoxDecoration(color: context.colorScheme.surface, boxShadow: [
-        BoxShadow(
-          color: context.colorScheme.onSurface,
-          blurRadius: 0.3,
-          spreadRadius: 0.3,
-        )
-      ]),
+      decoration: BoxDecoration(
+        color: context.colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: context.colorScheme.onSurface,
+            blurRadius: 0.3,
+            spreadRadius: 0.3,
+          ),
+        ],
+      ),
       child: SafeArea(
         child: Padding(
           padding: const ThemePadding.horizontalSymmetricMedium(),
@@ -43,7 +48,13 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
                     Icons.arrow_back_ios_new,
                     color: context.colorScheme.onSurface,
                   ),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    if (onBackPressed != null) {
+                      onBackPressed?.call();
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
                 )
               else
                 WidgetPopMenu(

@@ -5,7 +5,10 @@ final class _ForgotPasswordLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset('assets/icon/RBGAppIcon.png',
-        width: ThemeSize.avatarXL, height: ThemeSize.avatarXL);
+    return Image.asset(
+      'assets/icon/RBGAppIcon.png',
+      width: ThemeSize.avatarXL,
+      height: ThemeSize.avatarXL,
+    );
   }
 }

@@ -18,7 +18,7 @@ final class ModelReceipt {
     }
 
     final dynamic totalAmountValue = json['totalAmount'];
-    final double amount = totalAmountValue is num
+    final amount = totalAmountValue is num
         ? totalAmountValue.toDouble()
         : double.tryParse(totalAmountValue?.toString() ?? '') ?? 0.0;
 

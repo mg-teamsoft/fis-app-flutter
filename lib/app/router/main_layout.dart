@@ -28,12 +28,21 @@ class _MainLayoutState extends State<MainLayout> with _MixinMainLayout {
   Widget build(BuildContext context) {
     final child = _buildCurrentPage(context);
 
-    return WidgetScaffold(
-      onSelected: _handleMenuSelection,
-      currentIndex: _currentNavIndex,
-      onTabSelected: _onTabTapped,
-      showBackButton: _currentNavIndex != 0,
-      body: SafeArea(child: child),
+    return PopScope(
+      canPop: _currentRoute == '/home',
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _onBackPressed();
+        }
+      },
+      child: WidgetScaffold(
+        onSelected: _handleMenuSelection,
+        currentIndex: _currentNavIndex,
+        onTabSelected: _onTabTapped,
+        showBackButton: _currentNavIndex > 3,
+        onBackPressed: _onBackPressed,
+        body: SafeArea(child: child),
+      ),
     );
   }
 }

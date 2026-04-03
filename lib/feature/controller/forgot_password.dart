@@ -47,9 +47,9 @@ mixin _ConnectionForgotPassword on State<PageForgotPassword> {
         _emailController.text.trim(),
       );
       if (!mounted) return;
-      setState(() => _statusMessage = message);
+      setState(() => _statusMessage = message.toString());
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
+        SnackBar(content: Text(_statusMessage ?? '')),
       );
     } on Exception catch (e) {
       if (!mounted) return;

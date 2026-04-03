@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
-import 'api_client.dart';
+import 'package:fis_app_flutter/app/services/api_client.dart';
 
 class AuthResult {
+  AuthResult({required this.success, this.message, this.userId, this.userName});
   final bool success;
   final String? message;
   final String? userId;
   final String? userName;
-
-  AuthResult({required this.success, this.message, this.userId, this.userName});
 }
 
 class AuthService {
@@ -17,10 +16,13 @@ class AuthService {
   /// Expects { status, token, exp, user: { userId, userName } }
   Future<AuthResult> login(String userName, String password) async {
     try {
-      final res = await _api.dio.post('/api/auth/login', data: {
-        'userName': userName.trim(),
-        'password': password,
-      });
+      final res = await _api.dio.post<Map<String, dynamic>>(
+        '/api/auth/login',
+        data: {
+          'userName': userName.trim(),
+          'password': password,
+        },
+      );
 
       final rawData = res.data;
       if (rawData is! Map<String, dynamic>) {
@@ -40,9 +42,8 @@ class AuthService {
       final user = _extractUser(data, payload);
       final uid = _readString(user, const ['userId', 'id']);
       final uname = _readString(user, const ['userName', 'username', 'name']);
-      final message =
-          _readString(data, const ['message', 'error', 'detail']) ??
-              _readString(payload, const ['message', 'error', 'detail']);
+      final message = _readString(data, const ['message', 'error', 'detail']) ??
+          _readString(payload, const ['message', 'error', 'detail']);
       final success = _isLoginSuccessful(data, payload, token);
 
       if (!success) {
@@ -65,11 +66,13 @@ class AuthService {
         userName: uname,
       );
     } on DioException catch (e) {
-      final msg = e.response?.data is Map
-          ? ((e.response!.data['message'] ?? e.message)?.toString())
+      final responseData = e.response?.data;
+
+      final msg = responseData is Map<String, dynamic>
+          ? (responseData['message']?.toString() ?? e.message)
           : e.message;
       return AuthResult(success: false, message: msg ?? 'Login failed');
-    } catch (e) {
+    } on Exception catch (e) {
       return AuthResult(success: false, message: e.toString());
     }
   }
@@ -96,9 +99,10 @@ class AuthService {
         payload['planKey'] = planKey.trim();
       }
 
-      final res = await _api.dio.post('/api/auth/register', data: payload);
+      final res = await _api.dio
+          .post<Map<String, dynamic>>('/api/auth/register', data: payload);
 
-      final data = res.data as Map<String, dynamic>;
+      final data = res.data!;
       final ok = data['status'] == 'success';
       final msg = data['message']?.toString();
 
@@ -111,13 +115,18 @@ class AuthService {
       }
 
       return AuthResult(
-          success: ok, message: msg, userId: uid, userName: uname);
+        success: ok,
+        message: msg,
+        userId: uid,
+        userName: uname,
+      );
     } on DioException catch (e) {
-      final msg = e.response?.data is Map
-          ? (e.response!.data['message']?.toString() ?? e.message)
+      final responseData = e.response?.data;
+      final msg = responseData is Map<String, dynamic>
+          ? (responseData['message']?.toString() ?? e.message)
           : e.message;
       return AuthResult(success: false, message: msg ?? 'Register failed');
-    } catch (e) {
+    } on Exception catch (e) {
       return AuthResult(success: false, message: e.toString());
     }
   }
@@ -127,27 +136,28 @@ class AuthService {
   /// clears stored token
   /// Response: { status, message }
   Future<void> logout() async {
-    await _api.dio.post('/api/auth/revoke');
+    await _api.dio.post<Map<String, dynamic>>('/api/auth/revoke');
     await _api.clearToken();
   }
 
-  Future<String> requestPasswordReset(String email) async {
+  Future<Object> requestPasswordReset(String email) async {
     try {
-      final res = await _api.dio.post(
+      final res = await _api.dio.post<Map<String, dynamic>>(
         '/api/auth/request-password-reset',
         data: {'email': email},
       );
       final data = res.data;
-      if (data is Map && data['message'] != null) {
+      if (data is Map && data!['message'] != null) {
         return data['message'].toString();
       }
-      if (data is String && data.isNotEmpty) {
+      if (data is String && data!.isNotEmpty) {
         return data;
       }
       return 'Şifre sıfırlama isteği gönderildi';
     } on DioException catch (e) {
-      final msg = e.response?.data is Map
-          ? (e.response!.data['message']?.toString() ?? e.message)
+      final responseData = e.response?.data;
+      final msg = responseData is Map<String, dynamic>
+          ? (responseData['message']?.toString() ?? e.message)
           : e.message;
       throw Exception(msg ?? 'Şifre sıfırlama isteği başarısız');
     } catch (e) {
@@ -161,21 +171,24 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final res = await _api.dio.post(
+      final res = await _api.dio.post<Map<String, dynamic>>(
         '/api/auth/reset-password',
         data: {'token': token, 'password': password},
       );
-      final data = res.data is Map ? res.data as Map<String, dynamic> : {};
-      final ok = data['status'] == 'success';
+      final data = res.data;
+      final ok = data!['status'] == 'success';
       final msg = data['message']?.toString();
       return AuthResult(success: ok, message: msg);
     } on DioException catch (e) {
-      final msg = e.response?.data is Map
-          ? (e.response!.data['message']?.toString() ?? e.message)
+      final responseData = e.response?.data;
+      final msg = responseData is Map<String, dynamic>
+          ? (responseData['message']?.toString() ?? e.message)
           : e.message;
       return AuthResult(
-          success: false, message: msg ?? 'Reset password failed');
-    } catch (e) {
+        success: false,
+        message: msg ?? 'Reset password failed',
+      );
+    } on Exception catch (e) {
       return AuthResult(success: false, message: e.toString());
     }
   }

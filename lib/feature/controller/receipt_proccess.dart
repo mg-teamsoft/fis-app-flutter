@@ -45,7 +45,7 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
 
   Future<void> _process() async {
     setState(() => _processing = true);
-    final items = widget.files.map((f) => SelectedItem(f)).toList();
+    final items = widget.files.map(SelectedItem.new).toList();
 
     try {
       for (final item in items) {

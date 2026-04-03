@@ -5,12 +5,6 @@ class PurchaseTransaction {
     required this.purchaseDate,
     required this.expiresDate,
   });
-
-  final String transactionId;
-  final String originalTransactionId;
-  final DateTime? purchaseDate;
-  final DateTime? expiresDate;
-
   factory PurchaseTransaction.fromJson(Map<String, dynamic> json) {
     String readString(List<String> keys) {
       for (final key in keys) {
@@ -62,4 +56,9 @@ class PurchaseTransaction {
       ),
     );
   }
+
+  final String transactionId;
+  final String originalTransactionId;
+  final DateTime? purchaseDate;
+  final DateTime? expiresDate;
 }

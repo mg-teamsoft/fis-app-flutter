@@ -1,11 +1,12 @@
 part of '../../page/excel.dart';
 
 class _ExcelBuilder extends StatelessWidget {
-  const _ExcelBuilder(
-      {required this.future,
-      required this.busy,
-      required this.open,
-      required this.download});
+  const _ExcelBuilder({
+    required this.future,
+    required this.busy,
+    required this.open,
+    required this.download,
+  });
 
   final Future<List<ExcelFileEntry>> future;
   final Set<String> busy;

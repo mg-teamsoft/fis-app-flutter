@@ -5,7 +5,6 @@ import 'package:fis_app_flutter/app/services/home_service.dart';
 import 'package:fis_app_flutter/app/widget/twice_button.dart';
 import 'package:fis_app_flutter/feature/model/home.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 
 part '../controller/home.dart';
@@ -31,6 +30,7 @@ class _PageHomeState extends State<PageHome> with _ConnectionHome {
       summary: _futureSummary,
       reload: _reload,
       size: _size,
+      dateString: _dateString,
     );
   }
 }

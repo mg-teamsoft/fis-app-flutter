@@ -13,16 +13,6 @@ enum ReceiptCategory {
 }
 
 class ReceiptDetail {
-  final String businessName;
-  final String receiptNumber;
-  final double totalAmount;
-  final double vatAmount;
-  final double vatRate;
-  final DateTime? transactionDate;
-  final String? transactionType;
-  final String? paymentType;
-  final String imageUrl;
-
   ReceiptDetail({
     required this.businessName,
     required this.receiptNumber,
@@ -34,7 +24,6 @@ class ReceiptDetail {
     required this.paymentType,
     required this.imageUrl,
   });
-
   factory ReceiptDetail.fromJson(Map<String, dynamic> json) {
     DateTime? parseDate(dynamic value) {
       if (value == null) return null;
@@ -53,7 +42,7 @@ class ReceiptDetail {
       if (value is String) {
         return double.tryParse(value.replaceAll(',', '.')) ?? 0.0;
       }
-      return 0.0;
+      return 0;
     }
 
     return ReceiptDetail(
@@ -69,4 +58,13 @@ class ReceiptDetail {
       imageUrl: (json['imageUrl'] ?? '').toString(),
     );
   }
+  final String businessName;
+  final String receiptNumber;
+  final double totalAmount;
+  final double vatAmount;
+  final double vatRate;
+  final DateTime? transactionDate;
+  final String? transactionType;
+  final String? paymentType;
+  final String imageUrl;
 }

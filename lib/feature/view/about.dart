@@ -7,7 +7,9 @@ class _AboutView extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(
-          horizontal: ThemeSize.spacingL, vertical: ThemeSize.spacingL),
+        horizontal: ThemeSize.spacingL,
+        vertical: ThemeSize.spacingL,
+      ),
       child: Column(
         children: [
           // App name
