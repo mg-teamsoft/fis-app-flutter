@@ -1,6 +1,6 @@
 import 'package:fis_app_flutter/app/import/theme.dart';
+import 'package:fis_app_flutter/feature/page/receipt_detail.dart';
 import 'package:fis_app_flutter/model/receipt_summary.dart';
-import 'package:fis_app_flutter/pages/receipt_detail_page.dart';
 import 'package:flutter/material.dart';
 
 class WidgetCardInvoice extends StatelessWidget {
@@ -89,7 +89,7 @@ class WidgetCardInvoice extends StatelessWidget {
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (_) => ReceiptDetailPage(receiptId: summary.id),
+        builder: (_) => PageReceiptDetail(receiptId: summary.id),
       ),
     );
   }

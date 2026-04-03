@@ -107,7 +107,8 @@ class ConnectionsService {
 
   Future<List<ContactInviteDto>> fetchInvites() async {
     try {
-      final response = await _api.dio.get('/api/contacts/invites');
+      final response =
+          await _api.dio.get<Map<String, dynamic>>('/api/contacts/invites');
       if (response.statusCode != 200) {
         throw Exception('Davetler alınamadı');
       }
@@ -133,8 +134,8 @@ class ConnectionsService {
     }
 
     try {
-      final response = await _api.dio
-          .post('/api/contacts/invites/$normalizedInviteId/resend');
+      final response = await _api.dio.post<Map<String, dynamic>>(
+          '/api/contacts/invites/$normalizedInviteId/resend');
 
       if (response.statusCode != 200 &&
           response.statusCode != 201 &&
@@ -189,8 +190,8 @@ class ConnectionsService {
       final invites = data['invites'];
       if (invites is List) {
         return invites
-            .whereType<Map>()
-            .map((item) => Map<String, dynamic>.from(item))
+            .whereType<Map<String, dynamic>>()
+            .map(Map<String, dynamic>.from)
             .toList();
       }
     }

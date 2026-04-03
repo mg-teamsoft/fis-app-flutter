@@ -55,7 +55,7 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
         // 1) init
         final bytes = await jpegFile.readAsBytes();
         final checksum = crc32Base64(bytes);
-        final sha = sha256Hex(bytes);
+        final sha = crytoSHA256Hex(bytes);
 
         final init = await _s3.initUpload(
           contentType: mime,

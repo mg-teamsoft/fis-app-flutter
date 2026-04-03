@@ -122,7 +122,7 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
       final mime =
           kIsWeb ? (file.mimeType ?? 'image/jpeg') : guessMime(file.path);
       final checksum = crc32Base64(rawBytes);
-      final sha = _sha256Hex(rawBytes);
+      final sha = crytoSHA256Hex(rawBytes);
       final filename = p.basename(file.path);
 
       final s3 = S3UploadService();
@@ -402,8 +402,6 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     if (parsed <= 0) return "Tutar 0'dan büyük olmalıdır";
     return null;
   }
-
-  String _sha256Hex(Uint8List bytes) => sha256.convert(bytes).toString();
 
   String get _dateText => _selectedDate != null
       ? DateFormat('dd/MM/yyyy').format(_selectedDate!)

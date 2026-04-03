@@ -59,8 +59,11 @@ mixin _MixinMainLayout on State<MainLayout> {
     return _pageBuilders.containsKey(route) ? route : '/home';
   }
 
-  void _setCurrentRoute(String route,
-      {Object? arguments, bool isBottomBarTab = false}) {
+  void _setCurrentRoute(
+    String route, {
+    Object? arguments,
+    bool isBottomBarTab = false,
+  }) {
     final normalized = _normalizeRoute(route);
     setState(() {
       if (isBottomBarTab) {

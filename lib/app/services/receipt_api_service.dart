@@ -28,7 +28,7 @@ class ReceiptApiService {
       }
 
       return items
-          .whereType<Map>()
+          .whereType<Map<String, dynamic>>()
           .map((item) => ModelReceipt.fromJson(Map<String, dynamic>.from(item)))
           .toList();
     } else {

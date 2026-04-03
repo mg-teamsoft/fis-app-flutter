@@ -1,4 +1,5 @@
 import 'package:fis_app_flutter/app/import/app.dart';
+import 'package:fis_app_flutter/app/import/page.dart';
 
 part './mixin.dart';
 
@@ -33,7 +34,7 @@ class _AppConfigGeneralState extends State<AppConfigGeneral>
                 final token = uri.queryParameters['token'] ??
                     (settings.arguments as String?);
                 return MaterialPageRoute(
-                  builder: (_) => ResetPasswordPage(initialToken: token),
+                  builder: (_) => PageResetPassword(initialToken: token),
                   settings: settings,
                 );
               }

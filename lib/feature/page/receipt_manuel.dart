@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:fis_app_flutter/app/services/excel_service.dart';
 import 'package:fis_app_flutter/app/services/receipt_api_service.dart';
 import 'package:fis_app_flutter/app/services/s3_upload_service.dart';
 import 'package:fis_app_flutter/app/utils/checksum_utils.dart';
 import 'package:fis_app_flutter/app/utils/mime_utils.dart';
+import 'package:fis_app_flutter/core/crypto_sha.dart';
 import 'package:fis_app_flutter/model/receipt_detail.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
