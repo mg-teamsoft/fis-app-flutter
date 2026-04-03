@@ -2,7 +2,7 @@ name: fis_app_flutter
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -36,14 +36,14 @@ dependencies:
   # --- Networking ---
   dio: ^5.7.0
   path_provider: ^2.1.4
-  open_filex: ^4.5.0        # HTTP client with interceptors (better than http)
+  open_filex: ^4.5.0 # HTTP client with interceptors (better than http)
   crypto: ^3.0.3
 
   # --- Secure storage ---
-  flutter_secure_storage: ^9.0.0   # to store JWT tokens securely
+  flutter_secure_storage: ^9.0.0 # to store JWT tokens securely
 
   # --- State management ---
-  provider: ^6.1.5+1     # simple state management (alternative: riverpod, bloc)
+  provider: ^6.1.5+1 # simple state management (alternative: riverpod, bloc)
 
   # --- Local persistence ---
   shared_preferences: ^2.2.2
@@ -57,16 +57,16 @@ dependencies:
   # --- Camera & image selection ---
   image_picker: ^1.0.7
   flutter_svg: ^2.2.4
-  camera: ^0.11.2    # more advanced control if you want live capture
+  camera: ^0.11.2 # more advanced control if you want live capture
 
   # --- Date formatting ---
   intl: ^0.20.2
 
   # --- OCR / Text recognition ---
-  google_mlkit_text_recognition: ^0.15.0  # (optional, for OCR)
+  google_mlkit_text_recognition: ^0.15.0 # (optional, for OCR)
 
   # --- UI helpers ---
-  flutter_spinkit: ^5.2.0   # loading indicators
+  flutter_spinkit: ^5.2.0 # loading indicators
   cached_network_image: ^3.3.1
   google_fonts: ^6.2.1
   photo_view: ^0.15.0
@@ -92,19 +92,18 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  very_good_analysis: ^10.2.0
+  very_good_analysis: ^10.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 flutter_icons:
-    android: true
-    ios: true
-    image_path: "assets/icon/AppIcon.png"
+  android: true
+  ios: true
+  image_path: "assets/icon/AppIcon.png"
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -156,4 +155,3 @@ fonts:
         weight: 600
       - asset: assets/fonts/static/Manrope-Medium.ttf
         weight: 700
-      

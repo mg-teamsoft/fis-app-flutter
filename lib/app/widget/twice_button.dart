@@ -30,22 +30,25 @@ class TwiceButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        _buildItem(
-          context,
-          title: titleOne,
-          icon: iconOne,
-          onTap: onPressedOne,
-          color: backgroundColorOne ?? context.colorScheme.primaryContainer,
+        Expanded(
+          child: _buildItem(
+            context,
+            title: titleOne,
+            icon: iconOne,
+            onTap: onPressedOne,
+            color: backgroundColorOne ?? context.colorScheme.primaryContainer,
+          ),
         ),
         const SizedBox(width: ThemeSize.spacingS),
-        _buildItem(
-          context,
-          title: titleTwo,
-          icon: iconTwo,
-          onTap: onPressedTwo,
-          color: backgroundColorTwo ?? context.colorScheme.primaryContainer,
+        Expanded(
+          child: _buildItem(
+            context,
+            title: titleTwo,
+            icon: iconTwo,
+            onTap: onPressedTwo,
+            color: backgroundColorTwo ?? context.colorScheme.primaryContainer,
+          ),
         ),
       ],
     );
@@ -58,34 +61,40 @@ class TwiceButton extends StatelessWidget {
     required VoidCallback onTap,
     required Color color,
   }) {
-    return Expanded(
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          shape: RoundedRectangleBorder(
-            borderRadius: ThemeRadius.circular8,
-          ),
-          padding: const ThemePadding.all16(),
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        shape: RoundedRectangleBorder(
+          borderRadius: ThemeRadius.circular8,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Align(
-              child: icon ?? const SizedBox(),
+        minimumSize: const Size(0, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (icon != null) ...[
+            IconTheme(
+              data: const IconThemeData(size: 18),
+              child: icon,
             ),
-            const SizedBox(height: ThemeSize.spacingM),
-            Text(
-              title,
-              style: (textStyle ?? context.textTheme.bodyLarge)?.copyWith(
+            const SizedBox(width: 6),
+          ],
+          Flexible(
+            child: Text(
+              title.trim(),
+              style: (textStyle ?? context.textTheme.bodyMedium)?.copyWith(
                 color: context.colorScheme.onPrimaryContainer,
                 fontWeight: FontWeight.w700,
               ),
-              maxLines: 2,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
               textAlign: TextAlign.center,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
