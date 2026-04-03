@@ -36,6 +36,7 @@ mixin _MixinMainLayout on State<MainLayout> {
     '/home': (_, __) => const PageHome(),
     '/about': (_, __) => const PageAbout(),
     '/accountSettings': (_, __) => const PageAccountSettings(),
+    '/connections': (_, __) => const ConnectionsPage(),
     '/excelFiles': (_, __) => const PageExcel(),
     '/receipt': (_, __) => const PageReceipt(),
     '/gallery': (_, __) => const PageReceiptGallery(),
@@ -58,7 +59,8 @@ mixin _MixinMainLayout on State<MainLayout> {
     return _pageBuilders.containsKey(route) ? route : '/home';
   }
 
-  void _setCurrentRoute(String route, {Object? arguments, bool isBottomBarTab = false}) {
+  void _setCurrentRoute(String route,
+      {Object? arguments, bool isBottomBarTab = false}) {
     final normalized = _normalizeRoute(route);
     setState(() {
       if (isBottomBarTab) {
