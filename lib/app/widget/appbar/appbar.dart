@@ -104,45 +104,13 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
                       context.read<ThemeProvider>().toggleTheme();
                     },
                   ),
-                  _NotificationButton(
-                    /// TODO: Notification bağlanacak.
-                    /// const durum sonlandırılacak.
-                    /// kullanıcıların okuduğu notları read yapma func gerek
-                    list: [
-                      _ModelNotification(
-                        title: 'Bildirim 1',
-                        summary: 'Bu bir bildirimdir.',
-                        date: DateTime.now(),
-                        enumNotification: _EnumNotification.info,
-                        isRead: false,
-                        description: '',
-                      ),
-                      _ModelNotification(
-                        title: 'Bildirim 2',
-                        summary: 'Bu bir bildirimdir.',
-                        date: DateTime.now(),
-                        enumNotification: _EnumNotification.warning,
-                        isRead: false,
-                        description: '',
-                      ),
-                      _ModelNotification(
-                        title: 'Bildirim 3',
-                        summary: 'Bu bir bildirimdir.',
-                        date: DateTime.now(),
-                        enumNotification: _EnumNotification.error,
-                        isRead: false,
-                        description: '',
-                      ),
-                      _ModelNotification(
-                        title: 'Bildirim 4',
-                        summary: 'Bu bir bildirimdir.',
-                        date: DateTime.now(),
-                        enumNotification: _EnumNotification.success,
-                        isRead: false,
-                        description: '',
-                      ),
-                    ],
-                    onClearAll: () {},
+                  IconButton(
+                    onPressed: () {
+                      onSelected?.call('/notifications');
+                    },
+                    icon: Icon(
+                      Icons.notifications,
+                    ),
                   ),
                   WidgetPopMenu(
                     onSelected: onSelected,

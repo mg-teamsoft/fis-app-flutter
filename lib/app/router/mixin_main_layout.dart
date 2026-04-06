@@ -29,6 +29,7 @@ mixin _MixinMainLayout on State<MainLayout> {
     '/receipt/process',
     '/receipt/results',
     '/receipt/manuel',
+    '/notifications',
   ];
 
   late final Map<String, Widget Function(BuildContext, Object?)> _pageBuilders =
@@ -51,6 +52,7 @@ mixin _MixinMainLayout on State<MainLayout> {
       return PageReceiptResult(items: items);
     },
     '/receipt/manuel': (_, __) => const PageReceiptManuel(),
+    '/notifications': (_, __) => const NotificationsPage(),
   };
 
   final List<String> _routeHistory = [];
