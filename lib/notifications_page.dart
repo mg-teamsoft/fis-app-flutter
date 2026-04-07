@@ -1,4 +1,5 @@
 import 'package:fis_app_flutter/app/import/app.dart';
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/model/notification_model.dart';
 
 class NotificationsPage extends StatelessWidget {
@@ -64,7 +65,6 @@ class NotificationsPage extends StatelessWidget {
     ];
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           'Bildirimler',
@@ -100,18 +100,21 @@ class NotificationsPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ThemeTypography.h4(context, notif.title,
-                              color: context.colorScheme.onSurface,
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.w800)),
+                          ThemeTypography.h4(
+                            context,
+                            notif.title,
+                            color: context.colorScheme.onSurface,
+                            weight: FontWeight.w800,
+                          ),
                           const SizedBox(height: 4),
-                          notif.subtitle != null
-                              ? ThemeTypography.titleMedium(
-                                  context,
-                                  notif.subtitle ?? "",
-                                  color: Colors.grey.shade600,
-                                )
-                              : const SizedBox.shrink(),
+                          if (notif.subtitle != null)
+                            ThemeTypography.titleMedium(
+                              context,
+                              notif.subtitle ?? '',
+                              color: Colors.grey.shade600,
+                            )
+                          else
+                            const SizedBox.shrink(),
                           const SizedBox(height: 6),
                           ThemeTypography.bodyMedium(
                             context,
@@ -119,8 +122,11 @@ class NotificationsPage extends StatelessWidget {
                             color: Colors.grey.shade800,
                           ),
                           const SizedBox(height: 8),
-                          ThemeTypography.bodyMedium(context, notif.time,
-                              color: Colors.grey.shade600)
+                          ThemeTypography.bodyMedium(
+                            context,
+                            notif.time,
+                            color: Colors.grey.shade600,
+                          ),
                         ],
                       ),
                     ),

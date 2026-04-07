@@ -18,6 +18,7 @@ final class RouterGeneral {
     '/accountSettings': (_) =>
         const MainLayout(initialRoute: '/accountSettings'),
     '/receipt': (_) => const MainLayout(initialRoute: '/receipt'),
+    '/notification': (_) => const MainLayout(initialRoute: '/notification'),
     '/gallery': (_) => const MainLayout(initialRoute: '/gallery'),
     '/receipt/process': (context) {
       final args = ModalRoute.of(context)?.settings.arguments;

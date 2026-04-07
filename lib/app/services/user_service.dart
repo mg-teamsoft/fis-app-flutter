@@ -9,7 +9,7 @@ class UserService {
 
   Future<UserProfile> fetchCurrentUser() async {
     try {
-      final response = await _api.dio.get<dynamic>('/api/users/me');
+      final response = await _api.dio.get<dynamic>('/api/users');
 
       if (response.statusCode == 200) {
         final map = _extractUserMap(response.data);
@@ -19,9 +19,12 @@ class UserService {
         throw Exception('Kullanıcı bilgisi bulunamadı');
       }
       throw Exception(
-          'Kullanıcı bilgisi alınamadı (Kod: ${response.statusCode})');
+        'Kullanıcı bilgisi alınamadı (Kod: ${response.statusCode})',
+      );
     } on DioException catch (e) {
-      throw Exception('UserService: ${e.response?.statusCode} - ${e.response?.data ?? e.message}');
+      throw Exception(
+        'UserService: ${e.response?.statusCode} - ${e.response?.data ?? e.message}',
+      );
     }
   }
 
