@@ -1,4 +1,4 @@
-part of '../widget/appbar/appbar.dart';
+part of '../widget/appbar.dart';
 
 enum _EnumNotification {
   info,

@@ -29,11 +29,17 @@ final class ThemeTypography extends Text {
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                color: color ?? context.colorScheme.onPrimary,
-              ),
+          style: style ??
+              Theme.of(context).textTheme.displayLarge?.copyWith(
+                    color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w400,
+                    fontSize: (context.textTheme.displayLarge?.fontSize ?? 57) *
+                        _getScale(context),
+                  ),
         );
 
   /// Headline Large
@@ -47,10 +53,18 @@ final class ThemeTypography extends Text {
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
+    Color? color,
+    FontWeight? weight,
   }) : super(
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                color: context.colorScheme.onPrimary,
-              ),
+          style: style ??
+              Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w400,
+                    fontSize:
+                        (context.textTheme.headlineLarge?.fontSize ?? 32) *
+                            _getScale(context),
+                  ),
         );
 
   /// Headline Medium
@@ -61,15 +75,20 @@ final class ThemeTypography extends Text {
     BuildContext context,
     super.data, {
     super.key,
-    TextStyle? style,
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
           style: style ??
               Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w400,
+                    fontSize:
+                        (context.textTheme.headlineMedium?.fontSize ?? 28) *
+                            _getScale(context),
                   ),
         );
 
@@ -81,15 +100,20 @@ final class ThemeTypography extends Text {
     BuildContext context,
     super.data, {
     super.key,
-    TextStyle? style,
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
           style: style ??
               Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w400,
+                    fontSize:
+                        (context.textTheme.headlineSmall?.fontSize ?? 24) *
+                            _getScale(context),
                   ),
         );
 
@@ -101,15 +125,19 @@ final class ThemeTypography extends Text {
     BuildContext context,
     super.data, {
     super.key,
-    TextStyle? style,
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
           style: style ??
               Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w500,
+                    fontSize: (context.textTheme.titleLarge?.fontSize ?? 22) *
+                        _getScale(context),
                   ),
         );
 
@@ -121,15 +149,19 @@ final class ThemeTypography extends Text {
     BuildContext context,
     super.data, {
     super.key,
-    TextStyle? style,
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
           style: style ??
               Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w500,
+                    fontSize: (context.textTheme.titleMedium?.fontSize ?? 16) *
+                        _getScale(context),
                   ),
         );
 
@@ -141,15 +173,19 @@ final class ThemeTypography extends Text {
     BuildContext context,
     super.data, {
     super.key,
-    TextStyle? style,
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
           style: style ??
               Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w500,
+                    fontSize: (context.textTheme.titleSmall?.fontSize ?? 14) *
+                        _getScale(context),
                   ),
         );
 
@@ -161,15 +197,19 @@ final class ThemeTypography extends Text {
     BuildContext context,
     super.data, {
     super.key,
-    TextStyle? style,
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
           style: style ??
               Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w400,
+                    fontSize: (context.textTheme.bodyLarge?.fontSize ?? 16) *
+                        _getScale(context),
                   ),
         );
 
@@ -184,11 +224,17 @@ final class ThemeTypography extends Text {
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: color ?? context.colorScheme.onPrimary,
-              ),
+          style: style ??
+              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w400,
+                    fontSize: (context.textTheme.bodyMedium?.fontSize ?? 14) *
+                        _getScale(context),
+                  ),
         );
 
   /// Body Small
@@ -202,11 +248,17 @@ final class ThemeTypography extends Text {
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: color ?? context.colorScheme.onPrimary,
-              ),
+          style: style ??
+              Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w400,
+                    fontSize: (context.textTheme.bodySmall?.fontSize ?? 12) *
+                        _getScale(context),
+                  ),
         );
 
   /// Label Large
@@ -217,47 +269,75 @@ final class ThemeTypography extends Text {
     BuildContext context,
     super.data, {
     super.key,
-    TextStyle? style,
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
           style: style ??
               Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w500,
+                    fontSize: (context.textTheme.labelLarge?.fontSize ?? 14) *
+                        _getScale(context),
                   ),
         );
 
+  /// Label Medium
+  /// fontSize: 12
+  /// fontWeight: FontWeight.w500
+  /// letterSpacing: 0.1
   ThemeTypography.labelMedium(
     BuildContext context,
     super.data, {
     super.key,
-    TextStyle? style,
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
           style: style ??
               Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w500,
+                    fontSize: (context.textTheme.labelMedium?.fontSize ?? 12) *
+                        _getScale(context),
                   ),
         );
 
+  /// Label Small
+  /// fontSize: 11
+  /// fontWeight: FontWeight.w500
+  /// letterSpacing: 0.1
   ThemeTypography.labelSmall(
     BuildContext context,
     super.data, {
     super.key,
-    TextStyle? style,
     super.textAlign,
     super.maxLines,
     super.overflow,
+    TextStyle? style,
     Color? color,
+    FontWeight? weight,
   }) : super(
           style: style ??
               Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: color ?? context.colorScheme.onPrimary,
+                    fontWeight: weight ?? FontWeight.w500,
+                    fontSize: (context.textTheme.labelSmall?.fontSize ?? 11) *
+                        _getScale(context),
                   ),
         );
+
+  static double _getScale(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width < 340) return 0.85;
+    if (width < 400) return 1;
+    if (width < 480) return 1.12;
+    return 1.25;
+  }
 }

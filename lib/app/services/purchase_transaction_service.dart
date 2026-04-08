@@ -22,8 +22,10 @@ class PurchaseTransactionService {
 
       return items
           .whereType<Map<String, dynamic>>()
-          .map((item) =>
-              PurchaseTransaction.fromJson(Map<String, dynamic>.from(item)))
+          .map(
+            (item) =>
+                PurchaseTransaction.fromJson(Map<String, dynamic>.from(item)),
+          )
           .toList();
     }
 

@@ -135,7 +135,8 @@ class ConnectionsService {
 
     try {
       final response = await _api.dio.post<Map<String, dynamic>>(
-          '/api/contacts/invites/$normalizedInviteId/resend');
+        '/api/contacts/invites/$normalizedInviteId/resend',
+      );
 
       if (response.statusCode != 200 &&
           response.statusCode != 201 &&

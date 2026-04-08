@@ -1,18 +1,11 @@
+import 'dart:async';
+
 import 'package:fis_app_flutter/app/config/contact_permission.dart';
 import 'package:fis_app_flutter/app/services/connections_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Contact {
-  final String id;
-  final String initials;
-  final String name;
-  final String email;
-  final String status;
-  final Color baseColor;
-  bool canViewReceipts;
-  bool canDownloadFiles;
-
   Contact({
     required this.id,
     required this.initials,
@@ -23,6 +16,14 @@ class Contact {
     this.canViewReceipts = false,
     this.canDownloadFiles = false,
   });
+  final String id;
+  final String initials;
+  final String name;
+  final String email;
+  final String status;
+  final Color baseColor;
+  bool canViewReceipts;
+  bool canDownloadFiles;
 }
 
 class ConnectionsPage extends StatefulWidget {
@@ -60,8 +61,8 @@ class _ConnectionsPageState extends State<ConnectionsPage>
         _isEmailFieldFocused = _emailFocusNode.hasFocus;
       });
     });
-    _loadSupervisors();
-    _loadInvites();
+    unawaited(_loadSupervisors());
+    unawaited(_loadInvites());
   }
 
   @override
@@ -84,8 +85,8 @@ class _ConnectionsPageState extends State<ConnectionsPage>
           unselectedLabelColor: Colors.grey.shade600,
           indicatorColor: const Color(0xFF2563EB),
           tabs: const [
-            Tab(text: "Mali Müşavirler"),
-            Tab(text: "Davetler"),
+            Tab(text: 'Mali Müşavirler'),
+            Tab(text: 'Davetler'),
           ],
         ),
         const SizedBox(height: 16),
@@ -136,14 +137,14 @@ class _ConnectionsPageState extends State<ConnectionsPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Finansal Danışman Davet Et",
+            'Finansal Danışman Davet Et',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 4),
           Text(
-            "Ekip üyelerine finansal kayıtlarınızı görüntüleme veya yönetme erişimi verin.",
+            'Ekip üyelerine finansal kayıtlarınızı görüntüleme veya yönetme erişimi verin.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.grey.shade600,
                 ),
@@ -155,7 +156,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
             keyboardType: TextInputType.emailAddress,
             cursorColor: const Color(0xFF2563EB),
             decoration: InputDecoration(
-              hintText: _isEmailFieldFocused ? null : "E-posta adresi girin",
+              hintText: _isEmailFieldFocused ? null : 'E-posta adresi girin',
               hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey.shade500,
                   ),
@@ -183,7 +184,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
             children: [
               Expanded(
                 child: _buildInvitePermissionSwitch(
-                  label: "Fişleri Görüntüle",
+                  label: 'Fişleri Görüntüle',
                   value: _inviteCanViewReceipts,
                   onChanged: (value) {
                     setState(() {
@@ -195,7 +196,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
               const SizedBox(width: 12),
               Expanded(
                 child: _buildInvitePermissionSwitch(
-                  label: "Dosyaları İndir",
+                  label: 'Dosyaları İndir',
                   value: _inviteCanDownloadFiles,
                   onChanged: (value) {
                     setState(() {
@@ -227,7 +228,7 @@ class _ConnectionsPageState extends State<ConnectionsPage>
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : const Text("Davet Et"),
+                  : const Text('Davet Et'),
             ),
           ),
         ],
@@ -322,19 +323,16 @@ class _ConnectionsPageState extends State<ConnectionsPage>
           Switch(
             value: value,
             onChanged: onChanged,
-            thumbColor: WidgetStateProperty.resolveWith<Color>(
-                (Set<WidgetState> states) {
+            thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
               return Colors.white;
             }),
-            trackColor: WidgetStateProperty.resolveWith<Color>(
-                (Set<WidgetState> states) {
+            trackColor: WidgetStateProperty.resolveWith<Color>((states) {
               if (states.contains(WidgetState.selected)) {
                 return const Color(0xFF2563EB);
               }
               return const Color(0xFFE2E8F0);
             }),
-            trackOutlineColor: WidgetStateProperty.resolveWith<Color>(
-                (Set<WidgetState> states) {
+            trackOutlineColor: WidgetStateProperty.resolveWith<Color>((states) {
               return Colors.transparent;
             }),
           ),
@@ -382,15 +380,16 @@ class _ConnectionsPageState extends State<ConnectionsPage>
           _inviteCanViewReceipts = true;
           _inviteCanDownloadFiles = true;
         });
-        _loadSupervisors();
-        _loadInvites();
+        await _loadSupervisors();
+        await _loadInvites();
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content:
-                  Text('Hata: ${e.toString().replaceAll('Exception: ', '')}')),
+            content:
+                Text('Hata: ${e.toString().replaceAll('Exception: ', '')}'),
+          ),
         );
       }
     } finally {

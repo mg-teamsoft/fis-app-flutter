@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:fis_app_flutter/app/services/api_client.dart';
-import 'package:fis_app_flutter/feature/model/receipt.dart';
-import 'package:fis_app_flutter/feature/model/receipt_detail.dart';
+import 'package:fis_app_flutter/feature/model/receipt_detail_model.dart';
+import 'package:fis_app_flutter/feature/model/receipt_model.dart';
 
 class ReceiptApiService {
   final _api = ApiClient();
@@ -60,7 +60,8 @@ class ReceiptApiService {
   }
 
   Future<Map<String, dynamic>> createReceipt(
-      Map<String, dynamic> payload) async {
+    Map<String, dynamic> payload,
+  ) async {
     final res = await _api.dio.post<dynamic>('/api/receipts', data: payload);
 
     if (res.data is Map) {

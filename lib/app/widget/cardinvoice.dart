@@ -1,5 +1,5 @@
 import 'package:fis_app_flutter/app/import/theme.dart';
-import 'package:fis_app_flutter/feature/page/receipt_detail.dart';
+import 'package:fis_app_flutter/feature/page/receipt_detail_page.dart';
 import 'package:fis_app_flutter/model/receipt_summary.dart';
 import 'package:flutter/material.dart';
 

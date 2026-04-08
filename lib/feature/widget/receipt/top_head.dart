@@ -1,4 +1,4 @@
-part of '../../page/receipt.dart';
+part of '../../page/receipt_page.dart';
 
 class _ReceiptTopHead extends StatelessWidget {
   const _ReceiptTopHead({
