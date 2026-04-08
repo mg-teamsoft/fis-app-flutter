@@ -136,7 +136,7 @@ class AuthService {
   /// clears stored token
   /// Response: { status, message }
   Future<void> logout() async {
-    await _api.dio.post<Map<String, dynamic>>('/api/auth/revoke');
+    await _api.dio.post('/api/auth/revoke');
     await _api.clearToken();
   }
 
