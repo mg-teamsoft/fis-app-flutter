@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fis_app_flutter/app/services/api_client.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 
 class AuthResult {
   AuthResult({required this.success, this.message, this.userId, this.userName});
@@ -136,8 +137,24 @@ class AuthService {
   /// clears stored token
   /// Response: { status, message }
   Future<void> logout() async {
-    await _api.dio.post('/api/auth/revoke');
-    await _api.clearToken();
+    try {
+      // Önce mevcut token'ı al (Servis yapına göre değişkenlik gösterebilir)
+      final currentToken = await _api.getValidToken();
+
+      await _api.dio.post<Map<String, dynamic>>(
+        '/api/auth/revoke',
+        data: {
+          'token':
+              currentToken, // Backend'in beklediği anahtar ismi neyse onu yaz (örn: refresh_token)
+        },
+      );
+    } on DioException catch (e) {
+      // Sunucu hatası olsa bile uygulamadan çıkış yapmaya devam etmek isteyebilirsin
+      debugPrint('Revoke hatası: ${e.response?.statusCode}');
+    } finally {
+      // Hata ne olursa olsun yereldeki token'ı temizle
+      await _api.clearToken();
+    }
   }
 
   Future<Object> requestPasswordReset(String email) async {
