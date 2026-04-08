@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:fis_app_flutter/app/services/api_client.dart';
 import 'package:fis_app_flutter/feature/model/receipt_detail_model.dart';
 import 'package:fis_app_flutter/feature/model/receipt_model.dart';
@@ -7,10 +8,20 @@ import 'package:fis_app_flutter/feature/model/receipt_model.dart';
 class ReceiptApiService {
   final _api = ApiClient();
 
-  Future<List<ModelReceipt>> listReceipts() async {
+  Future<List<ModelReceipt>> listReceipts({String? customerId}) async {
+    final normalizedCustomerId = customerId?.trim();
     final response =
-        await _api.dio.get<dynamic>('/api/receipts/listReceiptListItems');
+        normalizedCustomerId == null || normalizedCustomerId.isEmpty
+            ? await _api.dio.get<dynamic>('/api/receipts/listReceiptListItems')
+            : await _api.dio.post<dynamic>(
+                '/api/supervisor/customers/receipts',
+                data: {'customerUserId': normalizedCustomerId},
+              );
 
+    return _mapReceiptListResponse(response);
+  }
+
+  List<ModelReceipt> _mapReceiptListResponse(Response<dynamic> response) {
     if (response.statusCode == 200) {
       final dynamic body = response.data is String
           ? jsonDecode(response.data as String)
@@ -31,9 +42,9 @@ class ReceiptApiService {
           .whereType<Map<String, dynamic>>()
           .map((item) => ModelReceipt.fromJson(Map<String, dynamic>.from(item)))
           .toList();
-    } else {
-      throw Exception('Fiş listesi yüklenemedi (${response.statusCode})');
     }
+
+    throw Exception('Fiş listesi yüklenemedi (${response.statusCode})');
   }
 
   Future<ModelReceiptDetail> getReceiptDetail(String id) async {

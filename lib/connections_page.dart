@@ -862,25 +862,23 @@ class _ConnectionsPageState extends State<ConnectionsPage>
   }
 
   String _permissionLabel(String permission) {
-    switch (permission) {
-      case 'VIEW_RECEIPTS':
-        return 'Fişleri Görüntüle';
-      case 'DOWNLOAD_FILES':
-        return 'Dosyaları İndir';
-      default:
-        return permission.replaceAll('_', ' ');
+    if (permission == ContactPermission.viewReceipts.apiValue) {
+      return 'Fişleri Görüntüle';
     }
+    if (permission == ContactPermission.downloadFiles.apiValue) {
+      return 'Dosyaları İndir';
+    }
+    return permission.replaceAll('_', ' ');
   }
 
   IconData _permissionIcon(String permission) {
-    switch (permission) {
-      case 'VIEW_RECEIPTS':
-        return Icons.receipt_long_outlined;
-      case 'DOWNLOAD_FILES':
-        return Icons.download_outlined;
-      default:
-        return Icons.shield_outlined;
+    if (permission == ContactPermission.viewReceipts.apiValue) {
+      return Icons.receipt_long_outlined;
     }
+    if (permission == ContactPermission.downloadFiles.apiValue) {
+      return Icons.download_outlined;
+    }
+    return Icons.shield_outlined;
   }
 
   Widget _buildContactCard(Contact contact, BuildContext context) {

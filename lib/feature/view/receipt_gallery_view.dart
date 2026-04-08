@@ -8,6 +8,12 @@ class _ReceiptGalleryView extends StatelessWidget {
     required this.fuzzyMatch,
     required this.pickDateRange,
     required this.clearDateRange,
+    required this.customerItems,
+    required this.selectedCustomerId,
+    required this.appliedCustomerId,
+    required this.isLoadingCustomers,
+    required this.onCustomerChanged,
+    required this.applyCustomerSelection,
     required this.onSearchChanged,
     required this.receiptApiService,
     required this.isLoadingInitial,
@@ -36,9 +42,15 @@ class _ReceiptGalleryView extends StatelessWidget {
   final List<ModelReceipt> filteredReceipts;
   final Timer? debounce;
   final DateTimeRange? selectedDateRange;
+  final List<CustomerListItemDto> customerItems;
+  final String? selectedCustomerId;
+  final String? appliedCustomerId;
+  final bool isLoadingCustomers;
 
   final Future<void> Function() pickDateRange;
   final void Function() clearDateRange;
+  final void Function(String?) onCustomerChanged;
+  final Future<void> Function() applyCustomerSelection;
   final void Function(String)? onSearchChanged;
   final Future<void> Function(ModelReceipt) openDetails;
   final bool Function(String, String) fuzzyMatch;
@@ -56,9 +68,15 @@ class _ReceiptGalleryView extends StatelessWidget {
             isSearching: isSearching,
             filteredReceipts: filteredReceipts,
             selectedDateRange: selectedDateRange,
+            customerItems: customerItems,
+            selectedCustomerId: selectedCustomerId,
+            appliedCustomerId: appliedCustomerId,
+            isLoadingCustomers: isLoadingCustomers,
             onSearchChanged: onSearchChanged,
             pickDateRange: pickDateRange,
             clearDateRange: clearDateRange,
+            onCustomerChanged: onCustomerChanged,
+            applyCustomerSelection: applyCustomerSelection,
           ),
           _ReceiptGallerySearchResult(
             isLoadingInitial: isLoadingInitial,

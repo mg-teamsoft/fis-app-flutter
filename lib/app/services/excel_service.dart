@@ -22,9 +22,16 @@ class ExcelService {
   }
 
   /// GET /excel/files  -> list the single file record (one per user)
-  Future<List<Map<String, dynamic>>> listFiles() async {
+  Future<List<Map<String, dynamic>>> listFiles({String? customerUserId}) async {
     try {
-      final res = await _api.dio.get<Map<String, dynamic>>('/api/excel/files');
+      final normalizedCustomerUserId = customerUserId?.trim();
+      final res =
+          normalizedCustomerUserId == null || normalizedCustomerUserId.isEmpty
+              ? await _api.dio.get<Map<String, dynamic>>('/api/excel/files')
+              : await _api.dio.post<Map<String, dynamic>>(
+                  '/api/supervisor/customers/excel',
+                  data: {'customerUserId': normalizedCustomerUserId},
+                );
       final list =
           (res.data!['files'] as List?)?.cast<Map<String, dynamic>>() ??
               const [];

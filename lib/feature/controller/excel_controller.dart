@@ -2,16 +2,26 @@ part of '../page/excel_page.dart';
 
 mixin _ConnectionExcel on State<PageExcel> {
   final _excelFilesApi = ExcelService();
+  final _customerService = CustomerService();
   final _downloader = FileDownloadService();
   final _scrollController = ScrollController();
 
   late Future<List<ExcelFileEntry>> _future;
+  late bool _isLoadingCustomers;
+  late List<CustomerListItemDto> _customerItems;
+  late String? _selectedCustomerId;
+  late String? _appliedCustomerId;
   final Set<String> _busy = {}; // rows busy state (by idOrKey)
 
   @override
   void initState() {
     super.initState();
+    _isLoadingCustomers = false;
+    _customerItems = [];
+    _selectedCustomerId = null;
+    _appliedCustomerId = null;
     _future = _load();
+    unawaited(_loadCustomers());
   }
 
   @override
@@ -21,10 +31,14 @@ mixin _ConnectionExcel on State<PageExcel> {
   }
 
   Future<List<ExcelFileEntry>> _load() async {
-    if (widget.initialEntries != null && widget.initialEntries!.isNotEmpty) {
+    if (_appliedCustomerId == null &&
+        widget.initialEntries != null &&
+        widget.initialEntries!.isNotEmpty) {
       return widget.initialEntries!;
     }
-    final list = await _excelFilesApi.listFiles(); // backend list
+    final list = await _excelFilesApi.listFiles(
+      customerUserId: _appliedCustomerId,
+    );
     // Map to entries. Expect one record per user.
     return list.map((rec) {
       final id = (rec['_id'] ?? rec['s3Key']).toString();
@@ -39,6 +53,52 @@ mixin _ConnectionExcel on State<PageExcel> {
         sheetName: sheetName,
       );
     }).toList();
+  }
+
+  Future<void> _loadCustomers() async {
+    setState(() {
+      _isLoadingCustomers = true;
+    });
+
+    try {
+      final customers = await _customerService.fetchCustomers(
+        permission: ContactPermission.downloadFiles,
+      );
+      if (!mounted) return;
+      setState(() {
+        _customerItems = customers;
+        _selectedCustomerId =
+            customers.any((item) => item.id == _selectedCustomerId)
+                ? _selectedCustomerId
+                : null;
+        _appliedCustomerId =
+            customers.any((item) => item.id == _appliedCustomerId)
+                ? _appliedCustomerId
+                : null;
+        _isLoadingCustomers = false;
+      });
+    } on Exception {
+      if (!mounted) return;
+      setState(() {
+        _customerItems = [];
+        _selectedCustomerId = null;
+        _appliedCustomerId = null;
+        _isLoadingCustomers = false;
+      });
+    }
+  }
+
+  void _onCustomerChanged(String? customerId) {
+    setState(() {
+      _selectedCustomerId = customerId;
+    });
+  }
+
+  Future<void> _applyCustomerSelection() async {
+    setState(() {
+      _appliedCustomerId = _selectedCustomerId;
+      _future = _load();
+    });
   }
 
   Future<void> _open(ExcelFileEntry row) async {

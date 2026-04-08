@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:fis_app_flutter/app/import/theme.dart';
+import 'package:fis_app_flutter/app/services/customer_service.dart';
 import 'package:fis_app_flutter/app/services/receipt_api_service.dart';
 import 'package:fis_app_flutter/core/capitalize.dart';
 import 'package:fis_app_flutter/feature/model/receipt_model.dart';
@@ -40,6 +41,12 @@ class _PageReceiptGalleryState extends State<PageReceiptGallery>
       fuzzyMatch: _fuzzyMatch,
       pickDateRange: _pickDateRange,
       clearDateRange: _clearDateRange,
+      customerItems: _customerItems,
+      selectedCustomerId: _selectedCustomerId,
+      appliedCustomerId: _appliedCustomerId,
+      isLoadingCustomers: _isLoadingCustomers,
+      onCustomerChanged: _onCustomerChanged,
+      applyCustomerSelection: _applyCustomerSelection,
       onSearchChanged: _onSearchChanged,
       receiptApiService: _receiptApiService,
       isLoadingInitial: _isLoadingInitial,

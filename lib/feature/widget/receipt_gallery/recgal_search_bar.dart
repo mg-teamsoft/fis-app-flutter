@@ -7,9 +7,15 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
     required this.isSearching,
     required this.filteredReceipts,
     required this.selectedDateRange,
+    required this.customerItems,
+    required this.selectedCustomerId,
+    required this.appliedCustomerId,
+    required this.isLoadingCustomers,
     required this.onSearchChanged,
     required this.pickDateRange,
     required this.clearDateRange,
+    required this.onCustomerChanged,
+    required this.applyCustomerSelection,
   });
 
   final TextEditingController searchController;
@@ -18,12 +24,20 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
   final List<ModelReceipt> filteredReceipts;
 
   final DateTimeRange? selectedDateRange;
+  final List<CustomerListItemDto> customerItems;
+  final String? selectedCustomerId;
+  final String? appliedCustomerId;
+  final bool isLoadingCustomers;
   final void Function(String)? onSearchChanged;
   final Future<void> Function() pickDateRange;
   final void Function() clearDateRange;
+  final void Function(String?) onCustomerChanged;
+  final Future<void> Function() applyCustomerSelection;
 
   @override
   Widget build(BuildContext context) {
+    final shouldShowCustomerField = customerItems.isNotEmpty;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Column(
@@ -63,7 +77,9 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
               ActionChip(
                 color: WidgetStatePropertyAll(context.colorScheme.secondary),
@@ -88,7 +104,6 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                 onPressed: pickDateRange,
               ),
               if (selectedDateRange != null) ...[
-                const SizedBox(width: 8),
                 ActionChip(
                   avatar: Icon(
                     Icons.clear,
@@ -107,6 +122,77 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
               ],
             ],
           ),
+          if (isLoadingCustomers) ...[
+            const SizedBox(height: 12),
+            const LinearProgressIndicator(minHeight: 2),
+          ],
+          if (shouldShowCustomerField) ...[
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    initialValue: selectedCustomerId,
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      labelText: 'Müşteri',
+                      filled: true,
+                      fillColor: context.colorScheme.surface.withValues(
+                        alpha: 0.2,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: ThemeRadius.circular12,
+                        borderSide: BorderSide(
+                          color: context.colorScheme.outline.withValues(
+                            alpha: 0.2,
+                          ),
+                          width: 0.1,
+                        ),
+                      ),
+                    ),
+                    items: customerItems
+                        .map(
+                          (item) => DropdownMenuItem<String>(
+                            value: item.id,
+                            child: Text(
+                              item.name,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: onCustomerChanged,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  height: 56,
+                  child: FilledButton(
+                    onPressed: selectedCustomerId == null
+                        ? null
+                        : applyCustomerSelection,
+                    child: const Text('Seç'),
+                  ),
+                ),
+              ],
+            ),
+            if (appliedCustomerId != null &&
+                appliedCustomerId == selectedCustomerId)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  'Seçili müşteri aktif.',
+                  style: ThemeTypography.bodySmall(
+                    context,
+                    '',
+                    style: TextStyle(
+                      color: context.colorScheme.onSurfaceVariant,
+                    ),
+                  ).style,
+                ),
+              ),
+          ],
         ],
       ),
     );

@@ -7,6 +7,12 @@ class _ExcelView extends StatelessWidget {
     required this.open,
     required this.download,
     required this.future,
+    required this.customerItems,
+    required this.selectedCustomerId,
+    required this.appliedCustomerId,
+    required this.isLoadingCustomers,
+    required this.onCustomerChanged,
+    required this.applyCustomerSelection,
   });
 
   final Future<List<ExcelFileEntry>> future;
@@ -14,6 +20,12 @@ class _ExcelView extends StatelessWidget {
   final Set<String> busy;
   final Future<void> Function(ExcelFileEntry) open;
   final Future<void> Function(ExcelFileEntry) download;
+  final List<CustomerListItemDto> customerItems;
+  final String? selectedCustomerId;
+  final String? appliedCustomerId;
+  final bool isLoadingCustomers;
+  final void Function(String?) onCustomerChanged;
+  final Future<void> Function() applyCustomerSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +39,14 @@ class _ExcelView extends StatelessWidget {
               'Excel Dosyaları',
               style: context.textTheme.headlineSmall,
             ),
+          ),
+          _ExcelCustomerPicker(
+            customerItems: customerItems,
+            selectedCustomerId: selectedCustomerId,
+            appliedCustomerId: appliedCustomerId,
+            isLoadingCustomers: isLoadingCustomers,
+            onCustomerChanged: onCustomerChanged,
+            applyCustomerSelection: applyCustomerSelection,
           ),
           const SizedBox(height: ThemeSize.spacingM),
           _ExcelBuilder(

@@ -2,9 +2,12 @@ part of '../page/receipt_gallery_page.dart';
 
 mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
   late ReceiptApiService _receiptApiService;
+  late CustomerService _customerService;
   late bool _isLoadingInitial;
+  late bool _isLoadingCustomers;
   late String? _error;
   late List<ModelReceipt> _allReceipts;
+  late List<CustomerListItemDto> _customerItems;
 
   // Search state
   late TextEditingController _searchController;
@@ -14,15 +17,20 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
   late List<ModelReceipt> _filteredReceipts;
   late Timer? _debounce;
   late DateTimeRange? _selectedDateRange;
+  late String? _selectedCustomerId;
+  late String? _appliedCustomerId;
   late bool _showOverlay;
 
   @override
   void initState() {
     super.initState();
     _receiptApiService = ReceiptApiService();
+    _customerService = CustomerService();
     _isLoadingInitial = true;
+    _isLoadingCustomers = false;
     _error = null;
     _allReceipts = [];
+    _customerItems = [];
     _searchController = TextEditingController();
     _scrollController = ScrollController();
     _searchQuery = '';
@@ -30,8 +38,10 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
     _filteredReceipts = [];
     _debounce = null;
     _selectedDateRange = null;
+    _selectedCustomerId = null;
+    _appliedCustomerId = null;
     _showOverlay = _searchQuery.isNotEmpty || _selectedDateRange != null;
-    unawaited(_loadReceipts());
+    unawaited(_initializePage());
   }
 
   @override
@@ -42,18 +52,55 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
     super.dispose();
   }
 
+  Future<void> _initializePage() async {
+    await Future.wait([_loadReceipts(), _loadCustomers()]);
+  }
+
+  Future<void> _loadCustomers() async {
+    setState(() {
+      _isLoadingCustomers = true;
+    });
+    try {
+      final customers = await _customerService.fetchCustomers();
+      if (!mounted) return;
+      setState(() {
+        _customerItems = customers;
+        _selectedCustomerId =
+            customers.any((item) => item.id == _selectedCustomerId)
+                ? _selectedCustomerId
+                : null;
+        _appliedCustomerId =
+            customers.any((item) => item.id == _appliedCustomerId)
+                ? _appliedCustomerId
+                : null;
+        _isLoadingCustomers = false;
+      });
+    } on Exception {
+      if (!mounted) return;
+      setState(() {
+        _customerItems = [];
+        _selectedCustomerId = null;
+        _appliedCustomerId = null;
+        _isLoadingCustomers = false;
+      });
+    }
+  }
+
   Future<void> _loadReceipts() async {
     setState(() {
       _isLoadingInitial = true;
       _error = null;
     });
     try {
-      final receipts = await _receiptApiService.listReceipts();
+      final receipts = await _receiptApiService.listReceipts(
+        customerId: _appliedCustomerId,
+      );
       if (!mounted) return;
       setState(() {
         _allReceipts = receipts;
         _isLoadingInitial = false;
       });
+      _onSearchChanged(_searchQuery);
     } on Exception catch (e) {
       setState(() {
         _error = e.toString();
@@ -118,6 +165,23 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
     _onSearchChanged(_searchQuery);
   }
 
+  void _onCustomerChanged(String? customerId) {
+    setState(() {
+      _selectedCustomerId = customerId;
+    });
+  }
+
+  Future<void> _applyCustomerSelection() async {
+    if (_selectedCustomerId == _appliedCustomerId) {
+      return;
+    }
+
+    setState(() {
+      _appliedCustomerId = _selectedCustomerId;
+    });
+    await _loadReceipts();
+  }
+
   bool _fuzzyMatch(String pattern, String str) {
     if (pattern.isEmpty) return true;
     var patternIdx = 0;
@@ -138,6 +202,7 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
     setState(() {
       _searchQuery = query;
       _isSearching = true;
+      _showOverlay = query.isNotEmpty || _selectedDateRange != null;
     });
 
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -148,6 +213,7 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
         setState(() {
           _filteredReceipts = [];
           _isSearching = false;
+          _showOverlay = false;
         });
         return;
       }
@@ -192,6 +258,7 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
           return nameMatch || amountMatch || dateMatch;
         }).toList();
         _isSearching = false;
+        _showOverlay = _searchQuery.isNotEmpty || _selectedDateRange != null;
       });
     });
   }

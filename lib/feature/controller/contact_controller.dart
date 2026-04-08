@@ -256,13 +256,12 @@ mixin _ContactController on State<PageContact>, TickerProvider {
   }
 
   String _permissionLabel(String permission) {
-    switch (permission) {
-      case 'VIEW_RECEIPTS':
-        return 'Fişleri Görüntüle';
-      case 'DOWNLOAD_FILES':
-        return 'Dosyaları İndir';
-      default:
-        return permission.replaceAll('_', ' ');
+    if (permission == ContactPermission.viewReceipts.apiValue) {
+      return 'Fişleri Görüntüle';
     }
+    if (permission == ContactPermission.downloadFiles.apiValue) {
+      return 'Dosyaları İndir';
+    }
+    return permission.replaceAll('_', ' ');
   }
 }
