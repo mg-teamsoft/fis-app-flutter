@@ -47,10 +47,17 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
             controller: searchController,
             onChanged: onSearchChanged,
             decoration: InputDecoration(
-              hintText: 'Fiş ara (şirket adına göre)...',
-              prefixIcon: Icon(
-                Icons.search,
-                color: context.colorScheme.onPrimary,
+              hintText: 'Fiş ara (İşletme, Tarih, Tutar)',
+              prefixIconConstraints: const BoxConstraints(minWidth: 32),
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(
+                    left: 8.0,
+                    right: 0.0), // Sağdaki boşluğu (right) 4 veya 0 yap
+                child: Icon(
+                  Icons.search,
+                  color: context.colorScheme.onSurface,
+                  size: 20, // İkonu biraz küçültmek de boşluk hissini azaltır
+                ),
               ),
               suffixIcon: searchQuery.isNotEmpty
                   ? IconButton(
