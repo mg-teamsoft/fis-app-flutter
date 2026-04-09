@@ -5,6 +5,7 @@ final class ModelReceipt {
     required this.receiptNumber,
     required this.totalAmount,
     required this.transactionDate,
+    this.customerUserId,
     this.status,
   });
 
@@ -29,13 +30,29 @@ final class ModelReceipt {
       receiptNumber: json['receiptNumber']?.toString() ?? '',
       totalAmount: amount,
       transactionDate: parsedDate,
+      customerUserId: _pickFirstNonEmpty([
+        json['customerUserId']?.toString(),
+        json['userId']?.toString(),
+      ]),
       status: json['status']?.toString(),
     );
   }
+
+  static String? _pickFirstNonEmpty(List<String?> values) {
+    for (final value in values) {
+      final normalized = value?.trim();
+      if (normalized != null && normalized.isNotEmpty) {
+        return normalized;
+      }
+    }
+    return null;
+  }
+
   final String id;
   final String businessName;
   final String receiptNumber;
   final double totalAmount;
   final DateTime? transactionDate;
+  final String? customerUserId;
   final String? status;
 }

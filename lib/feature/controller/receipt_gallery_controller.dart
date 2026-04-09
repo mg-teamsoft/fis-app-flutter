@@ -267,7 +267,10 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (_) => PageReceiptDetail(receiptId: summary.id),
+        builder: (_) => PageReceiptDetail(
+          receiptId: summary.id,
+          customerUserId: summary.customerUserId ?? _appliedCustomerId,
+        ),
       ),
     );
   }

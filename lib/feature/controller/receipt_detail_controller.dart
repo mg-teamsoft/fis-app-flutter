@@ -16,7 +16,10 @@ mixin _ConnectionReceiptDetail on State<PageReceiptDetail> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _detail = ReceiptApiService().getReceiptDetail(widget.receiptId);
+    _detail = ReceiptApiService().getReceiptDetail(
+      widget.receiptId,
+      customerUserId: widget.customerUserId,
+    );
     _size = MediaQuery.of(context).size;
   }
 }
