@@ -3,6 +3,7 @@ part of '../../page/receipt_detail_page.dart';
 final class _ReceiptDetailBuilder extends StatefulWidget {
   const _ReceiptDetailBuilder({
     required this.id,
+    required this.customerUserId,
     required this.size,
     required this.initDetail,
     required this.currencyFormatter,
@@ -10,6 +11,7 @@ final class _ReceiptDetailBuilder extends StatefulWidget {
   });
 
   final String id;
+  final String? customerUserId;
   final Size size;
   final Future<ModelReceiptDetail> initDetail;
   final NumberFormat currencyFormatter;
@@ -41,7 +43,10 @@ class __ReceiptDetailBuilderState extends State<_ReceiptDetailBuilder> {
             message: 'Fiş detayı yüklenirken bir hata oluştu.',
             onRetry: () {
               setState(() {
-                detailPart = ReceiptApiService().getReceiptDetail(widget.id);
+                detailPart = ReceiptApiService().getReceiptDetail(
+                  widget.id,
+                  customerUserId: widget.customerUserId,
+                );
               });
             },
           );
@@ -95,13 +100,13 @@ class __ReceiptDetailBuilderState extends State<_ReceiptDetailBuilder> {
                 ),
                 _ReceiptDetailInfoRow(
                   label: 'İşlem Tipi',
-                  value: detail.transactionType?.isNotEmpty == true
+                  value: detail.transactionType?.isNotEmpty ?? false
                       ? detail.transactionType!
                       : '—',
                 ),
                 _ReceiptDetailInfoRow(
                   label: 'Ödeme Tipi',
-                  value: detail.paymentType?.isNotEmpty == true
+                  value: detail.paymentType?.isNotEmpty ?? false
                       ? detail.paymentType!
                       : '—',
                 ),

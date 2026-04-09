@@ -16,9 +16,14 @@ part '../widget/receipt_detail/recdet_info_card.dart';
 part '../widget/receipt_detail/recdet_info_row.dart';
 
 class PageReceiptDetail extends StatefulWidget {
-  const PageReceiptDetail({required this.receiptId, super.key});
+  const PageReceiptDetail({
+    required this.receiptId,
+    super.key,
+    this.customerUserId,
+  });
 
   final String receiptId;
+  final String? customerUserId;
 
   @override
   State<PageReceiptDetail> createState() => _PageReceiptDetailState();
@@ -30,6 +35,7 @@ class _PageReceiptDetailState extends State<PageReceiptDetail>
   Widget build(BuildContext context) {
     return _ReceiptDetailView(
       id: widget.receiptId,
+      customerUserId: widget.customerUserId,
       size: _size,
       detail: _detail,
       currencyFormatter: _currencyFormatter,

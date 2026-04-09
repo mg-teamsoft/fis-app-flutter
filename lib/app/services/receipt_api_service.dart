@@ -47,8 +47,18 @@ class ReceiptApiService {
     throw Exception('Fiş listesi yüklenemedi (${response.statusCode})');
   }
 
-  Future<ModelReceiptDetail> getReceiptDetail(String id) async {
-    final response = await _api.dio.get<dynamic>('/api/receipts/$id');
+  Future<ModelReceiptDetail> getReceiptDetail(
+    String id, {
+    String? customerUserId,
+  }) async {
+    final normalizedCustomerUserId = customerUserId?.trim();
+    final response =
+        normalizedCustomerUserId == null || normalizedCustomerUserId.isEmpty
+            ? await _api.dio.get<dynamic>('/api/receipts/$id')
+            : await _api.dio.post<dynamic>(
+                '/api/supervisor/customers/receipts/$id',
+                data: {'customerUserId': normalizedCustomerUserId},
+              );
 
     if (response.statusCode == 200) {
       final dynamic body = response.data is String
