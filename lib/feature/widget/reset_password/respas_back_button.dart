@@ -1,8 +1,10 @@
 part of '../../page/reset_password_page.dart';
 
 final class _ResetPasswordBackButton extends StatelessWidget {
-  const _ResetPasswordBackButton(
-      {required this.onPressed, required this.enter});
+  const _ResetPasswordBackButton({
+    required this.onPressed,
+    required this.enter,
+  });
 
   final VoidCallback onPressed;
   final bool enter;

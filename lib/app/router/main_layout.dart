@@ -46,7 +46,7 @@ class _MainLayoutState extends State<MainLayout> with _MixinMainLayout {
         onSelected: _handleMenuSelection,
         currentIndex: _currentNavIndex,
         onTabSelected: _onTabTapped,
-        showBackButton: _currentNavIndex > 6 || _routeHistory.isNotEmpty,
+        showBackButton: _currentNavIndex > 6 && _routeHistory.isNotEmpty,
         onBackPressed: _onBackPressed,
         body: SafeArea(child: child),
       ),

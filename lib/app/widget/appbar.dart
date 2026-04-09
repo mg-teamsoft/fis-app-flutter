@@ -143,7 +143,7 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
                 icon: Icons.receipt,
               ),
               WidgetPopMenuItem(
-                value: '/group',
+                value: '/connections',
                 text: 'Kişiler',
                 icon: Icons.group,
               ),
