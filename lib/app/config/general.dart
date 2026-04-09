@@ -32,7 +32,21 @@ class _AppConfigGeneralState extends State<AppConfigGeneral>
               final uri = Uri.tryParse(settings.name ?? '');
               if (uri != null && uri.path == '/resetPassword') {
                 final token = uri.queryParameters['token'] ??
-                    (settings.arguments as String?);
+                    (settings.arguments is String
+                        ? settings.arguments! as String
+                        : null);
+
+                final args = settings.arguments as Map<String, dynamic>?;
+                final openInMainLayout = args?['init'] == true;
+
+                if (openInMainLayout) {
+                  return MaterialPageRoute(
+                    builder: (_) =>
+                        const MainLayout(initialRoute: '/resetPassword'),
+                    settings: settings,
+                  );
+                }
+
                 return MaterialPageRoute(
                   builder: (_) => PageResetPassword(initialToken: token),
                   settings: settings,

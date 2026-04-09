@@ -2,6 +2,7 @@ part of '../../page/settings_page.dart';
 
 final class _SettingsTextFieldArea extends StatelessWidget {
   const _SettingsTextFieldArea({
+    required this.moneyUnit,
     required this.minLimitController,
     required this.maxLimitController,
     required this.monthlyTargetController,
@@ -11,7 +12,7 @@ final class _SettingsTextFieldArea extends StatelessWidget {
   final TextEditingController maxLimitController;
   final TextEditingController monthlyTargetController;
 
-  final String _moneyUnit = '₺ ';
+  final String moneyUnit;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,7 @@ final class _SettingsTextFieldArea extends StatelessWidget {
             FilteringTextInputFormatter.allow(RegExp('[0-9]')),
           ],
           decoration: InputDecoration(
-            prefixText: _moneyUnit,
+            prefixText: '$moneyUnit ',
             labelText: 'Minimum Tutar Limiti',
             border: const OutlineInputBorder(),
           ),
@@ -37,7 +38,7 @@ final class _SettingsTextFieldArea extends StatelessWidget {
             FilteringTextInputFormatter.allow(RegExp('[0-9]')),
           ],
           decoration: InputDecoration(
-            prefixText: _moneyUnit,
+            prefixText: '$moneyUnit ',
             labelText: 'Maksimum Tutar Limiti',
             border: const OutlineInputBorder(),
           ),
@@ -50,7 +51,7 @@ final class _SettingsTextFieldArea extends StatelessWidget {
           ],
           decoration: InputDecoration(
             labelText: 'Aylık Hedef Tutarı',
-            prefixText: _moneyUnit,
+            prefixText: '$moneyUnit ',
             border: const OutlineInputBorder(),
           ),
         ),

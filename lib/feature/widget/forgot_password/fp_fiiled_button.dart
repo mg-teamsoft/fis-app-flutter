@@ -31,7 +31,7 @@ final class _ForgotPasswordFiiledButton extends StatelessWidget {
                 width: 18,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : ThemeTypography.titleLarge(
+            : ThemeTypography.titleMedium(
                 context,
                 'Sıfırlama Maili Gönder',
                 color: context.colorScheme.surface,

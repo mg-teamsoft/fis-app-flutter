@@ -27,6 +27,7 @@ final class _PageSettingsState extends State<PageSettings>
   @override
   Widget build(BuildContext context) {
     return _SettingsView(
+      moneyUnit: _moneyUnit,
       loading: _loading,
       settingsService: _settingsService,
       minLimitController: _minLimitController,

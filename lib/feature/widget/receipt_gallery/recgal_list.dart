@@ -117,7 +117,9 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 14),
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
                     child: Row(
                       children: [
                         Icon(
@@ -139,7 +141,9 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: context.colorScheme.primaryContainer
                                 .withValues(alpha: 0.6),
@@ -176,7 +180,9 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                             : 'Tarih bilgisi yok';
                         return Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
                           child: _ReceiptListTile(
                             summary: receipt,
                             dateText: dateText,

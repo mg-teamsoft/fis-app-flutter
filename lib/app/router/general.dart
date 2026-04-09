@@ -9,7 +9,6 @@ final class RouterGeneral {
     '/login': (_) => const PageLogin(),
     '/register': (_) => const PageRegister(),
     '/forgotPassword': (_) => const PageForgotPassword(),
-    '/resetPassword': (_) => const PageResetPassword(),
     '/home': (_) => const MainLayout(), // Home Page is default value
     '/connections': (_) => const MainLayout(initialRoute: '/connections'),
     '/excelFiles': (_) => const MainLayout(initialRoute: '/excelFiles'),
@@ -35,6 +34,13 @@ final class RouterGeneral {
       );
     },
     '/receipt/manuel': (_) => const MainLayout(initialRoute: '/receipt/manuel'),
+    '/resetPassword': (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map<String, dynamic> && args['init'] == true) {
+        return const MainLayout(initialRoute: '/resetPassword');
+      }
+      return const PageResetPassword();
+    },
   };
 
   // GET function

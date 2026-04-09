@@ -7,7 +7,7 @@ final class _ForgetPasswordButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () => Navigator.of(context).pushNamed('/forgotPassword'),
-      child: ThemeTypography.h4(
+      child: ThemeTypography.titleMedium(
         context,
         'Şifremi Unuttum',
         color: context.colorScheme.primary,

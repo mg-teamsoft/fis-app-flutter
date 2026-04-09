@@ -7,7 +7,7 @@ final class _RegisterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () => Navigator.of(context).pushNamed('/register'),
-      child: ThemeTypography.h4(
+      child: ThemeTypography.titleMedium(
         context,
         'Hesap Oluştur',
         color: context.colorScheme.primary,

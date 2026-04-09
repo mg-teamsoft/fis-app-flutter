@@ -389,6 +389,9 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
   }
 
   Future<void> _onResetPassword() async {
-    await Navigator.of(context).pushNamed('/resetPassword');
+    await Navigator.of(context).pushNamed(
+      '/resetPassword',
+      arguments: {'init': true},
+    );
   }
 }

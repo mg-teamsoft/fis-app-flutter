@@ -11,9 +11,11 @@ class _ResetPasswordView extends StatelessWidget {
     required this.error,
     required this.submitting,
     required this.submit,
+    required this.enter,
   });
 
   final AuthService auth;
+  final bool enter;
   final ScrollController scrollController;
   final GlobalKey<FormState> formKey;
   final TextEditingController passwordCtrl;
@@ -31,8 +33,8 @@ class _ResetPasswordView extends StatelessWidget {
         key: formKey,
         child: Column(
           children: [
-            const SizedBox(height: ThemeSize.spacingXXXl),
-            const _ResetPasswordHeader(),
+            const SizedBox(height: ThemeSize.spacingM),
+            _ResetPasswordHeader(enter: enter),
             const SizedBox(height: ThemeSize.spacingM),
             _ResetPasswordPassTextfield(
               controller: passwordCtrl,
@@ -56,6 +58,7 @@ class _ResetPasswordView extends StatelessWidget {
             _ResetPasswordBackButton(
               onPressed: () =>
                   Navigator.of(context).pushReplacementNamed('/login'),
+              enter: enter,
             ),
             const SizedBox(height: ThemeSize.spacingXXXl),
           ],

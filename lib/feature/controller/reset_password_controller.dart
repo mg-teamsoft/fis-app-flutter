@@ -11,6 +11,7 @@ mixin _ConnectionResetPassword on State<PageResetPassword> {
   late bool _submitting;
   late String? _status;
   late String? _error;
+  bool _enterStatus = false;
 
   @override
   void initState() {
@@ -24,6 +25,21 @@ mixin _ConnectionResetPassword on State<PageResetPassword> {
     _submitting = false;
     _status = null;
     _error = null;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map<String, dynamic>) {
+      setState(() {
+        _enterStatus = args['init'] == true;
+      });
+    } else if (widget.init != null) {
+      setState(() {
+        _enterStatus = widget.init!;
+      });
+    }
   }
 
   @override

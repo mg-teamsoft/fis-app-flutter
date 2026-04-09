@@ -13,8 +13,9 @@ part '../widget/reset_password/respas_password_confirm_textfield.dart';
 part '../widget/reset_password/respas_password_textfield.dart';
 
 class PageResetPassword extends StatefulWidget {
-  const PageResetPassword({super.key, this.initialToken});
+  const PageResetPassword({super.key, this.initialToken, this.init});
   final String? initialToken;
+  final bool? init;
 
   @override
   State<PageResetPassword> createState() => _PageResetPasswordState();
@@ -27,6 +28,7 @@ class _PageResetPasswordState extends State<PageResetPassword>
     return Scaffold(
       body: _ResetPasswordView(
         auth: _auth,
+        enter: _enterStatus,
         scrollController: _scrollController,
         formKey: _formKey,
         passwordCtrl: _passwordCtrl,

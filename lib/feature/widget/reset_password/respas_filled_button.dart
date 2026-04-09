@@ -15,6 +15,11 @@ final class _ResetPasswordFilledButton extends StatelessWidget {
       width: double.infinity,
       child: FilledButton(
         onPressed: submitting ? null : submit,
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: ThemeRadius.circular8),
+          padding: const ThemePadding.all10(),
+          minimumSize: const Size(120, 40),
+        ),
         child: submitting
             ? const SizedBox(
                 width: 18,

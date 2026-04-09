@@ -9,7 +9,7 @@ final class _ForgotPasswordBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-      child: ThemeTypography.titleLarge(
+      child: ThemeTypography.titleMedium(
         context,
         'Giriş sayfasına dön',
         color: context.colorScheme.primary,

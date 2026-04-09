@@ -16,7 +16,6 @@ class WidgetPopMenuItem extends PopupMenuItem<String> {
             isDestructive: isDestructive,
           ),
         );
-  // Verileri constructor'da alıyoruz
   final String text;
   final IconData icon;
   final bool isDestructive;

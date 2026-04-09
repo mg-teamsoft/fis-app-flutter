@@ -2,6 +2,7 @@ part of '../page/settings_page.dart';
 
 final class _SettingsView extends StatelessWidget {
   const _SettingsView({
+    required this.moneyUnit,
     required VoidCallback onChanged,
     required this.settingsService,
     required this.minLimitController,
@@ -26,6 +27,7 @@ final class _SettingsView extends StatelessWidget {
   final TextEditingController minLimitController;
   final TextEditingController maxLimitController;
   final TextEditingController monthlyTargetController;
+  final String moneyUnit;
 
   final bool food;
   final bool meal;
@@ -62,6 +64,7 @@ final class _SettingsView extends StatelessWidget {
         ),
         const SizedBox(height: ThemeSize.spacingM),
         _SettingsTextFieldArea(
+          moneyUnit: moneyUnit,
           minLimitController: minLimitController,
           maxLimitController: maxLimitController,
           monthlyTargetController: monthlyTargetController,

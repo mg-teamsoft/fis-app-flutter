@@ -51,8 +51,8 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
               prefixIconConstraints: const BoxConstraints(minWidth: 32),
               prefixIcon: Padding(
                 padding: const EdgeInsets.only(
-                    left: 8.0,
-                    right: 0.0), // Sağdaki boşluğu (right) 4 veya 0 yap
+                  left: 8,
+                ), // Sağdaki boşluğu (right) 4 veya 0 yap
                 child: Icon(
                   Icons.search,
                   color: context.colorScheme.onSurface,
