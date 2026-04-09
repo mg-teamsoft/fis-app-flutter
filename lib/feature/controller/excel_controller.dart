@@ -51,6 +51,7 @@ mixin _ConnectionExcel on State<PageExcel> {
         idOrKey: id,
         fileName: fileName,
         sheetName: sheetName,
+        customerUserId: _appliedCustomerId,
       );
     }).toList();
   }
@@ -107,7 +108,10 @@ mixin _ConnectionExcel on State<PageExcel> {
 
     try {
       // 1) Get fresh presigned GET
-      final url = await _excelFilesApi.presignGet(row.idOrKey);
+      final url = await _excelFilesApi.presignGet(
+        row.idOrKey,
+        customerUserId: row.customerUserId,
+      );
 
       // 2) Download to temp and open
       final path = await _downloader.downloadToTemp(
@@ -138,7 +142,10 @@ mixin _ConnectionExcel on State<PageExcel> {
 
     try {
       // 1) Fresh presign
-      final url = await _excelFilesApi.presignGet(row.idOrKey);
+      final url = await _excelFilesApi.presignGet(
+        row.idOrKey,
+        customerUserId: row.customerUserId,
+      );
 
       // 2) Save under app docs (persistent)
       final path = await _downloader.downloadToAppDocs(

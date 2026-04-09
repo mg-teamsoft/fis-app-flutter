@@ -29,7 +29,7 @@ class ExcelService {
           normalizedCustomerUserId == null || normalizedCustomerUserId.isEmpty
               ? await _api.dio.get<Map<String, dynamic>>('/api/excel/files')
               : await _api.dio.post<Map<String, dynamic>>(
-                  '/api/supervisor/customers/excel',
+                  '/api/supervisor/customers/excel/files',
                   data: {'customerUserId': normalizedCustomerUserId},
                 );
       final list =
@@ -43,11 +43,20 @@ class ExcelService {
     }
   }
 
-  // GET /excel/files/:id/presign -> {url, file}
-  Future<String> presignGet(String idOrKey) async {
+  // User: GET /excel/files/:id/presign
+  // Supervisor: POST /supervisor/customers/excel/files/:id/presign
+  Future<String> presignGet(String idOrKey, {String? customerUserId}) async {
     try {
-      final res = await _api.dio
-          .get<Map<String, dynamic>>('/api/excel/files/$idOrKey/presign');
+      final normalizedCustomerUserId = customerUserId?.trim();
+      final res =
+          normalizedCustomerUserId == null || normalizedCustomerUserId.isEmpty
+              ? await _api.dio.get<Map<String, dynamic>>(
+                  '/api/excel/files/$idOrKey/presign',
+                )
+              : await _api.dio.post<Map<String, dynamic>>(
+                  '/api/supervisor/customers/excel/files/$idOrKey/presign',
+                  data: {'customerUserId': normalizedCustomerUserId},
+                );
       return res.data!['url'] as String;
     } on DioException catch (e) {
       throw Exception('Failed to get presigned URL: ${e.message}');
