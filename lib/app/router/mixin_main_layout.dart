@@ -5,6 +5,7 @@ mixin _MixinMainLayout on State<MainLayout> {
 
   late String _currentRoute;
   Object? _currentArguments;
+  final List<({String route, Object? args})> _routeHistory = [];
 
   @override
   void initState() {
@@ -18,18 +19,19 @@ mixin _MixinMainLayout on State<MainLayout> {
   }
 
   static const List<String> _navRoutes = [
-    '/home',
-    '/gallery',
-    '/connections',
-    '/settings',
-    '/accountSettings',
-    '/about',
-    '/excelFiles',
-    '/receipt',
-    '/receipt/process',
-    '/receipt/results',
-    '/receipt/manuel',
-    '/notification',
+    '/home', // 0
+    '/gallery', // 1
+    '/connections', // 2
+    '/settings', // 3
+    '/notification', // 4
+    '/accountSettings', // 5
+    '/about', // 6
+    '/excelFiles', // 7
+    '/receipt', // 8
+    '/receipt/process', // 9
+    '/receipt/results', // 10
+    '/receipt/manuel', // 11
+    '/resetPassword', // 12
   ];
 
   late final Map<String, Widget Function(BuildContext, Object?)> _pageBuilders =
@@ -37,7 +39,7 @@ mixin _MixinMainLayout on State<MainLayout> {
     '/home': (_, __) => const PageHome(),
     '/about': (_, __) => const PageAbout(),
     '/accountSettings': (_, __) => const PageAccountSettings(),
-    '/connections': (_, __) => const ConnectionsPage(),
+    '/connections': (_, __) => const PageConnections(),
     '/excelFiles': (_, __) => const PageExcel(),
     '/receipt': (_, __) => const PageReceipt(),
     '/gallery': (_, __) => const PageReceiptGallery(),
@@ -52,10 +54,12 @@ mixin _MixinMainLayout on State<MainLayout> {
       return PageReceiptResult(items: items);
     },
     '/receipt/manuel': (_, __) => const PageReceiptManuel(),
-    '/notification': (_, __) => const NotificationsPage(),
+    '/notification': (_, __) => const PageNotification(),
+    '/resetPassword': (_, args) {
+      final isInit = (args is Map<String, dynamic>) && (args['init'] == true);
+      return PageResetPassword(init: isInit);
+    },
   };
-
-  final List<String> _routeHistory = [];
 
   String _normalizeRoute(String route) {
     return _pageBuilders.containsKey(route) ? route : '/home';
@@ -67,11 +71,13 @@ mixin _MixinMainLayout on State<MainLayout> {
     bool isBottomBarTab = false,
   }) {
     final normalized = _normalizeRoute(route);
+    if (_currentRoute == normalized && arguments == _currentArguments) return;
+
     setState(() {
       if (isBottomBarTab) {
         _routeHistory.clear();
-      } else if (_currentRoute != normalized) {
-        _routeHistory.add(_currentRoute);
+      } else {
+        _routeHistory.add((route: _currentRoute, args: _currentArguments));
       }
       _currentRoute = normalized;
       _currentArguments = arguments;
@@ -80,10 +86,10 @@ mixin _MixinMainLayout on State<MainLayout> {
 
   void _onBackPressed() {
     if (_routeHistory.isNotEmpty) {
-      final previousRoute = _routeHistory.removeLast();
+      final previous = _routeHistory.removeLast();
       setState(() {
-        _currentRoute = previousRoute;
-        _currentArguments = null;
+        _currentRoute = previous.route;
+        _currentArguments = previous.args;
       });
     } else {
       if (_currentRoute != '/home') {
