@@ -142,7 +142,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                           ),
                                           const SizedBox(height: 4),
                                           if (notif.subtitle != null)
-                                            ThemeTypography.titleMedium(
+                                            ThemeTypography.titleSmall(
                                               context,
                                               notif.subtitle ?? '',
                                               color: Colors.grey.shade600,
@@ -151,7 +151,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                             const SizedBox.shrink(),
                                           if (notif.content.isNotEmpty) ...[
                                             const SizedBox(height: 6),
-                                            ThemeTypography.bodyMedium(
+                                            ThemeTypography.bodySmall(
                                               context,
                                               notif.content,
                                               color: Colors.grey.shade800,
@@ -159,7 +159,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                           ],
                                           if (notif.time.isNotEmpty) ...[
                                             const SizedBox(height: 8),
-                                            ThemeTypography.bodyMedium(
+                                            ThemeTypography.bodySmall(
                                               context,
                                               notif.time,
                                               color: Colors.grey.shade600,
