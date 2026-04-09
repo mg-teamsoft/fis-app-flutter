@@ -8,28 +8,36 @@ class _NotificationButton extends StatefulWidget {
 }
 
 class _NotificationButtonState extends State<_NotificationButton> {
-  late int _index;
+  int _index = 0;
   late Color _currentColor;
   late IconData _currentIcon;
-  // add notification service
+  late NotificationService _service;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _getNotification();
+  void initState() {
+    super.initState();
+    _service = NotificationService();
+
+    _currentIcon = Icons.notifications;
+    _currentColor = Colors.grey;
+
+    unawaited(_getNotification());
   }
 
-  void _getNotification() {
+  Future<void> _getNotification() async {
+    final notifications = await _service.fetchNotifications();
+    final newIndex = notifications.length;
+    if (!mounted) return;
     setState(() {
-      _index = 1;
+      _index = newIndex;
+      if (_index == 0) {
+        _currentIcon = Icons.notifications;
+        _currentColor = context.colorScheme.onSurface;
+      } else {
+        _currentIcon = Icons.notifications_active;
+        _currentColor = context.colorScheme.onSurface;
+      }
     });
-    if (_index == 0) {
-      _currentIcon = Icons.notifications;
-      _currentColor = context.colorScheme.onSurface.withValues(alpha: 0.5);
-    } else {
-      _currentIcon = Icons.notifications_active;
-      _currentColor = context.colorScheme.onSurface;
-    }
   }
 
   @override

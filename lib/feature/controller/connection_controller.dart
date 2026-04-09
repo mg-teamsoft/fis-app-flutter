@@ -1,6 +1,7 @@
-part of '../page/contact_page.dart';
+part of '../page/connection_page.dart';
 
-mixin _ContactController on State<PageContact>, TickerProvider {
+mixin _ConnectionController on State<PageConnections>, TickerProvider {
+  // Variables
   late TabController _tabController;
   final TextEditingController _emailController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
@@ -253,15 +254,5 @@ mixin _ContactController on State<PageContact>, TickerProvider {
       return '-';
     }
     return DateFormat('MMM d, yyyy', 'en_US').format(value.toLocal());
-  }
-
-  String _permissionLabel(String permission) {
-    if (permission == ContactPermission.viewReceipts.apiValue) {
-      return 'Fişleri Görüntüle';
-    }
-    if (permission == ContactPermission.downloadFiles.apiValue) {
-      return 'Dosyaları İndir';
-    }
-    return permission.replaceAll('_', ' ');
   }
 }

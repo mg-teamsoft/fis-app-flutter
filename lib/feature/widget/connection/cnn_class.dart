@@ -1,17 +1,16 @@
-part of '../../page/contact_page.dart';
+part of '../../page/connection_page.dart';
 
 class _Contact {
   _Contact({
+    required this.canViewReceipts,
+    required this.canDownloadFiles,
     required this.id,
     required this.initials,
     required this.name,
     required this.email,
     required this.status,
     required this.baseColor,
-    this.canViewReceipts = false,
-    this.canDownloadFiles = false,
   });
-
   final String id;
   final String initials;
   final String name;
