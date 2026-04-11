@@ -1,6 +1,6 @@
 part of '../../page/account_settings_page.dart';
 
-class _ActiveSettingsPlanCard extends StatelessWidget {
+class _ActiveSettingsPlanCard extends StatefulWidget {
   const _ActiveSettingsPlanCard({
     required this.plan,
     required this.onBuyAdditional,
@@ -10,9 +10,23 @@ class _ActiveSettingsPlanCard extends StatelessWidget {
   final VoidCallback? onBuyAdditional;
 
   @override
+  State<_ActiveSettingsPlanCard> createState() => _ActiveSettingsPlanCardState();
+}
+
+class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserPlanProvider?>()?.loadMyPlan();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final price = plan.priceLabel;
-    final renewLabel = _renewLabel(plan.period);
+    final price = widget.plan.priceLabel;
+    final renewLabel = _renewLabel(widget.plan.period);
+    final remainingQuota = context.watch<UserPlanProvider?>()?.remainingQuota ?? 0;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -51,7 +65,7 @@ class _ActiveSettingsPlanCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      plan.name,
+                      widget.plan.name,
                       style: const TextStyle(
                         color: Color(0xFF101828),
                         fontWeight: FontWeight.w700,
@@ -60,9 +74,17 @@ class _ActiveSettingsPlanCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '${plan.quota ?? 0} fatura/ay  •  $renewLabel',
+                      '${widget.plan.quota ?? 0} fatura/ay  •  $renewLabel',
                       style: context.textTheme.bodyMedium?.copyWith(
                         color: context.theme.divider,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Kalan Kota: $remainingQuota',
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: const Color(0xFF1570EF),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -92,7 +114,7 @@ class _ActiveSettingsPlanCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: onBuyAdditional,
+              onPressed: widget.onBuyAdditional,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1570EF),
                 foregroundColor: Colors.white,

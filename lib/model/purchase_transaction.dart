@@ -4,6 +4,9 @@ class PurchaseTransaction {
     required this.originalTransactionId,
     required this.purchaseDate,
     required this.expiresDate,
+    required this.platform,
+    required this.productType,
+    required this.productId,
   });
   factory PurchaseTransaction.fromJson(Map<String, dynamic> json) {
     String readString(List<String> keys) {
@@ -31,6 +34,10 @@ class PurchaseTransaction {
           return DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true)
               .toLocal();
         }
+        if (value is Map && value.containsKey(r'$date')) {
+          final parsed = DateTime.tryParse(value[r'$date'].toString());
+          if (parsed != null) return parsed.toLocal();
+        }
         final parsed = DateTime.tryParse(value.toString());
         if (parsed != null) return parsed.toLocal();
       }
@@ -54,6 +61,15 @@ class PurchaseTransaction {
       expiresDate: readDate(
         const ['expiresDate', 'expires_date', 'expirationDate', 'expiryDate'],
       ),
+      platform: readString(
+        const ['platform'],
+      ),
+      productType: readString(
+        const ['productType', 'product_type'],
+      ),
+      productId: readString(
+        const ['productId', 'product_id'],
+      ),
     );
   }
 
@@ -61,4 +77,7 @@ class PurchaseTransaction {
   final String originalTransactionId;
   final DateTime? purchaseDate;
   final DateTime? expiresDate;
+  final String platform;
+  final String productType;
+  final String productId;
 }

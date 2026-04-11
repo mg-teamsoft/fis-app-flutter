@@ -48,12 +48,10 @@ class __AccountSettingsActivePlanState
           )
         else
           const _AccountSettingsEmptyPlanCard(),
-        const SizedBox(height: 24),
-        const _AccountSettingsSectionTitle(text: 'Mevcut Planlar'),
-        const SizedBox(height: 12),
-        if (widget.plans.isEmpty)
-          const _AccountSettingsEmptyPlanCard()
-        else
+        if (widget.plans.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          const _AccountSettingsSectionTitle(text: 'Mevcut Planlar'),
+          const SizedBox(height: 12),
           ...widget.plans.asMap().entries.map(
             (entry) {
               final index = entry.key;
@@ -65,11 +63,14 @@ class __AccountSettingsActivePlanState
                   selected: selectedPlanKey == plan.planKey,
                   backgroundColor: widget.availablePlanBackground(index),
                   borderColor: widget.availablePlanBorder(index),
-                  onTap: () => setState(() => selectedPlanKey = plan.planKey),
+                  onTap: () {
+                    setState(() => selectedPlanKey = plan.planKey);
+                  },
                 ),
               );
             },
           ),
+        ],
       ],
     );
   }

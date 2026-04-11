@@ -7,6 +7,7 @@ import 'package:fis_app_flutter/app/services/plan_service.dart';
 import 'package:fis_app_flutter/app/services/purchase_transaction_service.dart';
 import 'package:fis_app_flutter/app/services/user_service.dart';
 import 'package:fis_app_flutter/model/plan_option.dart';
+import 'package:fis_app_flutter/model/product_type_enum.dart';
 import 'package:fis_app_flutter/model/purchase_transaction.dart';
 import 'package:fis_app_flutter/model/user_profile.dart';
 import 'package:flutter/material.dart';
@@ -38,11 +39,12 @@ class _PageAccountSettingsState extends State<PageAccountSettings>
   @override
   Widget build(BuildContext context) {
     return _AccountSettingsView(
+      scrollController: _scrollController,
       loading: _loading,
       updatingPlan: _updatingPlan,
       resendingVerification: _resendingVerification,
       plans: _plans,
-      transactions: _transactions,
+      transactions: _transactions.take(_visibleTransactions).toList(),
       activePlan: _activePlan,
       navSpacer: _navSpacer,
       loadAll: _loadAll,

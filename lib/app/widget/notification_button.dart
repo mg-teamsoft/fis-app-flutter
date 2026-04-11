@@ -45,7 +45,7 @@ class _NotificationButtonState extends State<_NotificationButton> {
       final notifications = await _service.fetchNotifications();
       if (!mounted) return;
 
-      _index = notifications.length;
+      _index = notifications.where((n) => n.isUnread).length;
 
       _updateState();
     } on Exception catch (e) {

@@ -12,6 +12,7 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
   final _userService = UserService();
   final _planService = PlanService();
   final _purchaseTransactionService = PurchaseTransactionService();
+  final _scrollController = ScrollController();
 
   UserProfile? _user;
   List<PlanOption> _allPlans = const [];
@@ -22,6 +23,7 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
   String? _currentPlanKey;
   String? _userPlanId;
   List<PurchaseTransaction> _transactions = const [];
+  int _visibleTransactions = 5;
   String? _transactionError;
 
   bool _loading = true;
@@ -33,7 +35,26 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     unawaited(_loadAll());
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (_visibleTransactions < _transactions.length) {
+        setState(() {
+          _visibleTransactions += 5;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadAll() async {

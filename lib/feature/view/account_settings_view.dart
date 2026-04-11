@@ -2,6 +2,7 @@ part of '../page/account_settings_page.dart';
 
 class _AccountSettingsView extends StatelessWidget {
   const _AccountSettingsView({
+    required this.scrollController,
     required this.loading,
     required this.updatingPlan,
     required this.resendingVerification,
@@ -24,6 +25,7 @@ class _AccountSettingsView extends StatelessWidget {
     required this.onResetPassword,
   });
 
+  final ScrollController scrollController;
   final bool loading;
   final bool updatingPlan;
   final bool resendingVerification;
@@ -69,6 +71,7 @@ class _AccountSettingsView extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView(
+        controller: scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const ThemePadding.all20(),
         children: [

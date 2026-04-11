@@ -89,16 +89,28 @@ class UserPlanProvider extends ChangeNotifier {
       notifyListeners();
 
       final res =
-          await _api.dio.get<Map<String, dynamic>>('/api/user-plans/user');
+          await _api.dio.get<dynamic>('/api/user-plans/user');
 
       final data = res.data;
-      if (data is! Map<String, dynamic>) {
-        throw Exception('Unexpected response format');
+
+      Map<String, dynamic>? planJson;
+      if (data is List && data.isNotEmpty) {
+        final active = data.firstWhere(
+            (p) => p is Map && p['isActive'] == true,
+            orElse: () => data.first);
+        if (active is Map) {
+          planJson = Map<String, dynamic>.from(active);
+        }
+      } else if (data is Map) {
+        if (data.containsKey('plan') && data['plan'] is Map) {
+          planJson = Map<String, dynamic>.from(data['plan'] as Map);
+        } else {
+          planJson = Map<String, dynamic>.from(data);
+        }
       }
 
-      final planJson = data['plan'];
-      if (planJson is! Map<String, dynamic>) {
-        throw Exception("Missing or invalid 'plan' in response");
+      if (planJson == null) {
+        throw Exception('Unexpected response format');
       }
 
       _plan = UserPlan.fromJson(planJson);
