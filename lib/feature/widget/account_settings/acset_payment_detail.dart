@@ -40,14 +40,14 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
         ],
         if (sortedTransactions.isEmpty)
           const Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16),
             child: Text('Kayıt bulunamadı.'),
           ),
         ...sortedTransactions.map((transaction) {
           final purchaseDate = transaction.purchaseDate != null
               ? dateFormatter.format(transaction.purchaseDate!)
               : '-';
-          String expiresDateStr = '-';
+          var expiresDateStr = '-';
           final pId = transaction.productId.toLowerCase();
 
           if (pId.contains('consumable')) {
@@ -59,10 +59,12 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
               final d = transaction.purchaseDate!;
               if (pId.contains('monthly')) {
                 expiresDateStr = dateFormatter.format(
-                    DateTime(d.year, d.month + 1, d.day, d.hour, d.minute));
+                  DateTime(d.year, d.month + 1, d.day, d.hour, d.minute),
+                );
               } else if (pId.contains('yearly') || pId.contains('annual')) {
                 expiresDateStr = dateFormatter.format(
-                    DateTime(d.year + 1, d.month, d.day, d.hour, d.minute));
+                  DateTime(d.year + 1, d.month, d.day, d.hour, d.minute),
+                );
               }
             }
           }
@@ -76,7 +78,7 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
             elevation: 0,
             color: Colors.white,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -97,9 +99,11 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
                                 .replaceAll('_', ' ')
                                 .split(' ')
                                 .where((w) => w.isNotEmpty)
-                                .map((w) =>
-                                    w[0].toUpperCase() +
-                                    w.substring(1).toLowerCase())
+                                .map(
+                                  (w) =>
+                                      w[0].toUpperCase() +
+                                      w.substring(1).toLowerCase(),
+                                )
                                 .join(' ')
                             : '-',
                         style: const TextStyle(

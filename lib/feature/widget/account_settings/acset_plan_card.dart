@@ -10,15 +10,16 @@ class _ActiveSettingsPlanCard extends StatefulWidget {
   final VoidCallback? onBuyAdditional;
 
   @override
-  State<_ActiveSettingsPlanCard> createState() => _ActiveSettingsPlanCardState();
+  State<_ActiveSettingsPlanCard> createState() =>
+      _ActiveSettingsPlanCardState();
 }
 
 class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<UserPlanProvider?>()?.loadMyPlan();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<UserPlanProvider?>()?.loadMyPlan();
     });
   }
 
@@ -26,7 +27,8 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
   Widget build(BuildContext context) {
     final price = widget.plan.priceLabel;
     final renewLabel = _renewLabel(widget.plan.period);
-    final remainingQuota = context.watch<UserPlanProvider?>()?.remainingQuota ?? 0;
+    final remainingQuota =
+        context.watch<UserPlanProvider?>()?.remainingQuota ?? 0;
 
     return Container(
       padding: const EdgeInsets.all(20),

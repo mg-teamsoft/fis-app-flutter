@@ -88,16 +88,16 @@ class UserPlanProvider extends ChangeNotifier {
       error = null;
       notifyListeners();
 
-      final res =
-          await _api.dio.get<dynamic>('/api/user-plans/user');
+      final res = await _api.dio.get<dynamic>('/api/user-plans/user');
 
       final data = res.data;
 
       Map<String, dynamic>? planJson;
       if (data is List && data.isNotEmpty) {
         final active = data.firstWhere(
-            (p) => p is Map && p['isActive'] == true,
-            orElse: () => data.first);
+          (p) => p is Map && p['isActive'] == true,
+          orElse: () => data.first,
+        );
         if (active is Map) {
           planJson = Map<String, dynamic>.from(active);
         }
