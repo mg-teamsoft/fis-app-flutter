@@ -22,21 +22,14 @@ class _ReceiptBottomHead extends StatelessWidget {
         ElevatedButton(
           onPressed: picked.isEmpty ? null : processSelected,
           style: ElevatedButton.styleFrom(
-            backgroundColor: context.colorScheme.secondary,
-            foregroundColor: context.colorScheme.onSecondary,
+            backgroundColor: context.colorScheme.primary,
+            foregroundColor: context.colorScheme.surface,
             padding: const ThemePadding.verticalSymmetricMedium(),
-            textStyle: ThemeTypography.bodyLarge(
-              context,
-              '',
-              style: context.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ).style,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: Text(processButtonLabel),
+          child: ThemeTypography.bodyLarge(context, processButtonLabel),
         ),
         SizedBox(
           height: size.height * 0.03,

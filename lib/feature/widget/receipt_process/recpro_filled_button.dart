@@ -16,13 +16,10 @@ class _ReceiptProcessFilledButton extends StatelessWidget {
       child: FilledButton.icon(
         onPressed: processing ? null : process,
         style: FilledButton.styleFrom(
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          fixedSize: const Size(double.infinity, ThemeSize.buttonHeightMedium),
+          backgroundColor: context.colorScheme.primary,
+          foregroundColor: context.colorScheme.surface,
+          padding: const ThemePadding.all15(),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -34,7 +31,8 @@ class _ReceiptProcessFilledButton extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.play_arrow),
-        label: Text(processing ? 'İşleniyor...' : 'İşle'),
+        label: ThemeTypography.bodyLarge(
+            context, processing ? 'İşleniyor...' : 'İşle'),
       ),
     );
   }

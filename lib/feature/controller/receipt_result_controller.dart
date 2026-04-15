@@ -247,7 +247,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     return errors;
   }
 
-  Future<void> _approveAll() async {
+  Future<void> _approveAll(BuildContext context) async {
     if (_submitting) return;
 
     // ── pre-flight validation ──────────────────────────────────────────────
@@ -265,10 +265,15 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
 
     if (anyValidationError) {
       setState(() {});
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-        const SnackBar(
-          content: Text('⚠️ Lütfen kırmızı alanları düzeltin.'),
-          backgroundColor: Color(0xFFB71C1C),
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyMedium(
+            context,
+            '⚠️ Lütfen kırmızı alanları düzeltin.',
+            color: context.colorScheme.onSurface,
+          ),
+          backgroundColor: context.colorScheme.surface,
         ),
       );
       return;
@@ -352,10 +357,11 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     final msg = (failures.isEmpty)
         ? "✅ $okCount fiş Excel'e yazıldı"
         : '✅ $okCount yazıldı • ❌ $failCount başarısız\n${failures.join('\n')}';
-
-    ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-      SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
+      );
+    }
 
     setState(() {
       _submitting = false;
@@ -366,8 +372,9 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     if (okCount > 0 && failures.isEmpty) {
       await Future<void>.delayed(const Duration(milliseconds: 800));
       if (!mounted) return;
-      await Navigator.of(context as BuildContext).pushNamedAndRemoveUntil(
-        '/excelFiles',
+      // ignore: use_build_context_synchronously
+      await Navigator.of(context).pushNamedAndRemoveUntil(
+        '/home',
         (route) => route.isFirst,
       );
     }

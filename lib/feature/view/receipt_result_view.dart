@@ -29,7 +29,7 @@ class _ReceiptResultView extends StatefulWidget {
   final Map<String, _ItemState> state;
   final void Function(_ItemState) rotateImage;
   final void Function(SelectedItem) removeItem;
-  final Future<void> Function() approveAll;
+  final Future<void> Function(BuildContext) approveAll;
   final List<String> Function(Map<String, dynamic>?) errors;
   final Future<dynamic> Function(_ItemState s) pollOne;
   final Future<dynamic> Function() startTicker;
