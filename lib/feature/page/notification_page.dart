@@ -24,6 +24,8 @@ class _PageNotificationState extends State<PageNotification>
       handleNotificationTap: _handleNotificationTap,
       service: _notificationService,
       isLoading: _isLoading,
+      isLoadingMore: _isLoadingMore,
+      scrollController: scrollController,
       notifications: _notifications,
       error: _error,
     );

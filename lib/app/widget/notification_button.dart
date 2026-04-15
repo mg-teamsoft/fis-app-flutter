@@ -8,9 +8,6 @@ class _NotificationButton extends StatefulWidget {
 }
 
 class _NotificationButtonState extends State<_NotificationButton> {
-  int _index = 0;
-  Color _currentColor = Colors.transparent;
-  IconData _currentIcon = Icons.notifications;
   late NotificationService _service;
 
   @override
@@ -20,34 +17,9 @@ class _NotificationButtonState extends State<_NotificationButton> {
     unawaited(_getNotification());
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    _updateState();
-  }
-
-  void _updateState() {
-    if (!mounted) return;
-    setState(() {
-      if (_index == 0) {
-        _currentIcon = Icons.notifications;
-        _currentColor = context.colorScheme.onSurface;
-      } else {
-        _currentIcon = Icons.notifications_active;
-        _currentColor = context.colorScheme.primary;
-      }
-    });
-  }
-
   Future<void> _getNotification() async {
     try {
-      final notifications = await _service.fetchNotifications();
-      if (!mounted) return;
-
-      _index = notifications.where((n) => n.isUnread).length;
-
-      _updateState();
+      await _service.fetchNotifications();
     } on Exception catch (e) {
       debugPrint('Notification Error: $e');
     }
@@ -55,23 +27,29 @@ class _NotificationButtonState extends State<_NotificationButton> {
 
   @override
   Widget build(BuildContext context) {
-    return _index == 0
-        ? _iconbutton()
-        : Badge(
-            label: ThemeTypography.labelSmall(context, _index.toString()),
-            backgroundColor: context.theme.error,
-            child: _iconbutton(),
-          );
-  }
+    return ValueListenableBuilder<int>(
+      valueListenable: _service.unreadCount,
+      builder: (context, count, child) {
+        final currentIcon = count == 0 ? Icons.notifications : Icons.notifications_active;
+        final currentColor = count == 0 ? context.colorScheme.onSurface : context.colorScheme.primary;
 
-  Widget _iconbutton() {
-    return InkWell(
-      onTap: () => Navigator.of(context).pushNamed('/notification'),
-      child: Icon(
-        _currentIcon,
-        color: _currentColor,
-        size: ThemeSize.iconMedium,
-      ),
+        final badgeChild = InkWell(
+          onTap: () => Navigator.of(context).pushNamed('/notification'),
+          child: Icon(
+            currentIcon,
+            color: currentColor,
+            size: ThemeSize.iconMedium,
+          ),
+        );
+
+        return count == 0
+            ? badgeChild
+            : Badge(
+                label: ThemeTypography.labelSmall(context, count.toString()),
+                backgroundColor: context.theme.error,
+                child: badgeChild,
+              );
+      },
     );
   }
 }

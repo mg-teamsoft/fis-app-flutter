@@ -5,15 +5,19 @@ class _NotificationView extends StatelessWidget {
     required this.handleNotificationTap,
     required this.service,
     required this.isLoading,
+    required this.isLoadingMore,
+    required this.scrollController,
     required this.notifications,
     required this.error,
   });
 
   final NotificationService service;
   final bool isLoading;
+  final bool isLoadingMore;
   final String? error;
   final List<NotificationModel> notifications;
   final Future<void> Function(NotificationModel) handleNotificationTap;
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +46,17 @@ class _NotificationView extends StatelessWidget {
                           ),
                         )
                       : ListView.separated(
-                          itemCount: notifications.length,
+                          controller: scrollController,
+                          itemCount: notifications.length + (isLoadingMore ? 1 : 0),
                           separatorBuilder: (context, index) =>
                               Divider(color: Colors.grey.shade200),
                           itemBuilder: (context, index) {
+                            if (index == notifications.length) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Center(child: CircularProgressIndicator()),
+                              );
+                            }
                             final notif = notifications[index];
                             final isUnread = notif.isUnread;
 
