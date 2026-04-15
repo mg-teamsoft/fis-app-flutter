@@ -5,11 +5,13 @@ final class _RegisterPlanArea extends StatefulWidget {
     required this.plansFuture,
     required this.retryPlans,
     required this.initialSelectedPlanKey,
+    required this.onPlanSelected,
   });
 
   final String? initialSelectedPlanKey;
   final Future<List<PlanOption>> plansFuture;
   final VoidCallback retryPlans;
+  final ValueChanged<String> onPlanSelected;
 
   @override
   State<_RegisterPlanArea> createState() => __RegisterPlanAreaState();
@@ -63,6 +65,7 @@ class __RegisterPlanAreaState extends State<_RegisterPlanArea> {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!mounted) return;
                 setState(() => _selectedPlanKey = plans.first.planKey);
+                widget.onPlanSelected(plans.first.planKey);
               });
             }
 
@@ -76,9 +79,10 @@ class __RegisterPlanAreaState extends State<_RegisterPlanArea> {
                 _PlanTile(
                   plan: plan,
                   selected: plan.planKey == effectiveSelectedKey,
-                  onTap: () => setState(
-                    () => _selectedPlanKey = plan.planKey,
-                  ),
+                  onTap: () {
+                    setState(() => _selectedPlanKey = plan.planKey);
+                    widget.onPlanSelected(plan.planKey);
+                  },
                 ),
               );
               if (i < plans.length - 1) {

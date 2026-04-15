@@ -9,6 +9,7 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
   late final TextEditingController _transType;
   late final TextEditingController _paymentType;
   late final TextEditingController _vatRate;
+  late final TextEditingController _businessTaxNo;
   late final TextEditingController _vat;
   late final TextEditingController _total;
 
@@ -80,11 +81,18 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
           err: _errorOf(_paymentType)
         ),
         (
-          label: 'KDV Oranı (%)',
+          label: 'KDV (%)',
           ctrl: _vatRate,
           highlight: false,
           readOnly: false,
           err: _errorOf(_vatRate, numeric: true)
+        ),
+        (
+          label: 'Vergi No',
+          ctrl: _businessTaxNo,
+          highlight: false,
+          readOnly: false,
+          err: _errorOf(_businessTaxNo)
         ),
       ];
 
@@ -115,7 +123,12 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
       text: _pick<String>(['Ödeme Türü', 'Ödeme Tipi', 'paymentType']) ?? '',
     );
     _vatRate = TextEditingController(
-      text: _fmt(_pick<dynamic>(['KDV Oranı (%)', 'vatRate'])),
+      text: _fmt(_pick<dynamic>(['KDV (%)', 'KDV Oranı (%)', 'vatRate'])),
+    );
+    _businessTaxNo = TextEditingController(
+      text: _fmt(
+        _pick<dynamic>(['Vergi No', 'Vergi Numarası', 'businessTaxNo']),
+      ),
     );
 
     _vat = TextEditingController(
@@ -133,6 +146,7 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
       _transType,
       _paymentType,
       _vatRate,
+      _businessTaxNo,
       _vat,
       _total,
     ]) {
@@ -149,6 +163,7 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
       _transType,
       _paymentType,
       _vatRate,
+      _businessTaxNo,
       _vat,
       _total,
     ]) {
@@ -177,7 +192,8 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
     _current['Fiş No'] = _receiptNo.text;
     _current['İşlem Tipi'] = _transType.text;
     _current['Ödeme Tipi'] = _paymentType.text;
-    _current['KDV Oranı (%)'] = _vatRate.text;
+    _current['KDV (%)'] = _vatRate.text;
+    _current['Vergi No'] = _businessTaxNo.text;
     _current['KDV Tutarı'] = _vat.text;
     _current['Toplam Tutar'] = _total.text;
     // Remove old English keys that may have come from the backend
@@ -191,6 +207,9 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
       'kdvAmount',
       'vatAmount',
       'vatRate',
+      'KDV Oranı (%)',
+      'Vergi Numarası',
+      'businessTaxNo',
       'totalAmount',
     ].forEach(_current.remove);
     widget.onChanged?.call(Map<String, dynamic>.from(_current));

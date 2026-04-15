@@ -15,10 +15,13 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     'Fiş No',
     'KDV Tutarı',
     'Toplam Tutar',
+    'KDV (%)',
     'KDV Oranı (%)',
     'İşlem Tipi',
     'Ödeme Tipi',
     'Ürünler',
+    'Vergi No',
+    'Vergi Numarası',
     'Diğer Alanlar',
   };
 
@@ -32,6 +35,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     'kdvAmount',
     'totalAmount',
     'vatRate',
+    'businessTaxNo',
     'transactionType',
     'paymentType',
   };
@@ -45,13 +49,19 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
   void initState() {
     super.initState();
 
-    _items = _items.where((it) {
+    _items = widget.items.where((it) {
       final jobId = it.jobId;
       if (jobId == null) return false;
       if (!_showOnlySelected) return true;
       final s = _state[jobId];
       return s?.selected ?? s?.receipt != null;
     }).toList();
+    for (final item in _items) {
+      final jobId = item.jobId;
+      if (jobId != null) {
+        _state.putIfAbsent(jobId, () => _ItemState(item: item));
+      }
+    }
     unawaited(_startTicker());
   }
 
@@ -216,7 +226,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     requireField('Toplam Tutar', 'Toplam Tutar');
     requireNumeric('Toplam Tutar', 'Toplam Tutar');
     requireNumeric('KDV Tutarı', 'KDV Tutarı');
-    requireNumeric('KDV Oranı (%)', 'KDV Oranı');
+    requireNumeric('KDV (%)', 'KDV');
 
     final products = receipt['Ürünler'];
     if (products is List) {
@@ -309,18 +319,22 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
           continue;
         }
 
+        final excelPayload = Map<String, dynamic>.from(normalized)
+          ..['imageUrl'] = s.item.imageUrl ?? ''
+          ..['sourceKey'] = key;
+
         // The backend's mapReceiptDataToReceiptModel mutates transactionType.kdvRate,
         // so it must be an object. _delocalizeReceiptIfNeeded flattens it to a string;
         // reconstruct the object here using the vatRate that was already extracted.
-        final txType = normalized['transactionType'];
+        final txType = excelPayload['transactionType'];
         if (txType is String) {
-          normalized['transactionType'] = <String, dynamic>{
+          excelPayload['transactionType'] = <String, dynamic>{
             'type': txType,
-            'kdvRate': normalized['vatRate'] ?? 0,
+            'kdvRate': excelPayload['vatRate'] ?? 0,
           };
         }
 
-        final ok = await _excel.pushReceipt(key, normalized);
+        final ok = await _excel.pushReceipt(key, excelPayload);
         if (ok) {
           okCount++;
         } else {
@@ -389,7 +403,8 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     // vatAmount is the standard key; fall back to legacy kdvAmount
     put('KDV Tutarı', raw['vatAmount'] ?? raw['kdvAmount']);
     // vatRate is a top-level numeric field
-    put('KDV Oranı (%)', raw['vatRate']);
+    put('KDV (%)', raw['vatRate']);
+    put('Vergi No', raw['businessTaxNo'] ?? raw['vergiNumarasi']);
     put('Toplam Tutar', raw['totalAmount']);
     put('Ödeme Türü', raw['paymentType']);
 
@@ -400,12 +415,11 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
       put('İşlem Türü', typed['type'] ?? typed['name']);
       // kdvRate lives inside the transactionType object
       if (typed['kdvRate'] != null) {
-        put('KDV Oranı (%)', typed['kdvRate']);
+        put('KDV (%)', typed['kdvRate']);
       }
     } else if (transactionType != null) {
       put('İşlem Türü', transactionType);
     }
-
     final products = raw['products'];
     if (products is List) {
       final localizedProducts = products
@@ -494,7 +508,14 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     );
     put(
       'vatRate',
-      source['KDV Oranı (%)'] ?? source['kdvOrani'],
+      source['KDV (%)'] ?? source['KDV Oranı (%)'] ?? source['kdvOrani'],
+    );
+    put(
+      'businessTaxNo',
+      source['Vergi No'] ??
+          source['Vergi Numarası'] ??
+          source['businessTaxNo'] ??
+          source['vergiNumarasi'],
     );
     put(
       'totalAmount',

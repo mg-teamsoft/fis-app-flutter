@@ -8,10 +8,10 @@ final class _RegisterBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-      child: ThemeTypography.titleLarge(
+      child: ThemeTypography.titleMedium(
         context,
         'Giriş Ekranına Git',
-        weight: FontWeight.w800,
+        weight: FontWeight.w700,
         color: context.colorScheme.primary,
       ),
     );

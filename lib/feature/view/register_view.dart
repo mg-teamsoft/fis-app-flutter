@@ -15,6 +15,7 @@ class _RegisterView extends StatelessWidget {
     required this.loading,
     required this.onRegister,
     required this.retryPlans,
+    required this.onPlanSelected,
   });
 
   final GlobalKey<FormState> formKey;
@@ -30,6 +31,7 @@ class _RegisterView extends StatelessWidget {
   final bool loading;
   final VoidCallback? onRegister;
   final VoidCallback retryPlans;
+  final ValueChanged<String> onPlanSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +67,7 @@ class _RegisterView extends StatelessWidget {
                 initialSelectedPlanKey: selectedPlanKey,
                 plansFuture: plansFuture,
                 retryPlans: retryPlans,
+                onPlanSelected: onPlanSelected,
               ),
               const SizedBox(height: ThemeSize.spacingXl),
               _RegisterErrorText(

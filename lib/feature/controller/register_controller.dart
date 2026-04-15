@@ -81,4 +81,8 @@ mixin _ConnectionRegister on State<PageRegister> {
           _planService.fetchPlans().then(PlanService.sortPlansWithFreeFirst);
     });
   }
+
+  void _onPlanSelected(String planKey) {
+    setState(() => _selectedPlanKey = planKey);
+  }
 }

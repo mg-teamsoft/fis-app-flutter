@@ -44,6 +44,7 @@ class _PageRegisterState extends State<PageRegister> with _ConnectionRegister {
         loading: _loading,
         onRegister: _onRegister,
         retryPlans: _retryPlans,
+        onPlanSelected: _onPlanSelected,
       ),
     );
   }

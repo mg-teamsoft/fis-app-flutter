@@ -53,7 +53,8 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
 
                 // Orta Alan: Logo
-                Expanded(
+                SizedBox(
+                  width: ThemeSize.avatarLarge,
                   child: Center(
                     child: Image.asset(
                       'assets/icon/RBGAppIcon.png',
