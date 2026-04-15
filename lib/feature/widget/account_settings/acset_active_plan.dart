@@ -48,7 +48,7 @@ class __AccountSettingsActivePlanState
           )
         else
           const _AccountSettingsEmptyPlanCard(),
-        if (widget.plans.isNotEmpty) ...[
+        if (true) ...[
           const SizedBox(height: 24),
           const _AccountSettingsSectionTitle(text: 'Mevcut Planlar'),
           const SizedBox(height: 12),

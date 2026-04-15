@@ -12,7 +12,6 @@ import 'package:fis_app_flutter/model/receipt_flow_models.dart';
 import 'package:fis_app_flutter/model/status_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
 
 part '../controller/receipt_result_controller.dart';

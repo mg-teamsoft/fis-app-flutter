@@ -13,10 +13,11 @@ class _ReceiptProcessFilledButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
+      height: ThemeSize.buttonHeightLarge,
       child: FilledButton.icon(
         onPressed: processing ? null : process,
         style: FilledButton.styleFrom(
-          fixedSize: const Size(double.infinity, ThemeSize.buttonHeightMedium),
+          fixedSize: const Size(double.infinity, ThemeSize.buttonHeightLarge),
           backgroundColor: context.colorScheme.primary,
           foregroundColor: context.colorScheme.surface,
           padding: const ThemePadding.all15(),
@@ -32,7 +33,9 @@ class _ReceiptProcessFilledButton extends StatelessWidget {
               )
             : const Icon(Icons.play_arrow),
         label: ThemeTypography.bodyLarge(
-            context, processing ? 'İşleniyor...' : 'İşle'),
+          context,
+          processing ? 'İşleniyor...' : 'İşle',
+        ),
       ),
     );
   }

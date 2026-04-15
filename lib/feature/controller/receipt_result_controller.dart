@@ -352,16 +352,14 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
       }
     }
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     final msg = (failures.isEmpty)
         ? "✅ $okCount fiş Excel'e yazıldı"
         : '✅ $okCount yazıldı • ❌ $failCount başarısız\n${failures.join('\n')}';
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
+    );
 
     setState(() {
       _submitting = false;
@@ -370,9 +368,8 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
 
     // Navigate to Excel files page on full success
     if (okCount > 0 && failures.isEmpty) {
-      await Future<void>.delayed(const Duration(milliseconds: 800));
-      if (!mounted) return;
-      // ignore: use_build_context_synchronously
+      await Future<void>.delayed(const Duration(seconds: 3));
+      if (!context.mounted) return;
       await Navigator.of(context).pushNamedAndRemoveUntil(
         '/home',
         (route) => route.isFirst,

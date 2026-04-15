@@ -15,6 +15,7 @@ class BuildActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
+      height: ThemeSize.buttonHeightMedium,
       width: double.infinity,
       child: ElevatedButton.icon(
         onPressed: onPressed,

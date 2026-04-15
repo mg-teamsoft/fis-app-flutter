@@ -17,22 +17,23 @@ class _ReceiptBottomHead extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       children: [
-        ElevatedButton(
-          onPressed: picked.isEmpty ? null : processSelected,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: context.colorScheme.primary,
-            foregroundColor: context.colorScheme.surface,
-            padding: const ThemePadding.verticalSymmetricMedium(),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: picked.isEmpty ? null : processSelected,
+            style: ElevatedButton.styleFrom(
+              fixedSize:
+                  const Size(double.infinity, ThemeSize.buttonHeightLarge),
+              backgroundColor: context.colorScheme.primary,
+              foregroundColor: context.colorScheme.surface,
+              padding: const ThemePadding.verticalSymmetricMedium(),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
+            child: ThemeTypography.bodyMedium(context, processButtonLabel),
           ),
-          child: ThemeTypography.bodyLarge(context, processButtonLabel),
-        ),
-        SizedBox(
-          height: size.height * 0.03,
         ),
       ],
     );
