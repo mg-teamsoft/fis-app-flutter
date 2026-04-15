@@ -3,11 +3,13 @@ part of '../../page/account_settings_page.dart';
 class _ActiveSettingsPlanCard extends StatefulWidget {
   const _ActiveSettingsPlanCard({
     required this.plan,
+    required this.additionalPlans,
     required this.onBuyAdditional,
   });
 
   final PlanOption plan;
-  final VoidCallback? onBuyAdditional;
+  final List<PlanOption> additionalPlans;
+  final Future<void> Function(PlanOption plan)? onBuyAdditional;
 
   @override
   State<_ActiveSettingsPlanCard> createState() =>
@@ -116,7 +118,8 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: widget.onBuyAdditional,
+              onPressed: () =>
+                  widget.onBuyAdditional!(widget.additionalPlans.first),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1570EF),
                 foregroundColor: Colors.white,
@@ -126,8 +129,8 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
                 ),
               ),
               icon: const Icon(Icons.shopping_cart_checkout),
-              label: const Text(
-                'Ek 100 Satın Al',
+              label: Text(
+                'Ek ${widget.additionalPlans.first.quota} Kota Satın Al ${widget.additionalPlans.first.priceLabel}',
                 style: TextStyle(fontSize: 32 / 2, fontWeight: FontWeight.w700),
               ),
             ),

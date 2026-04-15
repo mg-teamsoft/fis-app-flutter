@@ -109,8 +109,8 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
             .where((plan) => plan.planKey != _currentPlanKey)
             .toList();
         _subscriptionPlans = subscriptionPlans;
-        _plans = subscriptionPlans
-            .where((plan) => plan.planKey != _currentPlanKey)
+        _plans = sortedAllPlans
+            .where((plan) => plan.active && plan.planKey != _currentPlanKey)
             .toList();
         debugPrint('Current plan key: $_currentPlanKey');
         debugPrint(
@@ -218,6 +218,8 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
     for (final plan in _allPlans) {
       final key = plan.planKey.toLowerCase();
       final type = (plan.productType ?? '').toLowerCase();
+      debugPrint('Plan key: $key');
+      debugPrint('Plan type: $type');
       if (key.contains('additional') || type == 'consumable') {
         return plan;
       }
@@ -352,8 +354,7 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
     }
   }
 
-  Future<void> _onBuyAdditional() async {
-    final plan = _additionalPlan;
+  Future<void> _onBuyAdditional(PlanOption plan) async {
     if (plan == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ek paket mevcut değil.')),

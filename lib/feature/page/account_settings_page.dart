@@ -37,13 +37,23 @@ class PageAccountSettings extends StatefulWidget {
 class _PageAccountSettingsState extends State<PageAccountSettings>
     with _ConnectionAccountSettings {
   @override
+  void _onPlanSelected(String planKey) {
+    setState(() => _selectedPlanKey = planKey);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return _AccountSettingsView(
       scrollController: _scrollController,
       loading: _loading,
       updatingPlan: _updatingPlan,
       resendingVerification: _resendingVerification,
+      error: _error,
+      transactionError: _transactionError,
+      currentPlanKey: _currentPlanKey,
+      selectedPlanKey: _selectedPlanKey,
       plans: _plans,
+      user: _user,
       transactions: _transactions.take(_visibleTransactions).toList(),
       activePlan: _activePlan,
       navSpacer: _navSpacer,
@@ -51,15 +61,11 @@ class _PageAccountSettingsState extends State<PageAccountSettings>
       onRefresh: _onRefresh,
       onResendVerification: _onResendVerification,
       onBuyAdditional: _onBuyAdditional,
+      onPlanSelected: _onPlanSelected,
       onUpdatePlan: _onUpdatePlan,
       availablePlanBackground: _availablePlanBackground,
       availablePlanBorder: _availablePlanBorder,
       onResetPassword: _onResetPassword,
-      currentPlanKey: _currentPlanKey,
-      selectedPlanKey: _selectedPlanKey,
-      user: _user,
-      error: _error,
-      transactionError: _transactionError,
     );
   }
 }

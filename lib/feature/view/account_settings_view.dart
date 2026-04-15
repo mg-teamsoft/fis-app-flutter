@@ -2,6 +2,7 @@ part of '../page/account_settings_page.dart';
 
 class _AccountSettingsView extends StatelessWidget {
   const _AccountSettingsView({
+    super.key,
     required this.scrollController,
     required this.loading,
     required this.updatingPlan,
@@ -19,6 +20,7 @@ class _AccountSettingsView extends StatelessWidget {
     required this.onRefresh,
     required this.onResendVerification,
     required this.onBuyAdditional,
+    required this.onPlanSelected,
     required this.onUpdatePlan,
     required this.availablePlanBackground,
     required this.availablePlanBorder,
@@ -42,7 +44,8 @@ class _AccountSettingsView extends StatelessWidget {
   final Future<void> Function() loadAll;
   final Future<void> Function() onRefresh;
   final Future<void> Function() onResendVerification;
-  final Future<void> Function() onBuyAdditional;
+  final Future<void> Function(PlanOption plan)? onBuyAdditional;
+  final void Function(String planKey) onPlanSelected;
   final Future<void> Function() onUpdatePlan;
   final Color Function(int) availablePlanBackground;
   final Color Function(int) availablePlanBorder;
@@ -68,6 +71,14 @@ class _AccountSettingsView extends StatelessWidget {
         onRetry: loadAll,
       );
     }
+
+    final plansWithInterval = plans
+        .where((plan) =>
+            plan.productType != 'consumable' && plan.planKey != 'FREE')
+        .toList();
+
+    final additionalPlans =
+        plans.where((plan) => plan.planKey == 'ADDITIONAL_100').toList();
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView(
@@ -87,20 +98,23 @@ class _AccountSettingsView extends StatelessWidget {
           const SizedBox(height: ThemeSize.spacingL),
           _AccountSettingsActivePlan(
             updatingPlan: updatingPlan,
-            plans: plans,
+            plans: plansWithInterval,
+            additionalPlans: additionalPlans,
             activePlan: activePlan,
             selectedPlanKey: selectedPlanKey,
             onBuyAdditional: onBuyAdditional,
+            onPlanSelected: onPlanSelected,
             availablePlanBackground: availablePlanBackground,
             availablePlanBorder: availablePlanBorder,
           ),
           const SizedBox(height: ThemeSize.spacingM),
-          _ActiveSettingsUpdateButton(
-            updatingPlan: updatingPlan,
-            selectedPlanKey: selectedPlanKey,
-            currentPlanKey: currentPlanKey,
-            onUpdatePlan: onUpdatePlan,
-          ),
+          if (plansWithInterval.isNotEmpty)
+            _ActiveSettingsUpdateButton(
+              updatingPlan: updatingPlan,
+              selectedPlanKey: selectedPlanKey,
+              currentPlanKey: currentPlanKey,
+              onUpdatePlan: onUpdatePlan,
+            ),
           const SizedBox(height: ThemeSize.spacingL),
           const _AccountSettingsSectionTitle(text: 'Ödeme Detayları'),
           const SizedBox(height: ThemeSize.spacingM),

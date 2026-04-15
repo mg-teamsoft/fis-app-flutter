@@ -19,22 +19,35 @@ class _AccountSettingsAvailablePlanTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveBorderColor =
         selected ? const Color(0xFF1570EF) : borderColor;
-    final effectiveBackgroundColor =
-        selected ? const Color(0xFFEAF2FF) : backgroundColor;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
-        decoration: BoxDecoration(
-          color: effectiveBackgroundColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: effectiveBorderColor,
-            width: selected ? 2.2 : 1.4,
+    return AnimatedScale(
+      scale: selected ? 1.025 : 1.0,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: effectiveBorderColor,
+              width: selected ? 2.5 : 1.4,
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF1570EF).withValues(alpha: 0.18),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
           ),
-        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -105,6 +118,7 @@ class _AccountSettingsAvailablePlanTile extends StatelessWidget {
               ],
             ),
           ],
+        ),
         ),
       ),
     );
