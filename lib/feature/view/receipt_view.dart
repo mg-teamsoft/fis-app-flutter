@@ -42,6 +42,9 @@ class _ReceiptView extends StatelessWidget {
               processSelected: processSelected,
               size: size,
             ),
+            SizedBox(
+              height: size.height * 0.03,
+            ),
           ],
         ),
       ),

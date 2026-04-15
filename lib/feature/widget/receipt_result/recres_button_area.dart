@@ -11,7 +11,7 @@ class _ReceiptResultButtonArea extends StatelessWidget {
   final bool? hasSuccessfulSubmission;
   final bool submitting;
   final Map<String, _ItemState> state;
-  final Future<void> Function() approveAll;
+  final Future<void> Function(BuildContext) approveAll;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class _ReceiptResultButtonArea extends StatelessWidget {
           FilledButton.icon(
             onPressed: (submitting || state.values.any((s) => s.active))
                 ? null
-                : approveAll,
+                : () => approveAll(context),
             icon: const Icon(Icons.check),
             label: Text(
               submitting
