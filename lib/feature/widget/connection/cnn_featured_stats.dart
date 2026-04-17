@@ -14,8 +14,8 @@ class _CnnFeaturedStats extends StatelessWidget {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: const Color(0xFF2563EB),
-            borderRadius: BorderRadius.circular(12),
+            color: context.colorScheme.primary,
+            borderRadius: ThemeRadius.circular12,
           ),
           child: Stack(
             children: [
@@ -24,12 +24,12 @@ class _CnnFeaturedStats extends StatelessWidget {
                 bottom: -20,
                 child: Icon(
                   Icons.groups,
-                  size: 120,
-                  color: Colors.white.withValues(alpha: 0.15),
+                  size: ThemeSize.avatarLarge,
+                  color: context.colorScheme.surface.withValues(alpha: 0.15),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(24), // İstediğin iç boşluk buraya
+                padding: const ThemePadding.all24(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -50,14 +50,12 @@ class _CnnFeaturedStats extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF2563EB),
+                        backgroundColor: context.colorScheme.surface,
+                        foregroundColor: context.colorScheme.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: ThemeRadius.circular8,
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                        padding: const ThemePadding.verticalSymmetricMedium(
                         ),
                       ),
                       child: ThemeTypography.bodyLarge(
@@ -73,39 +71,38 @@ class _CnnFeaturedStats extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: ThemeSize.spacingM),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(24),
+          padding: const ThemePadding.all24(),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
+            color: context.colorScheme.surface,
+            borderRadius: ThemeRadius.circular12,
+            border: Border.all(color: context.theme.divider),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const ThemePadding.all10(),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: context.theme.success.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.verified_user,
-                  color: Colors.green.shade600,
-                  size: 28,
+                  color: context.theme.success,
+                  size: ThemeSize.iconLarge,
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
+              const SizedBox(height: ThemeSize.spacingM),
+              ThemeTypography.h4(
+                context,
                 '${contacts.length}',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+                color: context.colorScheme.onSurface,
+                weight: FontWeight.w800,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: ThemeSize.spacingXs),
               ThemeTypography.bodyMedium(
                 context,
                 'Aktif Danışmanlar',

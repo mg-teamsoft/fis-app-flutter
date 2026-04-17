@@ -2,6 +2,7 @@ part of '../page/receipt_result_page.dart';
 
 class _ReceiptResultView extends StatefulWidget {
   const _ReceiptResultView({
+    required this.items,
     required this.errors,
     required this.rotateImage,
     required this.removeItem,
@@ -34,26 +35,13 @@ class _ReceiptResultView extends StatefulWidget {
   final Future<dynamic> Function(_ItemState s) pollOne;
   final Future<dynamic> Function() startTicker;
   final Timer? tick;
+  final List<SelectedItem> items;
 
   @override
   State<_ReceiptResultView> createState() => __ReceiptResultViewState();
 }
 
 class __ReceiptResultViewState extends State<_ReceiptResultView> {
-  late List<SelectedItem> _items;
-
-  @override
-  void initState() {
-    super.initState();
-    _items = widget.itemList.where((it) {
-      final jobId = it.jobId;
-      if (jobId == null) return false;
-      if (!widget.showOnlySelected) return true;
-      final s = widget.state[jobId];
-      return s?.selected ?? s?.receipt != null;
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,9 +52,9 @@ class __ReceiptResultViewState extends State<_ReceiptResultView> {
           children: [
             Expanded(
               child: ListView.builder(
-                itemCount: _items.length,
+                itemCount: widget.items.length,
                 itemBuilder: (_, i) {
-                  final it = _items[i];
+                  final it = widget.items[i];
                   final jobId = it.jobId!;
                   final s = widget.state
                       .putIfAbsent(jobId, () => _ItemState(item: it));

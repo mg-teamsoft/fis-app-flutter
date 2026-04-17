@@ -70,14 +70,14 @@ class _ConnectionView extends StatelessWidget {
             Tab(text: 'Davetler'),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: ThemeSize.spacingM),
         // Expanded body for scrollable content
         Expanded(
           child: TabBarView(
             controller: tabController,
             children: [
               ListView(
-                padding: const EdgeInsets.only(bottom: 24),
+                padding: const ThemePadding.marginBottom16(),
                 children: [
                   _CnnInviteSection(
                     handleInvite: handleInvite,
@@ -88,7 +88,7 @@ class _ConnectionView extends StatelessWidget {
                     emailController: mailController,
                     emailFocusNode: mailFocusNode,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: ThemeSize.spacingM),
                   _CnnContactsSection(
                     statusLabel: statusLabel,
                     isContactsLoading: isContactsLoading,
@@ -96,12 +96,12 @@ class _ConnectionView extends StatelessWidget {
                     contactsError: contactsError,
                     onRetry: loadSupervisors,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: ThemeSize.spacingL),
                   _CnnFeaturedStats(contacts: contacts),
                 ],
               ),
               ListView(
-                padding: const EdgeInsets.only(bottom: 24),
+                padding: const ThemePadding.marginBottom24(),
                 children: [
                   _CnnInviteTableSection(
                     handleResendInvite: handleResendInvite,

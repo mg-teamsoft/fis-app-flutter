@@ -28,16 +28,18 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
   @override
   Widget build(BuildContext context) {
     final price = widget.plan.priceLabel;
+
+    // ignore: unused_local_variable
     final renewLabel = _renewLabel(widget.plan.period);
     final remainingQuota =
         context.watch<UserPlanProvider?>()?.remainingQuota ?? 0;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const ThemePadding.all20(),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF1570EF), width: 2),
+        color: context.colorScheme.surface,
+        borderRadius: ThemeRadius.circular12,
+        border: Border.all(color: context.colorScheme.primary, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,71 +52,61 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
+                      padding: ThemePadding.horizontalSymmetricFree(10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEAF2FF),
+                        color: context.colorScheme.surfaceContainer,
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: const Text(
+                      child: ThemeTypography.bodySmall(
+                        context,
                         'MEVCUT PLAN',
-                        style: TextStyle(
-                          color: Color(0xFF1570EF),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        color: context.colorScheme.primary,
+                        weight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Text(
+                    const SizedBox(height: ThemeSize.spacingXs),
+                    ThemeTypography.bodyLarge(
+                      context,
                       widget.plan.name,
-                      style: const TextStyle(
-                        color: Color(0xFF101828),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 36 / 2,
-                      ),
+                      color: context.colorScheme.onSurface,
+                      weight: FontWeight.w700,
                     ),
-                    const SizedBox(height: 6),
-                    Text(
+                    const SizedBox(height: ThemeSize.spacingXs),
+                    ThemeTypography.bodyMedium(
+                      context,
                       widget.plan.description,
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.theme.divider,
-                      ),
+                      color: context.theme.divider,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
+                    const SizedBox(height: ThemeSize.spacingXs),
+                    ThemeTypography.bodyMedium(
+                      context,
                       'Kalan Kota: $remainingQuota',
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF1570EF),
-                        fontWeight: FontWeight.w600,
-                      ),
+                      color: context.colorScheme.primary,
+                      weight: FontWeight.w600,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: ThemeSize.spacingM),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
+                  ThemeTypography.h4(
+                    context,
                     price,
-                    style: const TextStyle(
-                      color: Color(0xFF101828),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 44 / 2,
-                    ),
+                    color: context.colorScheme.onSurface,
+                    weight: FontWeight.w800,
                   ),
-                  const Text(
+                  ThemeTypography.bodyMedium(
+                    context,
                     'aylık',
-                    style: TextStyle(color: Color(0xFF667085)),
+                    color: context.theme.divider,
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: ThemeSize.spacingM),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -128,13 +120,15 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              icon: const Icon(Icons.shopping_cart_checkout),
-              label: Text(
+              icon: const Icon(
+                Icons.shopping_cart_checkout,
+                size: ThemeSize.iconMedium,
+              ),
+              label: ThemeTypography.bodyMedium(
+                context,
                 'Ek ${widget.additionalPlans.first.quota} Kota Satın Al - ${widget.additionalPlans.first.priceLabel}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
+                color: context.colorScheme.onSurface,
+                weight: FontWeight.w700,
               ),
             ),
           ),

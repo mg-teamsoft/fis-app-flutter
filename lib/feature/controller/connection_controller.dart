@@ -222,9 +222,9 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
   Color _statusColor(String status) {
     switch (status.toUpperCase()) {
       case 'ACTIVE':
-        return Colors.blue;
+        return context.theme.brandPrimary;
       case 'PENDING':
-        return const Color(0xFFEFB53E);
+        return context.theme.warning;
       case 'ACCEPTED':
         return const Color(0xFF12B76A);
       case 'EXPIRED':

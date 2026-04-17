@@ -30,14 +30,15 @@ class _ExcelView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const ThemePadding.all16(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Align(
-            child: Text(
+            child: ThemeTypography.h4(
+              context,
               'Excel Dosyaları',
-              style: context.textTheme.headlineSmall,
+              color: context.colorScheme.onSurface,
             ),
           ),
           _ExcelCustomerPicker(

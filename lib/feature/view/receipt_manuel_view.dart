@@ -56,54 +56,50 @@ class _ReceiptManuelView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _ReceiptManuelImagePicker(
-                  invoiceImage: invoiceImage,
-                  invoiceImageBytes: invoiceImageBytes,
-                  isUploading: isUploading,
-                  imageError: imageError,
-                  pickInvoiceImage: pickInvoiceImage,
-                ),
-                _ReceiptManuelHelperHint(
-                  fieldsEnabled: fieldsEnabled,
-                  isUploading: isUploading,
-                ),
-                _ReceiptManuelRestForm(
-                  businessNameController: businessNameController,
-                  receiptNoController: receiptNoController,
-                  kdvAmountController: kdvAmountController,
-                  totalAmountController: totalAmountController,
-                  isUploading: isUploading,
-                  pickInvoiceImage: pickInvoiceImage,
-                  imageError: imageError,
-                  fieldsEnabled: fieldsEnabled,
-                  businessNameValidator: businessNameValidator,
-                  receiptNoValidator: receiptNoValidator,
-                  totalAmountValidator: totalAmountValidator,
-                  kdvAmountValidator: kdvAmountValidator,
-                  dateText: dateText,
-                  pickDate: pickDate,
-                  dateError: dateError,
-                  recalculateKdv: recalculateKdv,
-                  paymentType: paymentType,
-                  saving: saving,
-                  save: save,
-                  invoiceImage: invoiceImage,
-                  invoiceImageBytes: invoiceImageBytes,
-                  selectedCategory: selectedCategory,
-                  selectedKdvRate: selectedKdvRate,
-                ),
-              ],
+    return Form(
+      key: formKey,
+      child: SingleChildScrollView(
+        padding: const ThemePadding.horizontalSymmetric(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _ReceiptManuelImagePicker(
+              invoiceImage: invoiceImage,
+              invoiceImageBytes: invoiceImageBytes,
+              isUploading: isUploading,
+              imageError: imageError,
+              pickInvoiceImage: pickInvoiceImage,
             ),
-          ),
+            _ReceiptManuelHelperHint(
+              fieldsEnabled: fieldsEnabled,
+              isUploading: isUploading,
+            ),
+            _ReceiptManuelRestForm(
+              businessNameController: businessNameController,
+              receiptNoController: receiptNoController,
+              kdvAmountController: kdvAmountController,
+              totalAmountController: totalAmountController,
+              isUploading: isUploading,
+              pickInvoiceImage: pickInvoiceImage,
+              imageError: imageError,
+              fieldsEnabled: fieldsEnabled,
+              businessNameValidator: businessNameValidator,
+              receiptNoValidator: receiptNoValidator,
+              totalAmountValidator: totalAmountValidator,
+              kdvAmountValidator: kdvAmountValidator,
+              dateText: dateText,
+              pickDate: pickDate,
+              dateError: dateError,
+              recalculateKdv: recalculateKdv,
+              paymentType: paymentType,
+              saving: saving,
+              save: save,
+              invoiceImage: invoiceImage,
+              invoiceImageBytes: invoiceImageBytes,
+              selectedCategory: selectedCategory,
+              selectedKdvRate: selectedKdvRate,
+            ),
+          ],
         ),
       ),
     );

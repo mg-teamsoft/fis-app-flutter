@@ -28,7 +28,7 @@ class _AccountSettingsActivePlan extends StatelessWidget {
     return Column(
       children: [
         const _AccountSettingsSectionTitle(text: 'Aktif Plan'),
-        const SizedBox(height: 12),
+        const SizedBox(height: ThemeSize.spacingM),
         if (activePlan != null)
           _ActiveSettingsPlanCard(
             plan: activePlan!,
@@ -39,15 +39,15 @@ class _AccountSettingsActivePlan extends StatelessWidget {
         else
           const _AccountSettingsEmptyPlanCard(),
         if (plans.isNotEmpty) ...[
-          const SizedBox(height: 24),
+          const SizedBox(height: ThemeSize.spacingXl),
           const _AccountSettingsSectionTitle(text: 'Mevcut Planlar'),
-          const SizedBox(height: 12),
+          const SizedBox(height: ThemeSize.spacingM),
           ...plans.asMap().entries.map(
             (entry) {
               final index = entry.key;
               final plan = entry.value;
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const ThemePadding.marginBottom12(),
                 child: _AccountSettingsAvailablePlanTile(
                   plan: plan,
                   selected: selectedPlanKey == plan.planKey,

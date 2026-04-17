@@ -6,15 +6,16 @@ class _AccountSettingsEmptyPlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const ThemePadding.all16(),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFD0D5DD)),
+        color: context.colorScheme.surfaceContainer,
+        borderRadius: ThemeRadius.circular12,
+        border: Border.all(color: context.theme.divider),
       ),
-      child: const Text(
+      child: ThemeTypography.bodyLarge(
+        context,
         'Plan bulunamadı.',
-        style: TextStyle(color: Color(0xFF667085)),
+        color: context.colorScheme.onSurfaceVariant,
       ),
     );
   }
@@ -35,36 +36,44 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const ThemePadding.all32(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.warning_rounded,
-              size: 48,
+              size: ThemeSize.iconLarge,
               color: context.colorScheme.error,
             ),
-            const SizedBox(height: 16),
-            Text(
+            const SizedBox(height: ThemeSize.spacingM),
+            ThemeTypography.titleMedium(
+              context,
               message,
-              style: context.textTheme.titleMedium,
+              color: context.colorScheme.onSurface,
+              weight: FontWeight.w600,
               textAlign: TextAlign.center,
             ),
             if (details != null && details!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
+              const SizedBox(height: ThemeSize.spacingXs),
+              ThemeTypography.bodySmall(
+                context,
                 details!,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
+                color: context.colorScheme.onSurfaceVariant,
                 textAlign: TextAlign.center,
               ),
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: ThemeSize.spacingM),
             FilledButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Tekrar Dene'),
+              icon: const Icon(
+                Icons.refresh,
+                size: ThemeSize.iconMedium,
+              ),
+              label: ThemeTypography.bodyMedium(
+                context,
+                'Tekrar Dene',
+                color: context.colorScheme.surface,
+              ),
             ),
           ],
         ),

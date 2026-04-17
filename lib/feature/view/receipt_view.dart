@@ -23,30 +23,28 @@ class _ReceiptView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _ReceiptTopHead(
-              pickMultiGallery: pickMultiGallery,
-              captureCamera: captureCamera,
-              openManualForm: openManualForm,
-            ),
-            _ReceiptMidHead(picked: picked, bytesCache: bytesCache),
-            _ReceiptBottomHead(
-              picked: picked,
-              bytesCache: bytesCache,
-              processButtonLabel: processButtonLabel,
-              processSelected: processSelected,
-              size: size,
-            ),
-            SizedBox(
-              height: size.height * 0.03,
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const ThemePadding.horizontalSymmetric(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _ReceiptTopHead(
+            pickMultiGallery: pickMultiGallery,
+            captureCamera: captureCamera,
+            openManualForm: openManualForm,
+          ),
+          _ReceiptMidHead(picked: picked, bytesCache: bytesCache),
+          _ReceiptBottomHead(
+            picked: picked,
+            bytesCache: bytesCache,
+            processButtonLabel: processButtonLabel,
+            processSelected: processSelected,
+            size: size,
+          ),
+          SizedBox(
+            height: size.height * 0.03,
+          ),
+        ],
       ),
     );
   }

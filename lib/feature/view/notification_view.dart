@@ -24,7 +24,7 @@ class _NotificationView extends StatelessWidget {
     return Column(
       children: [
         const _NotificationHeader(text: 'Bildirimler'),
-        const SizedBox(height: 16),
+        const SizedBox(height: ThemeSize.spacingM),
         Expanded(
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -50,11 +50,11 @@ class _NotificationView extends StatelessWidget {
                           itemCount:
                               notifications.length + (isLoadingMore ? 1 : 0),
                           separatorBuilder: (context, index) =>
-                              Divider(color: Colors.grey.shade200),
+                              Divider(color: context.colorScheme.outline),
                           itemBuilder: (context, index) {
                             if (index == notifications.length) {
                               return const Padding(
-                                padding: EdgeInsets.all(16),
+                                padding: ThemePadding.all16(),
                                 child:
                                     Center(child: CircularProgressIndicator()),
                               );
@@ -65,22 +65,21 @@ class _NotificationView extends StatelessWidget {
                             return InkWell(
                               onTap: () => handleNotificationTap(notif),
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12),
+                                padding: const ThemePadding
+                                    .horizontalSymmetricMedium(),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
                                       width: 8,
                                       height: 8,
-                                      margin: const EdgeInsets.only(
-                                        top: 6,
-                                        right: 12,
-                                      ),
+                                      margin:
+                                          ThemePadding.verticalSymmetricFree(
+                                              12),
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: isUnread
-                                            ? Colors.blue
+                                            ? context.colorScheme.primary
                                             : Colors.transparent,
                                       ),
                                     ),
@@ -101,7 +100,9 @@ class _NotificationView extends StatelessWidget {
                                             ThemeTypography.titleSmall(
                                               context,
                                               notif.subtitle ?? '',
-                                              color: Colors.grey.shade600,
+                                              color:
+                                                  context.colorScheme.outline,
+                                              weight: FontWeight.w400,
                                             )
                                           else
                                             const SizedBox.shrink(),
@@ -110,7 +111,9 @@ class _NotificationView extends StatelessWidget {
                                             ThemeTypography.bodySmall(
                                               context,
                                               notif.content,
-                                              color: Colors.grey.shade800,
+                                              color:
+                                                  context.colorScheme.outline,
+                                              weight: FontWeight.w600,
                                             ),
                                           ],
                                           if (notif.time.isNotEmpty) ...[
@@ -118,7 +121,9 @@ class _NotificationView extends StatelessWidget {
                                             ThemeTypography.bodySmall(
                                               context,
                                               notif.time,
-                                              color: Colors.grey.shade600,
+                                              color:
+                                                  context.colorScheme.outline,
+                                              weight: FontWeight.w700,
                                             ),
                                           ],
                                         ],

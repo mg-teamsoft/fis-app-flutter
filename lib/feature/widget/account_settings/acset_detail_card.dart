@@ -19,65 +19,62 @@ class _AccountSettingsDetailsCard extends StatelessWidget {
         : '-';
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const ThemePadding.all16(),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFD0D5DD)),
+        color: context.colorScheme.surfaceContainer,
+        borderRadius: ThemeRadius.circular12,
+        border: Border.all(color: context.theme.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          ThemeTypography.bodyLarge(
+            context,
             'Kullanıcı Adı',
-            style: TextStyle(color: Color(0xFF667085)),
+            color: context.theme.divider,
           ),
-          const SizedBox(height: 6),
-          Text(
+          const SizedBox(height: ThemeSize.spacingXs),
+          ThemeTypography.bodyLarge(
+            context,
             user.userName,
-            style: const TextStyle(
-              color: Color(0xFF101828),
-              fontWeight: FontWeight.w600,
-              fontSize: 32 / 2,
-            ),
+            color: context.colorScheme.onSurface,
+            weight: FontWeight.w600,
           ),
-          const SizedBox(height: 14),
-          const Divider(height: 1, color: Color(0xFFEAECF0)),
-          const SizedBox(height: 14),
-          const Text('E-posta', style: TextStyle(color: Color(0xFF667085))),
-          const SizedBox(height: 6),
-          Text(
+          const SizedBox(height: ThemeSize.spacingM),
+          Divider(height: 1, color: context.theme.divider),
+          const SizedBox(height: ThemeSize.spacingM),
+          ThemeTypography.bodyLarge(context, 'E-posta',
+              color: context.colorScheme.outline),
+          const SizedBox(height: ThemeSize.spacingXs),
+          ThemeTypography.bodyLarge(
+            context,
             user.email,
-            style: const TextStyle(
-              color: Color(0xFF101828),
-              fontWeight: FontWeight.w500,
-              fontSize: 32 / 2,
-            ),
+            color: context.colorScheme.onSurface,
+            weight: FontWeight.w500,
           ),
           if (!user.emailVerified) ...[
-            const SizedBox(height: 14),
+            const SizedBox(height: ThemeSize.spacingM),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              padding: const ThemePadding.horizontalSymmetricMedium(),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF6E8),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFF2D7A7)),
+                color: context.colorScheme.surfaceContainer,
+                borderRadius: ThemeRadius.circular12,
+                border: Border.all(color: context.theme.divider),
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.warning_amber_rounded,
-                    color: Color(0xFFB54708),
-                    size: 18,
+                    color: context.theme.error,
+                    size: ThemeSize.iconSmall,
                   ),
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
+                  const SizedBox(width: ThemeSize.spacingXs),
+                  Expanded(
+                    child: ThemeTypography.bodyLarge(
+                      context,
                       'E-posta doğrulanmadı',
-                      style: TextStyle(
-                        color: Color(0xFFB54708),
-                        fontWeight: FontWeight.w500,
-                      ),
+                      color: context.theme.error,
+                      weight: FontWeight.w500,
                     ),
                   ),
                   TextButton(
@@ -89,29 +86,27 @@ class _AccountSettingsDetailsCard extends StatelessWidget {
                             width: 14,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Tekrar Gönder'),
+                        : ThemeTypography.bodyMedium(context, 'Tekrar Gönder',
+                            color: context.colorScheme.primary),
                   ),
                 ],
               ),
             ),
           ],
-          const SizedBox(height: 14),
-          const Divider(height: 1, color: Color(0xFFEAECF0)),
-          const SizedBox(height: 14),
-          const Text(
+          const SizedBox(height: ThemeSize.spacingM),
+          Divider(height: 1, color: context.colorScheme.outline),
+          const SizedBox(height: ThemeSize.spacingM),
+          ThemeTypography.bodyLarge(
+            context,
             'Hesap Oluşturma',
-            style: TextStyle(
-              color: Color(0xFF667085),
-            ),
+            color: context.colorScheme.outline,
           ),
-          const SizedBox(height: 6),
-          Text(
+          const SizedBox(height: ThemeSize.spacingXs),
+          ThemeTypography.bodyLarge(
+            context,
             createdAtLabel,
-            style: const TextStyle(
-              color: Color(0xFF101828),
-              fontWeight: FontWeight.w500,
-              fontSize: 32 / 2,
-            ),
+            color: context.colorScheme.onSurface,
+            weight: FontWeight.w500,
           ),
         ],
       ),

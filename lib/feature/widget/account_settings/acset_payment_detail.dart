@@ -27,21 +27,24 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (error != null && error!.isNotEmpty) ...[
-          const Padding(
-            padding: EdgeInsets.only(bottom: 12),
-            child: Text(
-              'Odeme detaylari alinamadi.',
-              style: TextStyle(
-                color: Color(0xFFB42318),
-                fontWeight: FontWeight.w600,
-              ),
+          Padding(
+            padding: const ThemePadding.marginBottom10(),
+            child: ThemeTypography.bodyLarge(
+              context,
+              'Ödeme detayları alınamadı.',
+              color: context.theme.error,
+              weight: FontWeight.w600,
             ),
           ),
         ],
         if (sortedTransactions.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('Kayıt bulunamadı.'),
+          Padding(
+            padding: const ThemePadding.all16(),
+            child: ThemeTypography.bodyLarge(
+              context,
+              'Kayıt bulunamadı.',
+              color: context.colorScheme.onSurface,
+            ),
           ),
         ...sortedTransactions.map((transaction) {
           final purchaseDate = transaction.purchaseDate != null
@@ -70,138 +73,74 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
           }
 
           return Card(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: const ThemePadding.marginBottom12(),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFD0D5DD)),
+              borderRadius: ThemeRadius.circular12,
+              side: BorderSide(color: context.theme.divider),
             ),
             elevation: 0,
-            color: Colors.white,
+            color: context.colorScheme.surface,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const ThemePadding.all16(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Ürün',
-                        style: TextStyle(
-                          color: Color(0xFF475467),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        transaction.productId.isNotEmpty
-                            ? transaction.productId
-                                .replaceAll('.', ' ')
-                                .replaceAll('_', ' ')
-                                .split(' ')
-                                .where((w) => w.isNotEmpty)
-                                .map(
-                                  (w) =>
-                                      w[0].toUpperCase() +
-                                      w.substring(1).toLowerCase(),
-                                )
-                                .join(' ')
-                            : '-',
-                        style: const TextStyle(
-                          color: Color(0xFF101828),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                  _buildRow(
+                    context,
+                    'Ürün',
+                    transaction.productId.isNotEmpty
+                        ? transaction.productId
+                            .replaceAll('.', ' ')
+                            .replaceAll('_', ' ')
+                            .split(' ')
+                            .where((w) => w.isNotEmpty)
+                            .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
+                            .join(' ')
+                        : '-',
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Ürün Tipi',
-                        style: TextStyle(
-                          color: Color(0xFF475467),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        transaction.productType.isNotEmpty
-                            ? ProductTypeEnum.translate(transaction.productType)
-                            : '-',
-                        style: const TextStyle(
-                          color: Color(0xFF101828),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: ThemeSize.spacingXs),
+                  _buildRow(
+                    context,
+                    'Ürün Tipi',
+                    transaction.productType.isNotEmpty
+                        ? ProductTypeEnum.translate(transaction.productType)
+                        : '-',
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Platform',
-                        style: TextStyle(
-                          color: Color(0xFF475467),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        transaction.platform.isNotEmpty
-                            ? transaction.platform
-                            : '-',
-                        style: const TextStyle(
-                          color: Color(0xFF101828),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: ThemeSize.spacingXs),
+                  _buildRow(
+                    context,
+                    'Platform',
+                    transaction.platform.isNotEmpty ? transaction.platform : '-',
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Satın Alma Tarihi',
-                        style: TextStyle(
-                          color: Color(0xFF475467),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        purchaseDate,
-                        style: const TextStyle(
-                          color: Color(0xFF101828),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Bitiş Tarihi',
-                        style: TextStyle(
-                          color: Color(0xFF475467),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        expiresDateStr,
-                        style: const TextStyle(
-                          color: Color(0xFF101828),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(height: ThemeSize.spacingXs),
+                  _buildRow(context, 'Satın Alma Tarihi', purchaseDate),
+                  const SizedBox(height: ThemeSize.spacingXs),
+                  _buildRow(context, 'Bitiş Tarihi', expiresDateStr),
                 ],
               ),
             ),
           );
         }),
+      ],
+    );
+  }
+
+  Widget _buildRow(BuildContext context, String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        ThemeTypography.bodyMedium(
+          context,
+          label,
+          color: context.colorScheme.onSurfaceVariant,
+          weight: FontWeight.w500,
+        ),
+        ThemeTypography.bodyMedium(
+          context,
+          value,
+          color: context.colorScheme.onSurface,
+          weight: FontWeight.w600,
+        ),
       ],
     );
   }

@@ -39,15 +39,15 @@ class __CnnInvateCardState extends State<_CnnInvateCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const ThemePadding.marginBottom15(),
       padding: const ThemePadding.all15(),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE9EDF5)),
+        color: context.colorScheme.surface,
+        borderRadius: ThemeRadius.circular12,
+        border: Border.all(color: context.theme.divider),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: context.colorScheme.onSurface.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -72,24 +72,21 @@ class __CnnInvateCardState extends State<_CnnInvateCard> {
           ),
           const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: ThemePadding.horizontalSymmetricFree(12),
             decoration: BoxDecoration(
               color: widget
                   .statusColor(widget.invite.status)
                   .withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(999),
             ),
-            child: Text(
+            child: ThemeTypography.bodySmall(
+              context,
               widget.invite.status.toUpperCase(),
-              style: TextStyle(
-                color: _statusColor,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.4,
-              ),
+              color: _statusColor,
+              weight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: ThemeSize.spacingM),
           Row(
             children: [
               Expanded(
@@ -99,7 +96,7 @@ class __CnnInvateCardState extends State<_CnnInvateCard> {
                   valueColor: null,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: ThemeSize.spacingM),
               Expanded(
                 child: _CnnInviteMetaItem(
                   label: _hasResponded ? 'YANIT TARİHİ' : 'BİTİŞ TARİHİ',
@@ -108,21 +105,20 @@ class __CnnInvateCardState extends State<_CnnInvateCard> {
                         ? widget.invite.respondedAt
                         : widget.invite.expiresAt,
                   ),
-                  valueColor: !_hasResponded && _isExpired
-                      ? const Color(0xFFF97066)
-                      : null,
+                  valueColor:
+                      !_hasResponded && _isExpired ? context.theme.error : null,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: ThemeSize.spacingM),
           ThemeTypography.labelSmall(
             context,
             _isPending ? 'VERİLEN YETKİLER' : 'TALEP EDİLEN YETKİLER',
-            color: context.colorScheme.surface,
+            color: context.colorScheme.onSurface,
             weight: FontWeight.w800,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: ThemeSize.spacingXs),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -143,7 +139,7 @@ class __CnnInvateCardState extends State<_CnnInvateCard> {
                     .toList(),
           ),
           if (_isExpired || _isPending) ...[
-            const SizedBox(height: 14),
+            const SizedBox(height: ThemeSize.spacingM),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton.icon(
@@ -157,7 +153,7 @@ class __CnnInvateCardState extends State<_CnnInvateCard> {
                           ? Icons.refresh
                           : Icons.schedule,
                   size: 16,
-                  color: const Color(0xFF2E90FA),
+                  color: context.colorScheme.primary,
                 ),
                 label: ThemeTypography.bodyLarge(
                   context,

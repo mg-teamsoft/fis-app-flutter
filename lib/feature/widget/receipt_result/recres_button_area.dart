@@ -15,45 +15,41 @@ class _ReceiptResultButtonArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FilledButton.icon(
+          onPressed: (submitting || state.values.any((s) => s.active))
+              ? null
+              : () => approveAll(context),
+          icon: const Icon(Icons.check),
+          label: Text(
+            submitting
+                ? 'Gönderiliyor...'
+                : state.values.any((s) => s.active)
+                    ? 'İşleniyor...'
+                    : "Onayla ve Excel'e Yaz",
+          ),
+        ),
+        if (hasSuccessfulSubmission != null) ...[
+          const SizedBox(height: ThemeSize.spacingS),
           FilledButton.icon(
-            onPressed: (submitting || state.values.any((s) => s.active))
-                ? null
-                : () => approveAll(context),
-            icon: const Icon(Icons.check),
+            onPressed: () async {
+              final route =
+                  hasSuccessfulSubmission! ? '/excelFiles' : '/receipt';
+              await Navigator.pushNamed(context, route);
+            },
+            icon: Icon(
+              hasSuccessfulSubmission! ? Icons.table_view : Icons.receipt_long,
+            ),
             label: Text(
-              submitting
-                  ? 'Gönderiliyor...'
-                  : state.values.any((s) => s.active)
-                      ? 'İşleniyor...'
-                      : "Onayla ve Excel'e Yaz",
+              hasSuccessfulSubmission!
+                  ? 'Excel Dosya Sayfasına Git'
+                  : 'Başa Dön',
             ),
           ),
-          if (hasSuccessfulSubmission != null) ...[
-            const SizedBox(height: ThemeSize.spacingS),
-            FilledButton.icon(
-              onPressed: () async {
-                final route =
-                    hasSuccessfulSubmission! ? '/excelFiles' : '/receipt';
-                await Navigator.pushNamed(context, route);
-              },
-              icon: Icon(
-                hasSuccessfulSubmission!
-                    ? Icons.table_view
-                    : Icons.receipt_long,
-              ),
-              label: Text(
-                hasSuccessfulSubmission!
-                    ? 'Excel Dosya Sayfasına Git'
-                    : 'Başa Dön',
-              ),
-            ),
-          ],
         ],
-      ),
+      ],
     );
   }
 }

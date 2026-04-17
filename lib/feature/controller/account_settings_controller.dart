@@ -214,6 +214,7 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
     return _allPlans.isNotEmpty ? _allPlans.first : null;
   }
 
+  // ignore: unused_element
   PlanOption? get _additionalPlan {
     for (final plan in _allPlans) {
       final key = plan.planKey.toLowerCase();
@@ -355,13 +356,6 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
   }
 
   Future<void> _onBuyAdditional(PlanOption plan) async {
-    if (plan == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ek paket mevcut değil.')),
-      );
-      return;
-    }
-
     setState(() => _updatingPlan = true);
     try {
       await _buyPlan(plan, syncCurrentPlan: false);
@@ -379,6 +373,11 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
         setState(() => _updatingPlan = false);
       }
     }
+  }
+
+  // ignore: unused_element
+  void _onPlanSelected(String planKey) {
+    setState(() => _selectedPlanKey = planKey);
   }
 
   Future<void> _onResendVerification() async {

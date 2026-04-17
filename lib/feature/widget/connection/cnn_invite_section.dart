@@ -37,14 +37,14 @@ class __CnnInviteSectionState extends State<_CnnInviteSection> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const ThemePadding.all16(),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        color: context.colorScheme.surface,
+        borderRadius: ThemeRadius.circular12,
+        border: Border.all(color: context.theme.divider),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: context.colorScheme.onSurface.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -53,51 +53,46 @@ class __CnnInviteSectionState extends State<_CnnInviteSection> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          ThemeTypography.titleMedium(
+            context,
             'Finansal Danışman Davet Et',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            weight: FontWeight.w800,
+            color: context.colorScheme.onSurface,
           ),
-          const SizedBox(height: 4),
-          Text(
+          const SizedBox(height: ThemeSize.spacingXs),
+          ThemeTypography.bodySmall(
+            context,
             'Ekip üyelerine finansal kayıtlarınızı görüntüleme veya yönetme erişimi verin.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey.shade600,
-                ),
+            color: context.colorScheme.outline,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: ThemeSize.spacingM),
           TextField(
             controller: widget.emailController,
             focusNode: widget.emailFocusNode,
             keyboardType: TextInputType.emailAddress,
-            cursorColor: const Color(0xFF2563EB),
+            cursorColor: context.colorScheme.primary,
             decoration: InputDecoration(
               hintText:
                   widget.isEmailFieldFocused ? null : 'E-posta adresi girin',
-              hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey.shade500,
-                  ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              hintStyle: context.textTheme.bodySmall?.copyWith(
+                color: context.colorScheme.outline,
+              ),
+              contentPadding: const ThemePadding.horizontalSymmetricMedium(),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: ThemeRadius.circular12,
+                borderSide: BorderSide(color: context.colorScheme.outline),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: ThemeRadius.circular12,
+                borderSide: BorderSide(color: context.colorScheme.outline),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(
-                  color: Color(0xFF2563EB),
-                  width: 1.5,
-                ),
+                borderRadius: ThemeRadius.circular8,
+                borderSide: BorderSide(color: context.colorScheme.primary),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: ThemeSize.spacingM),
           Row(
             children: [
               Expanded(
@@ -111,7 +106,7 @@ class __CnnInviteSectionState extends State<_CnnInviteSection> {
                   },
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: ThemeSize.spacingM),
               Expanded(
                 child: _CnnInvitePermissionSwitch(
                   label: 'Dosyaları İndir',
@@ -125,28 +120,31 @@ class __CnnInviteSectionState extends State<_CnnInviteSection> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: ThemeSize.spacingXs),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: widget.isInviteLoading ? null : widget.handleInvite,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
-                foregroundColor: Colors.white,
+                backgroundColor: context.colorScheme.primary,
+                foregroundColor: context.colorScheme.surface,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: ThemeRadius.circular8,
                 ),
               ),
               child: widget.isInviteLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
+                  ? SizedBox(
+                      width: ThemeSize.iconMedium,
+                      height: ThemeSize.iconMedium,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            context.colorScheme.onSurface),
                       ),
                     )
-                  : const Text('Davet Et'),
+                  : ThemeTypography.bodyMedium(context, 'Davet Et',
+                      weight: FontWeight.w500,
+                      color: context.colorScheme.surface),
             ),
           ),
         ],

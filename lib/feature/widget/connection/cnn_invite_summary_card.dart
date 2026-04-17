@@ -12,8 +12,8 @@ class _CnnInviteSummaryCard extends StatelessWidget {
     return Container(
       padding: const ThemePadding.all16(),
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F7FF),
-        borderRadius: BorderRadius.circular(14),
+        color: context.colorScheme.surface,
+        borderRadius: ThemeRadius.circular12,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,12 +24,12 @@ class _CnnInviteSummaryCard extends StatelessWidget {
             color: context.colorScheme.onSurface,
             weight: FontWeight.w700,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: ThemeSize.spacingXs),
           RichText(
             text: TextSpan(
               style: context.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF1D4ED8),
+                color: context.colorScheme.primary,
               ),
               children: [
                 TextSpan(text: '$pendingCount'),
@@ -37,13 +37,13 @@ class _CnnInviteSummaryCard extends StatelessWidget {
                   text: ' Beklemede',
                   style: context.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF1D4ED8),
+                    color: context.colorScheme.primary,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: ThemeSize.spacingXs),
           ThemeTypography.bodySmall(
             context,
             'Finansal danışmanlarınıza gönderilen davetiyeleri yönetin. İzinleri inceleyin ve durumu gerçek zamanlı olarak takip edin.',

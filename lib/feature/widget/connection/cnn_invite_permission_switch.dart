@@ -16,34 +16,30 @@ class _CnnInvitePermissionSwitch extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
+        color: context.colorScheme.surface,
+        borderRadius: ThemeRadius.circular8,
+        border: Border.all(color: context.theme.divider),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: Text(
-              label,
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-            ),
+            child: ThemeTypography.bodySmall(context, label,
+                weight: FontWeight.w500, color: context.colorScheme.onSurface),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: ThemeSize.spacingXs),
           Switch(
             value: value,
             onChanged: onChanged,
             thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
-              return Colors.white;
+              return context.colorScheme.surface;
             }),
             trackColor: WidgetStateProperty.resolveWith<Color>((states) {
               if (states.contains(WidgetState.selected)) {
-                return const Color(0xFF2563EB);
+                return context.colorScheme.primary;
               }
-              return const Color(0xFFE2E8F0);
+              return context.theme.divider;
             }),
             trackOutlineColor: WidgetStateProperty.resolveWith<Color>((states) {
               return Colors.transparent;

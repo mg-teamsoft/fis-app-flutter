@@ -2,7 +2,6 @@ part of '../page/account_settings_page.dart';
 
 class _AccountSettingsView extends StatelessWidget {
   const _AccountSettingsView({
-    super.key,
     required this.scrollController,
     required this.loading,
     required this.updatingPlan,
@@ -55,85 +54,82 @@ class _AccountSettingsView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (loading) {
       return const Center(child: CircularProgressIndicator());
-    }
-
-    if (error != null) {
+    } else if (error != null) {
       return _ErrorView(
         message: 'Hesap ayarları yüklenemedi.',
         details: error,
         onRetry: loadAll,
       );
-    }
-
-    if (user == null) {
+    } else if (user == null) {
       return _ErrorView(
         message: 'Kullanıcı profili bulunamadı.',
         onRetry: loadAll,
       );
-    }
+    } else {
+      final plansWithInterval = plans
+          .where((plan) =>
+              plan.productType != 'consumable' && plan.planKey != 'FREE')
+          .toList();
 
-    final plansWithInterval = plans
-        .where((plan) =>
-            plan.productType != 'consumable' && plan.planKey != 'FREE')
-        .toList();
-
-    final additionalPlans =
-        plans.where((plan) => plan.planKey == 'ADDITIONAL_100').toList();
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: ListView(
-        controller: scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const ThemePadding.all20(),
-        children: [
-          const _AccountSettingsSectionTitle(text: 'Hesap Detayları'),
-          const SizedBox(height: ThemeSize.spacingM),
-          _AccountSettingsDetailsCard(
-            user: user!,
-            resendingVerification: resendingVerification,
-            onResendVerification: onResendVerification,
-          ),
-          const SizedBox(height: ThemeSize.spacingM),
-          _AccountSettingsResetPasswordButton(onResetPassword: onResetPassword),
-          const SizedBox(height: ThemeSize.spacingL),
-          _AccountSettingsActivePlan(
-            updatingPlan: updatingPlan,
-            plans: plansWithInterval,
-            additionalPlans: additionalPlans,
-            activePlan: activePlan,
-            selectedPlanKey: selectedPlanKey,
-            onBuyAdditional: onBuyAdditional,
-            onPlanSelected: onPlanSelected,
-            availablePlanBackground: availablePlanBackground,
-            availablePlanBorder: availablePlanBorder,
-          ),
-          const SizedBox(height: ThemeSize.spacingM),
-          if (plansWithInterval.isNotEmpty)
-            _ActiveSettingsUpdateButton(
-              updatingPlan: updatingPlan,
-              selectedPlanKey: selectedPlanKey,
-              currentPlanKey: currentPlanKey,
-              onUpdatePlan: onUpdatePlan,
+      final additionalPlans =
+          plans.where((plan) => plan.planKey == 'ADDITIONAL_100').toList();
+      return RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView(
+          controller: scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const ThemePadding.all20(),
+          children: [
+            const _AccountSettingsSectionTitle(text: 'Hesap Detayları'),
+            const SizedBox(height: ThemeSize.spacingM),
+            _AccountSettingsDetailsCard(
+              user: user!,
+              resendingVerification: resendingVerification,
+              onResendVerification: onResendVerification,
             ),
-          const SizedBox(height: ThemeSize.spacingL),
-          const _AccountSettingsSectionTitle(text: 'Ödeme Detayları'),
-          const SizedBox(height: ThemeSize.spacingM),
-          _AccountSettingsPaymentDetailsTable(
-            transactions: transactions,
-            error: transactionError,
-          ),
-          const SizedBox(height: ThemeSize.spacingM),
-          Text(
-            'Plan değişiklikleri hemen uygulanır. Mevcut fatura dönemindeki kullanılmayan kota için iade yapılmaz.',
-            textAlign: TextAlign.center,
-            style: context.textTheme.bodyMedium?.copyWith(
+            const SizedBox(height: ThemeSize.spacingM),
+            _AccountSettingsResetPasswordButton(
+              onResetPassword: onResetPassword,
+            ),
+            const SizedBox(height: ThemeSize.spacingL),
+            _AccountSettingsActivePlan(
+              updatingPlan: updatingPlan,
+              plans: plansWithInterval,
+              additionalPlans: additionalPlans,
+              activePlan: activePlan,
+              selectedPlanKey: selectedPlanKey,
+              onBuyAdditional: onBuyAdditional,
+              onPlanSelected: onPlanSelected,
+              availablePlanBackground: availablePlanBackground,
+              availablePlanBorder: availablePlanBorder,
+            ),
+            const SizedBox(height: ThemeSize.spacingM),
+            if (plansWithInterval.isNotEmpty)
+              _ActiveSettingsUpdateButton(
+                updatingPlan: updatingPlan,
+                selectedPlanKey: selectedPlanKey,
+                currentPlanKey: currentPlanKey,
+                onUpdatePlan: onUpdatePlan,
+              ),
+            const SizedBox(height: ThemeSize.spacingL),
+            const _AccountSettingsSectionTitle(text: 'Ödeme Detayları'),
+            const SizedBox(height: ThemeSize.spacingM),
+            _AccountSettingsPaymentDetailsTable(
+              transactions: transactions,
+              error: transactionError,
+            ),
+            const SizedBox(height: ThemeSize.spacingM),
+            ThemeTypography.bodyMedium(
+              context,
+              'Plan değişiklikleri hemen uygulanır. Mevcut fatura dönemindeki kullanılmayan kota için iade yapılmaz.',
+              textAlign: TextAlign.center,
               color: context.colorScheme.outline,
             ),
-          ),
-          const SizedBox(height: ThemeSize.spacingM),
-          SizedBox(height: navSpacer),
-        ],
-      ),
-    );
+            const SizedBox(height: ThemeSize.spacingM),
+            SizedBox(height: navSpacer),
+          ],
+        ),
+      );
+    }
   }
 }

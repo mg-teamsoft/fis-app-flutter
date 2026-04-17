@@ -50,46 +50,47 @@ final class _SettingsView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (loading) {
       return const Center(child: CircularProgressIndicator());
-    }
-    return ListView(
-      padding: const ThemePadding.all20(),
-      children: [
-        const _SettingsHeader(),
-        const SizedBox(height: ThemeSize.spacingL),
-        Text(
-          'Fişler için minimum ve maksimum tutarları ayarlayın.',
-          style: context.textTheme.bodyLarge?.copyWith(
-            color: context.colorScheme.onSurface,
+    } else {
+      return ListView(
+        padding: const ThemePadding.all20(),
+        children: [
+          const _SettingsHeader(),
+          const SizedBox(height: ThemeSize.spacingL),
+          Text(
+            'Fişler için minimum ve maksimum tutarları ayarlayın.',
+            style: context.textTheme.bodyLarge?.copyWith(
+              color: context.colorScheme.onSurface,
+            ),
           ),
-        ),
-        const SizedBox(height: ThemeSize.spacingM),
-        _SettingsTextFieldArea(
-          moneyUnit: moneyUnit,
-          minLimitController: minLimitController,
-          maxLimitController: maxLimitController,
-          monthlyTargetController: monthlyTargetController,
-        ),
-        const SizedBox(height: ThemeSize.spacingXl),
-        const _SettingsTransaction(),
-        const SizedBox(height: ThemeSize.spacingM),
-        _SettingsCheckBoxTileArea(
-          onChanged: _onChanged,
-          food: food,
-          meal: meal,
-          fuel: fuel,
-          parking: parking,
-          electronic: electronic,
-          medication: medication,
-          stationery: stationery,
-          makeup: makeup,
-        ),
-        const SizedBox(height: ThemeSize.spacingXXl),
-        _SettingsSaveButton(
-          saving: saving,
-          hasChanges: hasChanges,
-          saveSettings: saveSettings,
-        ),
-      ],
-    );
+          const SizedBox(height: ThemeSize.spacingM),
+          _SettingsTextFieldArea(
+            moneyUnit: moneyUnit,
+            minLimitController: minLimitController,
+            maxLimitController: maxLimitController,
+            monthlyTargetController: monthlyTargetController,
+          ),
+          const SizedBox(height: ThemeSize.spacingXl),
+          const _SettingsTransaction(),
+          const SizedBox(height: ThemeSize.spacingM),
+          _SettingsCheckBoxTileArea(
+            onChanged: _onChanged,
+            food: food,
+            meal: meal,
+            fuel: fuel,
+            parking: parking,
+            electronic: electronic,
+            medication: medication,
+            stationery: stationery,
+            makeup: makeup,
+          ),
+          const SizedBox(height: ThemeSize.spacingXXl),
+          _SettingsSaveButton(
+            saving: saving,
+            hasChanges: hasChanges,
+            saveSettings: saveSettings,
+          ),
+        ],
+      );
+    }
   }
 }

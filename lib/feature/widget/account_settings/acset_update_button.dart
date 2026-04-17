@@ -16,7 +16,7 @@ class _ActiveSettingsUpdateButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 68,
+      height: ThemeSize.buttonHeightLarge,
       child: ElevatedButton(
         onPressed: (selectedPlanKey == null ||
                 selectedPlanKey == currentPlanKey ||
@@ -39,12 +39,11 @@ class _ActiveSettingsUpdateButton extends StatelessWidget {
                   color: context.colorScheme.onPrimary,
                 ),
               )
-            : Text(
+            : ThemeTypography.bodyMedium(
+                context,
                 'Planı Güncelle',
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colorScheme.onSurface,
-                  fontWeight: FontWeight.w700,
-                ),
+                color: context.colorScheme.onSurface,
+                weight: FontWeight.w700,
               ),
       ),
     );

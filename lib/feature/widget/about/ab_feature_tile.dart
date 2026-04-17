@@ -12,15 +12,15 @@ class _AboutFeatureTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const ThemePadding.marginBottom10(),
       child: Row(
         children: [
           Container(
             decoration: BoxDecoration(
               color: context.colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: ThemeRadius.circular12,
             ),
-            padding: const EdgeInsets.all(10),
+            padding: const ThemePadding.all10(),
             child: Icon(
               icon,
               color: context.colorScheme.onPrimaryContainer,
@@ -29,9 +29,10 @@ class _AboutFeatureTile extends StatelessWidget {
           ),
           const SizedBox(width: ThemeSize.spacingM),
           Expanded(
-            child: Text(
+            child: ThemeTypography.bodyMedium(
+              context,
               text,
-              style: context.textTheme.bodyMedium,
+              color: context.colorScheme.onSurface,
             ),
           ),
         ],

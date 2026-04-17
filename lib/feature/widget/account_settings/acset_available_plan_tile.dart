@@ -18,7 +18,7 @@ class _AccountSettingsAvailablePlanTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveBorderColor =
-        selected ? const Color(0xFF1570EF) : borderColor;
+        selected ? context.colorScheme.primary : borderColor;
 
     return AnimatedScale(
       scale: selected ? 1.025 : 1.0,
@@ -30,10 +30,10 @@ class _AccountSettingsAvailablePlanTile extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
+          padding: const ThemePadding.verticalSymmetricMedium(),
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: ThemeRadius.circular16,
             border: Border.all(
               color: effectiveBorderColor,
               width: selected ? 2.5 : 1.4,
@@ -41,84 +41,80 @@ class _AccountSettingsAvailablePlanTile extends StatelessWidget {
             boxShadow: selected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF1570EF).withValues(alpha: 0.18),
+                      color:
+                          context.colorScheme.primary.withValues(alpha: 0.18),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
                   ]
                 : null,
           ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (selected) ...[
-              Container(
-                margin: const EdgeInsets.only(right: 10, top: 2),
-                padding: const EdgeInsets.all(3),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFF1570EF),
-                ),
-                child: const Icon(
-                  Icons.check,
-                  size: 12,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    plan.name,
-                    style: const TextStyle(
-                      color: Color(0xFF101828),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 36 / 2,
-                    ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (selected) ...[
+                Container(
+                  margin: const EdgeInsets.only(right: 10, top: 2),
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: context.colorScheme.primary,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    plan.description.isNotEmpty
-                        ? plan.description
-                        : 'Abonelik planı',
-                    style: context.textTheme.bodyMedium?.copyWith(
+                  child: Icon(
+                    Icons.check,
+                    size: ThemeSize.iconSmall,
+                    color: context.colorScheme.surface,
+                  ),
+                ),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ThemeTypography.bodyLarge(
+                      context,
+                      plan.name,
+                      color: context.colorScheme.onSurface,
+                      weight: FontWeight.w700,
+                    ),
+                    const SizedBox(height: 4),
+                    ThemeTypography.bodyMedium(
+                      context,
+                      plan.description.isNotEmpty
+                          ? plan.description
+                          : 'Abonelik planı',
                       color: context.theme.divider,
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    '${plan.quota ?? 0} FATURA   •   ${_periodLabel(plan.period).toUpperCase()}',
-                    style: const TextStyle(
-                      color: Color(0xFF1570EF),
-                      fontWeight: FontWeight.w700,
+                    const SizedBox(height: ThemeSize.spacingM),
+                    ThemeTypography.bodyMedium(
+                      context,
+                      '${plan.quota ?? 0} FATURA   •   ${_periodLabel(plan.period).toUpperCase()}',
+                      color: context.colorScheme.primary,
+                      weight: FontWeight.w700,
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  ThemeTypography.bodyLarge(
+                    context,
+                    plan.priceLabel,
+                    color: context.colorScheme.onSurface,
+                    weight: FontWeight.w700,
+                  ),
+                  const SizedBox(height: 6),
+                  ThemeTypography.bodyMedium(
+                    context,
+                    _periodLabel(plan.period),
+                    color: context.theme.divider,
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  plan.priceLabel,
-                  style: const TextStyle(
-                    color: Color(0xFF101828),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 44 / 2,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  _periodLabel(plan.period),
-                  style: const TextStyle(color: Color(0xFF98A2B3)),
-                ),
-              ],
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );

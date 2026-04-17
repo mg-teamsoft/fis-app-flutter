@@ -6,30 +6,29 @@ class _AboutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: ThemeSize.spacingL,
-        vertical: ThemeSize.spacingL,
-      ),
+      padding: const ThemePadding.horizontalSymmetric(),
       child: Column(
         children: [
           // App name
-          Text(
+          ThemeTypography.h4(
+            context,
             'My Fiş App',
-            style: context.textTheme.headlineMedium,
+            color: context.colorScheme.onSurface,
           ),
           const SizedBox(height: ThemeSize.spacingL),
           // App icon in circle
           const CircleAvatar(
-            radius: 100,
+            radius: ThemeSize.avatarXL,
             backgroundImage: AssetImage('assets/icon/AppImage.jpg'),
             backgroundColor: Colors.transparent,
           ),
           const SizedBox(height: ThemeSize.spacingM),
-          Text(
+          ThemeTypography.bodyMedium(
+            context,
             'Küçük işletmeniz için fişlerinizi zahmetsizce taratın, kaydedin ve gönderin. '
             'Uygulamamız, sorunsuz, hızlı fişlerinizi dijital ortama almanıza yardımcı olmak için tasarlanmıştır.',
             textAlign: TextAlign.center,
-            style: context.textTheme.bodyMedium,
+            color: context.colorScheme.onSurface,
           ),
           const SizedBox(height: ThemeSize.spacingL),
 
