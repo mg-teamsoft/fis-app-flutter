@@ -114,7 +114,7 @@ mixin _NotificationController on State<PageNotification> {
 
     try {
       await _notificationService.markAsRead([notification.id]);
-    } on Exception catch (e, stackTrace) {
+    } on Exception catch (e) {
       _notificationService.incrementUnreadCount();
       if (!mounted) return;
       setState(() {

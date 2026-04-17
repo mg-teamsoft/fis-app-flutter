@@ -131,7 +131,10 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
               icon: const Icon(Icons.shopping_cart_checkout),
               label: Text(
                 'Ek ${widget.additionalPlans.first.quota} Kota Satın Al ${widget.additionalPlans.first.priceLabel}',
-                style: TextStyle(fontSize: 32 / 2, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  fontSize: 32 / 2,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

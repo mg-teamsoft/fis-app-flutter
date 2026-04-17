@@ -47,14 +47,16 @@ class _NotificationView extends StatelessWidget {
                         )
                       : ListView.separated(
                           controller: scrollController,
-                          itemCount: notifications.length + (isLoadingMore ? 1 : 0),
+                          itemCount:
+                              notifications.length + (isLoadingMore ? 1 : 0),
                           separatorBuilder: (context, index) =>
                               Divider(color: Colors.grey.shade200),
                           itemBuilder: (context, index) {
                             if (index == notifications.length) {
                               return const Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Center(child: CircularProgressIndicator()),
+                                padding: EdgeInsets.all(16),
+                                child:
+                                    Center(child: CircularProgressIndicator()),
                               );
                             }
                             final notif = notifications[index];
