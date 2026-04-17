@@ -78,7 +78,7 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '${widget.plan.quota ?? 0} fatura/ay  •  $renewLabel',
+                      widget.plan.description,
                       style: context.textTheme.bodyMedium?.copyWith(
                         color: context.theme.divider,
                       ),
@@ -130,9 +130,9 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
               ),
               icon: const Icon(Icons.shopping_cart_checkout),
               label: Text(
-                'Ek ${widget.additionalPlans.first.quota} Kota Satın Al ${widget.additionalPlans.first.priceLabel}',
+                'Ek ${widget.additionalPlans.first.quota} Kota Satın Al - ${widget.additionalPlans.first.priceLabel}',
                 style: const TextStyle(
-                  fontSize: 32 / 2,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),
