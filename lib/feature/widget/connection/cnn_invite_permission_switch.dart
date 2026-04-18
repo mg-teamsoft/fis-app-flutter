@@ -25,8 +25,12 @@ class _CnnInvitePermissionSwitch extends StatelessWidget {
         children: [
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: ThemeTypography.bodySmall(context, label,
-                weight: FontWeight.w500, color: context.colorScheme.onSurface),
+            child: ThemeTypography.bodySmall(
+              context,
+              label,
+              weight: FontWeight.w500,
+              color: context.colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: ThemeSize.spacingXs),
           Switch(

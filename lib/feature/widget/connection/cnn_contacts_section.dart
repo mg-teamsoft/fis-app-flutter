@@ -7,12 +7,14 @@ class _CnnContactsSection extends StatelessWidget {
     required this.contacts,
     required this.contactsError,
     required this.onRetry,
+    required this.onRemoveAccess,
   });
 
   final bool isContactsLoading;
   final List<_Contact> contacts;
   final String? contactsError;
   final VoidCallback onRetry;
+  final Future<void> Function(_Contact) onRemoveAccess;
   final String Function(String) statusLabel;
 
   @override
@@ -75,8 +77,11 @@ class _CnnContactsSection extends StatelessWidget {
     return Column(
       children: contacts
           .map(
-            (contact) =>
-                _ConnectionCard(contact: contact, statusLabel: statusLabel),
+            (contact) => _ConnectionCard(
+              contact: contact,
+              statusLabel: statusLabel,
+              onRemoveAccess: onRemoveAccess,
+            ),
           )
           .toList(),
     );

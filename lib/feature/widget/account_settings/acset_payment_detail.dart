@@ -94,7 +94,11 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
                             .replaceAll('_', ' ')
                             .split(' ')
                             .where((w) => w.isNotEmpty)
-                            .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
+                            .map(
+                              (w) =>
+                                  w[0].toUpperCase() +
+                                  w.substring(1).toLowerCase(),
+                            )
                             .join(' ')
                         : '-',
                   ),
@@ -110,7 +114,9 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
                   _buildRow(
                     context,
                     'Platform',
-                    transaction.platform.isNotEmpty ? transaction.platform : '-',
+                    transaction.platform.isNotEmpty
+                        ? transaction.platform
+                        : '-',
                   ),
                   const SizedBox(height: ThemeSize.spacingXs),
                   _buildRow(context, 'Satın Alma Tarihi', purchaseDate),

@@ -37,6 +37,7 @@ class _PageConnectionsState extends State<PageConnections>
       loadSupervisors: _loadSupervisors,
       loadInvites: _loadInvites,
       handleResendInvite: _handleResendInvite,
+      handleRemoveSupervisorAccess: _handleRemoveSupervisorAccess,
       mapContact: _mapContact,
       buildInitials: _buildInitials,
       statusColor: _statusColor,

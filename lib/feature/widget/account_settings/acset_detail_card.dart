@@ -43,8 +43,11 @@ class _AccountSettingsDetailsCard extends StatelessWidget {
           const SizedBox(height: ThemeSize.spacingM),
           Divider(height: 1, color: context.theme.divider),
           const SizedBox(height: ThemeSize.spacingM),
-          ThemeTypography.bodyLarge(context, 'E-posta',
-              color: context.colorScheme.outline),
+          ThemeTypography.bodyLarge(
+            context,
+            'E-posta',
+            color: context.colorScheme.outline,
+          ),
           const SizedBox(height: ThemeSize.spacingXs),
           ThemeTypography.bodyLarge(
             context,
@@ -86,8 +89,11 @@ class _AccountSettingsDetailsCard extends StatelessWidget {
                             width: 14,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : ThemeTypography.bodyMedium(context, 'Tekrar Gönder',
-                            color: context.colorScheme.primary),
+                        : ThemeTypography.bodyMedium(
+                            context,
+                            'Tekrar Gönder',
+                            color: context.colorScheme.primary,
+                          ),
                   ),
                 ],
               ),

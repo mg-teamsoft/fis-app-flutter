@@ -190,6 +190,34 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     }
   }
 
+  Future<void> _handleRemoveSupervisorAccess(_Contact contact) async {
+    if (contact.id.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Geçerli bir danışman bulunamadı')),
+      );
+      return;
+    }
+
+    try {
+      await _connectionsService.removeSupervisorAccess(contact.id);
+      if (!mounted) return;
+
+      setState(() {
+        _contacts = _contacts.where((item) => item.id != contact.id).toList();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erişim kaldırıldı')),
+      );
+    } on Exception catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+        ),
+      );
+    }
+  }
+
   _Contact _mapContact(SupervisorContactDto supervisor) {
     return _Contact(
       id: supervisor.id,

@@ -139,12 +139,16 @@ class __CnnInviteSectionState extends State<_CnnInviteSection> {
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            context.colorScheme.onSurface),
+                          context.colorScheme.onSurface,
+                        ),
                       ),
                     )
-                  : ThemeTypography.bodyMedium(context, 'Davet Et',
+                  : ThemeTypography.bodyMedium(
+                      context,
+                      'Davet Et',
                       weight: FontWeight.w500,
-                      color: context.colorScheme.surface),
+                      color: context.colorScheme.surface,
+                    ),
             ),
           ),
         ],

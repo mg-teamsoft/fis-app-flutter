@@ -67,8 +67,10 @@ class _AccountSettingsView extends StatelessWidget {
       );
     } else {
       final plansWithInterval = plans
-          .where((plan) =>
-              plan.productType != 'consumable' && plan.planKey != 'FREE')
+          .where(
+            (plan) =>
+                plan.productType != 'consumable' && plan.planKey != 'FREE',
+          )
           .toList();
 
       final additionalPlans =

@@ -67,6 +67,32 @@ class ConnectionsService {
     }
   }
 
+  Future<void> removeSupervisorAccess(String supervisorUserId) async {
+    final normalizedSupervisorUserId = supervisorUserId.trim();
+    if (normalizedSupervisorUserId.isEmpty) {
+      throw Exception('Geçerli bir danışman kimliği bulunamadı');
+    }
+
+    try {
+      final response = await _api.dio.delete<Map<String, dynamic>>(
+        '/api/contacts/supervisors/$normalizedSupervisorUserId',
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Erişim kaldırılamadı');
+      }
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Erişim kaldırılamadı');
+    }
+  }
+
   Future<void> inviteSupervisor({
     required String email,
     required List<ContactPermission> permissions,
@@ -216,12 +242,12 @@ class ConnectionsService {
     ]);
 
     return SupervisorContactDto(
-      id: (json['linkId'] ??
-              json['id'] ??
-              json['_id'] ??
-              json['supervisorUserId'] ??
+      id: (json['supervisorUserId'] ??
               supervisor['userId'] ??
               supervisor['_id'] ??
+              json['linkId'] ??
+              json['id'] ??
+              json['_id'] ??
               email)
           .toString(),
       name: _pickFirstNonEmpty([

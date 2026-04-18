@@ -43,8 +43,11 @@ class _CnnInviteTableSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ThemeTypography.bodyMedium(context, invitesError!,
-                color: context.theme.error),
+            ThemeTypography.bodyMedium(
+              context,
+              invitesError!,
+              color: context.theme.error,
+            ),
             const SizedBox(height: ThemeSize.spacingM),
             ElevatedButton(
               onPressed: loadInvites,

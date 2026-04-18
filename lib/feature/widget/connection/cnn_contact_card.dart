@@ -1,9 +1,14 @@
 part of '../../page/connection_page.dart';
 
 class _ConnectionCard extends StatefulWidget {
-  const _ConnectionCard({required this.statusLabel, required this.contact});
+  const _ConnectionCard({
+    required this.statusLabel,
+    required this.contact,
+    required this.onRemoveAccess,
+  });
 
   final _Contact contact;
+  final Future<void> Function(_Contact) onRemoveAccess;
   final String Function(String) statusLabel;
 
   @override
@@ -15,6 +20,7 @@ class __ConnectionCardState extends State<_ConnectionCard> {
   late Color _statusColor;
   late Color _cardBorderColor;
   late _Contact _contact;
+  bool _isRemovingAccess = false;
 
   @override
   void initState() {
@@ -183,10 +189,17 @@ class __ConnectionCardState extends State<_ConnectionCard> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () {},
+                  onPressed: _isRemovingAccess
+                      ? null
+                      : () async {
+                          setState(() => _isRemovingAccess = true);
+                          await widget.onRemoveAccess(_contact);
+                          if (!mounted) return;
+                          setState(() => _isRemovingAccess = false);
+                        },
                   child: ThemeTypography.bodyMedium(
                     context,
-                    'Erişimi Kaldır',
+                    _isRemovingAccess ? 'Kaldırılıyor...' : 'Erişimi Kaldır',
                     color: context.theme.error,
                     weight: FontWeight.w800,
                   ),

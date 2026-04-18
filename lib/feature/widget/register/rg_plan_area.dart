@@ -53,15 +53,21 @@ class __RegisterPlanAreaState extends State<_RegisterPlanArea> {
                 onRetry: widget.retryPlans,
               );
             }
-            final plans = snapshot.data ?? const <PlanOption>[];
+            final plans = (snapshot.data ?? const <PlanOption>[])
+                .where((plan) => plan.isFreePlan)
+                .toList();
             if (plans.isEmpty) {
               return _PlanErrorState(
-                message: 'Görüntülenecek plan bulunamadı.',
+                message: 'Görüntülenecek ücretsiz plan bulunamadı.',
                 onRetry: widget.retryPlans,
               );
             }
 
-            if (_selectedPlanKey == null && plans.isNotEmpty) {
+            final hasSelectedPlan = plans.any(
+              (plan) => plan.planKey == _selectedPlanKey,
+            );
+
+            if (!hasSelectedPlan) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!mounted) return;
                 setState(() => _selectedPlanKey = plans.first.planKey);

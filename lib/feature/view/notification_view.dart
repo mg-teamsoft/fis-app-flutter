@@ -75,7 +75,8 @@ class _NotificationView extends StatelessWidget {
                                       height: 8,
                                       margin:
                                           ThemePadding.verticalSymmetricFree(
-                                              12),
+                                        12,
+                                      ),
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: isUnread

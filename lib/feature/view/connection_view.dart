@@ -6,6 +6,7 @@ class _ConnectionView extends StatelessWidget {
     required this.loadSupervisors,
     required this.loadInvites,
     required this.handleResendInvite,
+    required this.handleRemoveSupervisorAccess,
     required this.mapContact,
     required this.buildInitials,
     required this.statusColor,
@@ -48,6 +49,7 @@ class _ConnectionView extends StatelessWidget {
   final Future<void> Function() loadSupervisors;
   final Future<void> Function() loadInvites;
   final Future<void> Function(ContactInviteDto) handleResendInvite;
+  final Future<void> Function(_Contact) handleRemoveSupervisorAccess;
   final _Contact Function(SupervisorContactDto) mapContact;
   final String Function(String, String) buildInitials;
   final Color Function(String) statusColor;
@@ -95,6 +97,7 @@ class _ConnectionView extends StatelessWidget {
                     contacts: contacts,
                     contactsError: contactsError,
                     onRetry: loadSupervisors,
+                    onRemoveAccess: handleRemoveSupervisorAccess,
                   ),
                   const SizedBox(height: ThemeSize.spacingL),
                   _CnnFeaturedStats(contacts: contacts),

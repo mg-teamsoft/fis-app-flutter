@@ -19,9 +19,11 @@ class _CnnPermissionChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon,
-                size: ThemeSize.iconSmall,
-                color: context.colorScheme.onSurface),
+            Icon(
+              icon,
+              size: ThemeSize.iconSmall,
+              color: context.colorScheme.onSurface,
+            ),
             const SizedBox(width: ThemeSize.spacingXs),
           ],
           ThemeTypography.bodySmall(
