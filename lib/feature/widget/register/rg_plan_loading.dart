@@ -12,16 +12,16 @@ final class _PlanLoadingState extends StatelessWidget {
         (index) => Padding(
           padding: EdgeInsets.only(bottom: index == 2 ? 0 : 12),
           child: Container(
-            height: 88,
+            height: ThemeSize.avatarLarge,
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: ThemeRadius.circular16,
               border: Border.all(color: theme.colorScheme.outlineVariant),
             ),
             child: const Center(
               child: SizedBox(
-                height: 20,
-                width: 20,
+                height: ThemeSize.spacingM,
+                width: ThemeSize.spacingM,
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
             ),

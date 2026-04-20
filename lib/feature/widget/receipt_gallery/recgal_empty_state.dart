@@ -7,20 +7,21 @@ final class _GalleryEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const ThemePadding.all32(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.receipt_long,
-              size: 56,
+              size: ThemeSize.iconXL,
               color: context.colorScheme.primary,
             ),
-            const SizedBox(height: 16),
-            Text(
+            const SizedBox(height: ThemeSize.spacingM),
+            ThemeTypography.titleMedium(
+              context,
               'Henüz kayıtlı fiş bulunmuyor.',
-              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
+              color: context.theme.warning,
             ),
           ],
         ),

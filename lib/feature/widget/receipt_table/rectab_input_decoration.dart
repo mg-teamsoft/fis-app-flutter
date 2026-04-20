@@ -1,19 +1,20 @@
 part of '../../page/receipt_table_page.dart';
 
-InputDecoration _inputDecoration(String hint, {String? errorText}) =>
+InputDecoration _inputDecoration(BuildContext context, String hint,
+        {String? errorText}) =>
     InputDecoration(
       hintText: hint,
       errorText: errorText,
       isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      contentPadding: const ThemePadding.verticalSymmetricSmall(),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: ThemeRadius.circular8,
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: ThemeRadius.circular8,
         borderSide: errorText != null
-            ? const BorderSide(color: Color(0xFFD32F2F), width: 1.5)
+            ? BorderSide(color: context.theme.error, width: 1.5)
             : BorderSide.none,
       ),
       filled: false,

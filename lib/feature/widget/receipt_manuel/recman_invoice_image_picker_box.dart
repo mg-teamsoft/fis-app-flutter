@@ -19,21 +19,21 @@ class _InvoiceImagePickerBox extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: ThemeRadius.circular16,
       child: Container(
         height: 180,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: context.colorScheme.surface,
+          borderRadius: ThemeRadius.circular16,
           border: Border.all(
-            color: hasError ? const Color(0xFFF04438) : const Color(0xFFD0D5DD),
+            color: hasError ? context.theme.error : context.colorScheme.surface,
             width: 1.5,
           ),
         ),
         child: hasImage
             ? ClipRRect(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: ThemeRadius.circular12,
                 child: kIsWeb
                     ? Image.memory(
                         imageBytes!,
@@ -48,22 +48,21 @@ class _InvoiceImagePickerBox extends StatelessWidget {
               )
             : CustomPaint(
                 painter: _DashedBorderPainter(),
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.add_photo_alternate_outlined,
-                        size: 44,
-                        color: Color(0xFF98A2B3),
+                        size: ThemeSize.iconXL,
+                        color: context.colorScheme.onSurfaceVariant,
                       ),
-                      SizedBox(height: 8),
-                      Text(
+                      const SizedBox(height: ThemeSize.spacingS),
+                      ThemeTypography.bodyMedium(
+                        context,
                         'Fiş görseli ekle',
-                        style: TextStyle(
-                          color: Color(0xFF667085),
-                          fontWeight: FontWeight.w500,
-                        ),
+                        color: context.colorScheme.onSurfaceVariant,
+                        weight: FontWeight.w500,
                       ),
                     ],
                   ),

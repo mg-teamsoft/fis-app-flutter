@@ -21,9 +21,10 @@ class _ExcelTwiceButton extends StatelessWidget {
         FilledButton.icon(
           onPressed: isBusy ? null : () => open(entry),
           icon: const Icon(Icons.open_in_new),
-          label: Text(
+          label: ThemeTypography.bodyMedium(
+            context,
             isBusy ? 'Açılıyor...' : 'Aç',
-            style: context.textTheme.bodySmall,
+            color: context.colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(
@@ -32,9 +33,10 @@ class _ExcelTwiceButton extends StatelessWidget {
         OutlinedButton.icon(
           onPressed: isBusy ? null : () => download(entry),
           icon: const Icon(Icons.download),
-          label: Text(
+          label: ThemeTypography.bodyMedium(
+            context,
             isBusy ? 'İndiriliyor...' : 'İndir',
-            style: context.textTheme.bodySmall,
+            color: context.colorScheme.onSurfaceVariant,
           ),
         ),
       ],

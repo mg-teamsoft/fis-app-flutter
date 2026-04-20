@@ -9,23 +9,21 @@ final class _SettingsTransaction extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.settings, color: Colors.blue),
+            Icon(Icons.settings, color: context.colorScheme.primary),
             const SizedBox(width: ThemeSize.spacingS),
-            Text(
+            ThemeTypography.titleLarge(
+              context,
               'İşlem Yönetimi',
-              style: context.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: context.colorScheme.primary,
-              ),
+              weight: FontWeight.w900,
+              color: context.colorScheme.primary,
             ),
           ],
         ),
         const SizedBox(width: ThemeSize.spacingS),
-        Text(
+        ThemeTypography.titleMedium(
+          context,
           'Dahil edilecek işlem türlerini seçin.',
-          style: context.textTheme.titleMedium?.copyWith(
-            color: context.colorScheme.primary,
-          ),
+          color: context.colorScheme.primary,
         ),
       ],
     );

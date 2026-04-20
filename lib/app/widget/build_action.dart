@@ -23,16 +23,16 @@ class BuildActionButton extends StatelessWidget {
           icon,
           size: ThemeSize.iconMedium,
         ),
-        label: Text(label),
+        label: ThemeTypography.bodyLarge(
+          context,
+          label,
+          color: context.colorScheme.onSurface,
+        ),
         style: ElevatedButton.styleFrom(
           backgroundColor: context.colorScheme.primary,
           foregroundColor: context.colorScheme.onPrimary,
           padding: const ThemePadding.verticalSymmetricMedium(),
-          textStyle: ThemeTypography.bodyLarge(
-            context,
-            '',
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ).style,
+          textStyle: context.textTheme.bodyLarge,
           shape: RoundedRectangleBorder(
             borderRadius: ThemeRadius.circular12,
           ),

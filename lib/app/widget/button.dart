@@ -8,7 +8,8 @@ class WidgetButton extends StatelessWidget {
     required this.icon,
     super.key,
     this.radius = const BorderRadiusGeometry.all(Radius.circular(8)),
-    this.size = const Size(120, 40),
+    this.size =
+        const Size(ThemeSize.buttonHeightXXLarge, ThemeSize.buttonHeightMedium),
     this.color,
   });
   final String text;

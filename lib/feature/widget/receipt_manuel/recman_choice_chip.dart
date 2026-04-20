@@ -17,18 +17,24 @@ class _ChoiceChipButton extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+        padding: const ThemePadding.horizontalSymmetricMedium(),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFEAF2FF) : Colors.white,
+          color: selected
+              ? context.colorScheme.onPrimary
+              : context.colorScheme.surface,
           borderRadius: BorderRadius.circular(999),
           border: Border.all(
-            color: selected ? const Color(0xFF1570EF) : const Color(0xFFD0D5DD),
+            color: selected
+                ? context.colorScheme.onPrimary
+                : context.colorScheme.onSurface,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? const Color(0xFF1570EF) : const Color(0xFF344054),
+            color: selected
+                ? context.colorScheme.primary
+                : context.colorScheme.surfaceContainer,
             fontWeight: FontWeight.w500,
           ),
         ),

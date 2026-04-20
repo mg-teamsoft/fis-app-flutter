@@ -14,7 +14,7 @@ class _ReceiptResultClipRect extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: ThemeRadius.circular12,
       child: kIsWeb
           ? FutureBuilder<Uint8List>(
               future: bytesCache.putIfAbsent(

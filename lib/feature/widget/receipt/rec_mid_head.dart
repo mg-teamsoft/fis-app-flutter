@@ -18,33 +18,31 @@ class _ReceiptMidHead extends StatelessWidget {
               children: [
                 Icon(
                   Icons.receipt_long_outlined,
-                  size: 64,
+                  size: ThemeSize.iconLarge,
                   color: context.colorScheme.primary.withValues(alpha: 0.3),
                 ),
-                const SizedBox(height: 16),
-                Text(
+                const SizedBox(height: ThemeSize.spacingM),
+                ThemeTypography.titleMedium(
+                  context,
                   'Henüz fiş seçilmedi.',
-                  style: context.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  color: context.theme.warning,
                 ),
-                const SizedBox(height: 8),
-                Text(
+                const SizedBox(height: ThemeSize.spacingS),
+                ThemeTypography.bodyMedium(
+                  context,
                   'Galerinizden fiş seçin veya kamerayla çekin.',
+                  color: context.theme.warning,
                   textAlign: TextAlign.center,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: Colors.black54,
-                  ),
                 ),
               ],
             )
           : GridView.builder(
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const ThemePadding.marginBottom16(),
               physics: const BouncingScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
+                mainAxisSpacing: ThemeSize.spacingM,
+                crossAxisSpacing: ThemeSize.spacingM,
               ),
               itemCount: picked.length,
               itemBuilder: (_, i) {

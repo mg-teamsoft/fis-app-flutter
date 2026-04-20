@@ -73,7 +73,11 @@ class WidgetCardInvoice extends StatelessWidget {
                   amoung,
                   color: context.colorScheme.onSurface,
                 ),
-                ThemeTypography.titleMedium(context, date),
+                ThemeTypography.titleMedium(
+                  context,
+                  date,
+                  color: context.colorScheme.onSurface,
+                ),
               ],
             ),
           ],

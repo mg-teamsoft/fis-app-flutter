@@ -35,24 +35,27 @@ class __ReceiptResultEditorAreaState extends State<_ReceiptResultEditorArea> {
         borderRadius: ThemeRadius.circular12,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const ThemePadding.all10(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (running) ...[
-              Text(countdownText, style: context.textTheme.bodyMedium),
-              const SizedBox(height: 8),
+              ThemeTypography.bodyMedium(
+                context,
+                countdownText,
+                color: context.colorScheme.onSurface,
+              ),
+              const SizedBox(height: ThemeSize.spacingS),
               LinearProgressIndicator(
                 value: (10 - widget.state.countdown).clamp(0, 10) / 10.0,
                 minHeight: 6,
               ),
               if (widget.state.lastError != null) ...[
-                const SizedBox(height: 8),
-                Text(
+                const SizedBox(height: ThemeSize.spacingS),
+                ThemeTypography.bodyMedium(
+                  context,
                   'Hata: ${widget.state.lastError}',
-                  style: const TextStyle(
-                    color: Color(0xFFD32F2F),
-                  ),
+                  color: context.theme.error,
                 ),
               ],
             ],
@@ -60,13 +63,13 @@ class __ReceiptResultEditorAreaState extends State<_ReceiptResultEditorArea> {
               if (widget.state.lastError != null &&
                   (widget.state.status == StatusType.failed.name ||
                       widget.state.status == StatusType.error.name)) ...[
-                const SizedBox(height: 4),
-                Text(
+                const SizedBox(height: ThemeSize.spacingS),
+                ThemeTypography.bodyMedium(
+                  context,
                   'Hata: ${widget.state.lastError}',
-                  style: const TextStyle(color: Color(0xFFD32F2F)),
-                  textAlign: TextAlign.center,
+                  color: context.theme.error,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: ThemeSize.spacingS),
               ],
               if (widget.state.receipt != null)
                 PageReceiptTable(
@@ -89,12 +92,10 @@ class __ReceiptResultEditorAreaState extends State<_ReceiptResultEditorArea> {
               else
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Text(
+                  child: ThemeTypography.bodyMedium(
+                    context,
                     widget.state.lastError ?? 'Fiş datası okunamadı.',
-                    style: TextStyle(
-                      color: context.colorScheme.error,
-                      fontStyle: FontStyle.italic,
-                    ),
+                    color: context.theme.error,
                   ),
                 ),
             ],

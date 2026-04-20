@@ -28,9 +28,10 @@ final class _GalleryUploadButton extends StatelessWidget {
                 size: ThemeSize.iconMedium,
                 color: context.colorScheme.onSurface,
               ),
-        label: Text(
+        label: ThemeTypography.titleMedium(
+          context,
           uploading ? 'Yükleniyor...' : 'Yükle',
-          style: context.textTheme.titleMedium,
+          color: context.colorScheme.onSurfaceVariant,
         ),
       ),
     );

@@ -19,40 +19,38 @@ final class _TargetProgressRing extends StatelessWidget {
     return Column(
       children: [
         SizedBox(
-          height: 180,
-          width: 180,
+          height: ThemeSize.avatarXXL,
+          width: ThemeSize.avatarXXL,
           child: CustomPaint(
             painter: _RingPainter(context: context, progress: clamped),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  ThemeTypography.h2(
+                    context,
                     percentageText,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                    ),
+                    weight: FontWeight.w800,
+                    color: context.colorScheme.onSurfaceVariant,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
+                  const SizedBox(height: ThemeSize.spacingXs),
+                  ThemeTypography.bodyMedium(
+                    context,
                     hasLimit ? 'Hedef' : 'Limit yok',
-                    style: context.textTheme.bodyLarge?.copyWith(
-                      color: context.colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    weight: FontWeight.w600,
+                    color: context.colorScheme.outline.withValues(alpha: 0.2),
                   ),
                 ],
               ),
             ),
           ),
         ),
-        const SizedBox(height: 10),
-        Text(
+        const SizedBox(height: ThemeSize.spacingM),
+        ThemeTypography.h2(
+          context,
           limitText,
-          style: context.textTheme.headlineSmall?.copyWith(
-            color: context.colorScheme.onSurface,
-          ),
+          weight: FontWeight.w800,
+          color: context.colorScheme.onSurfaceVariant,
         ),
       ],
     );
@@ -71,24 +69,27 @@ class _RingPainter extends CustomPainter {
     final rect = const Offset(strokeWidth / 2, strokeWidth / 2) &
         Size(size.width - strokeWidth, size.height - strokeWidth);
 
+    const pi = math.pi;
+
     final backgroundPaint = Paint()
-      ..color = const Color(0xFFE8EDF4)
+      ..color = context.colorScheme.surfaceContainer
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
-    canvas.drawArc(rect, -math.pi / 2, 2 * math.pi, false, backgroundPaint);
+    canvas.drawArc(rect, -pi / 2, 2 * pi, false, backgroundPaint);
 
     if (progress <= 0) return;
-    final sweep = 2 * math.pi * progress.clamp(0.0, 1.0);
+    final sweep = 2 * pi * progress.clamp(0.0, 1.0);
 
     final gradient = SweepGradient(
-      startAngle: -math.pi / 2,
-      endAngle: (3 * math.pi) / 2,
+      startAngle: -pi / 2,
+      endAngle: (3 * pi) / 2,
       colors: [
+        context.theme.info,
         context.theme.success,
         context.theme.warning,
         context.theme.error,
       ],
-      stops: const [0.0, 0.65, 1.0],
+      stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
     );
 
     final foregroundPaint = Paint()
@@ -97,7 +98,7 @@ class _RingPainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawArc(rect, -math.pi / 2, sweep, false, foregroundPaint);
+    canvas.drawArc(rect, -pi / 2, sweep, false, foregroundPaint);
   }
 
   @override

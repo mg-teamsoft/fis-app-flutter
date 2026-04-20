@@ -17,7 +17,7 @@ final class _RegisterButton extends StatelessWidget {
         onPressed: loading ? null : onPressed,
         style: FilledButton.styleFrom(
           backgroundColor: context.colorScheme.primary,
-          foregroundColor: context.colorScheme.surface,
+          foregroundColor: context.colorScheme.onPrimary,
           padding: const EdgeInsets.symmetric(
             vertical: ThemeSize.spacingM,
             horizontal: ThemeSize.spacingL,
@@ -28,11 +28,15 @@ final class _RegisterButton extends StatelessWidget {
         ),
         child: loading
             ? const SizedBox(
-                height: 18,
-                width: 18,
+                height: ThemeSize.spacingM,
+                width: ThemeSize.spacingM,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : ThemeTypography.titleLarge(context, 'Kayıt Ol'),
+            : ThemeTypography.titleLarge(
+                context,
+                'Kayıt Ol',
+                color: context.colorScheme.onPrimary,
+              ),
       ),
     );
   }

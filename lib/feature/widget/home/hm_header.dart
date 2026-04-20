@@ -22,22 +22,22 @@ final class _HomeHeader extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 18),
-        Text(
+        ThemeTypography.h4(
+          context,
           'Aylık Birikim',
-          style: context.textTheme.headlineSmall,
         ),
-        Text(
+        ThemeTypography.bodyMedium(
+          context,
           dateString,
-          style: context.textTheme.titleSmall?.copyWith(
-            color: context.colorScheme.outline,
-          ),
+          color: context.colorScheme.outline,
         ),
         const SizedBox(height: 6),
-        Text(
+        ThemeTypography.h2(
+          context,
           totalSpentText,
-          style: context.textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w900,
-          ),
+          weight: FontWeight.w900,
+          textAlign: TextAlign.center,
+          color: context.theme.success,
         ),
         const SizedBox(height: ThemeSize.spacingM),
         _TargetProgressRing(

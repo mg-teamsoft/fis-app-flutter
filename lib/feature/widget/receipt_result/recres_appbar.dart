@@ -27,9 +27,11 @@ class __ReceiptResultAppbarState extends State<_ReceiptResultAppbar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(
+      title: ThemeTypography.titleLarge(
+        context,
         'Sonuçlar',
-        style: context.textTheme.titleLarge,
+        weight: FontWeight.w900,
+        color: context.colorScheme.onPrimary,
       ),
       actions: [
         IconButton(

@@ -16,9 +16,9 @@ final class _ReceiptListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const ThemePadding.marginBottom12(),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: ThemeRadius.circular16,
         gradient: LinearGradient(
           colors: [
             context.colorScheme.surface,
@@ -42,58 +42,55 @@ final class _ReceiptListTile extends StatelessWidget {
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: ThemeRadius.circular16,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: ThemeRadius.circular16,
           onTap: () => onOpenDetails(summary),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const ThemePadding.all16(),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const ThemePadding.all10(),
                   decoration: BoxDecoration(
                     color: context.colorScheme.primaryContainer
                         .withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: ThemeRadius.circular12,
                   ),
                   child: Icon(
                     Icons.receipt_rounded,
                     color: context.colorScheme.onSurface,
-                    size: 24,
+                    size: ThemeSize.iconLarge,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: Text(
+                  child: ThemeTypography.titleMedium(
+                    context,
                     summary.businessName,
-                    style: context.textTheme.titleMedium?.copyWith(
-                      color: context.colorScheme.onSurface,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    weight: FontWeight.w700,
+                    color: context.colorScheme.onSurface,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: ThemeSize.spacingM),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      ThemeTypography.titleMedium(
+                        context,
                         amountText,
-                        style: context.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: context.colorScheme.onSurface,
-                        ),
+                        weight: FontWeight.w800,
+                        color: context.colorScheme.onSurface,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
+                      const SizedBox(height: ThemeSize.spacingS),
+                      ThemeTypography.bodyMedium(
+                        context,
                         dateText,
-                        style: context.textTheme.bodyMedium?.copyWith(
-                          color: context.colorScheme.onSurface,
-                        ),
+                        color: context.colorScheme.onSurface,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),

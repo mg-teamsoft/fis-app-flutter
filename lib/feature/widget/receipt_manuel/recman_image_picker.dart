@@ -20,7 +20,7 @@ class _ReceiptManuelImagePicker extends StatelessWidget {
     return Column(
       children: [
         const _FieldLabel('Fiş Görseli*'),
-        const SizedBox(height: 8),
+        const SizedBox(height: ThemeSize.spacingS),
         Stack(
           alignment: Alignment.center,
           children: [
@@ -32,24 +32,23 @@ class _ReceiptManuelImagePicker extends StatelessWidget {
             ),
             if (isUploading)
               Container(
-                height: 180,
+                height: ThemeSize.avatarXL,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(16),
+                  color: context.colorScheme.onSurface.withValues(alpha: 0.35),
+                  borderRadius: ThemeRadius.circular16,
                 ),
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(color: Colors.white),
-                      SizedBox(height: 12),
-                      Text(
+                      CircularProgressIndicator(
+                          color: context.colorScheme.surface),
+                      const SizedBox(height: ThemeSize.spacingS),
+                      ThemeTypography.bodyLarge(
+                        context,
                         'Yükleniyor...',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        color: context.colorScheme.surface,
                       ),
                     ],
                   ),
@@ -58,14 +57,12 @@ class _ReceiptManuelImagePicker extends StatelessWidget {
           ],
         ),
         if (imageError)
-          const Padding(
-            padding: EdgeInsets.only(top: 6, left: 4),
-            child: Text(
+          Padding(
+            padding: const ThemePadding.verticalSymmetricSmall(),
+            child: ThemeTypography.bodySmall(
+              context,
               'Fiş görseli zorunludur',
-              style: TextStyle(
-                color: Color(0xFFF04438),
-                fontSize: 12,
-              ),
+              color: context.theme.error,
             ),
           ),
       ],

@@ -7,11 +7,10 @@ class _ReceiptDetailAppbar extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(
+      title: ThemeTypography.titleLarge(
+        context,
         'Fiş Detayı',
-        style: context.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w700,
-        ),
+        color: context.colorScheme.onSurface,
       ),
       scrolledUnderElevation: 0.3,
       elevation: 0.3,

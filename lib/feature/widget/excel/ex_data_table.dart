@@ -18,17 +18,40 @@ class _ExcelDataTable extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Dosya Adı')),
-          DataColumn(label: Text('Sayfa (Ay/Yıl)')),
-          DataColumn(label: Text('İşlemler')),
+        columns: [
+          DataColumn(
+              label: ThemeTypography.bodyMedium(
+            context,
+            'Dosya Adı',
+            color: context.colorScheme.onSurfaceVariant,
+          )),
+          DataColumn(
+              label: ThemeTypography.bodyMedium(
+            context,
+            'Sayfa (Ay/Yıl)',
+            color: context.colorScheme.onSurfaceVariant,
+          )),
+          DataColumn(
+              label: ThemeTypography.bodyMedium(
+            context,
+            'İşlemler',
+            color: context.colorScheme.onSurfaceVariant,
+          )),
         ],
         rows: rows.map((r) {
           final isBusy = busy.contains(r.idOrKey);
           return DataRow(
             cells: [
-              DataCell(Text(r.fileName)),
-              DataCell(Text(r.sheetName)),
+              DataCell(ThemeTypography.bodyMedium(
+                context,
+                r.fileName,
+                color: context.colorScheme.onSurfaceVariant,
+              )),
+              DataCell(ThemeTypography.bodyMedium(
+                context,
+                r.sheetName,
+                color: context.colorScheme.onSurfaceVariant,
+              )),
               DataCell(
                 _ExcelTwiceButton(
                   isBusy: isBusy,

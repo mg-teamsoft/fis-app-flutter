@@ -23,12 +23,15 @@ class _ReceiptResultButtonArea extends StatelessWidget {
               ? null
               : () => approveAll(context),
           icon: const Icon(Icons.check),
-          label: Text(
+          label: ThemeTypography.bodyLarge(
+            context,
             submitting
                 ? 'Gönderiliyor...'
                 : state.values.any((s) => s.active)
                     ? 'İşleniyor...'
                     : "Onayla ve Excel'e Yaz",
+            weight: FontWeight.w900,
+            color: context.colorScheme.onPrimary,
           ),
         ),
         if (hasSuccessfulSubmission != null) ...[
@@ -42,10 +45,12 @@ class _ReceiptResultButtonArea extends StatelessWidget {
             icon: Icon(
               hasSuccessfulSubmission! ? Icons.table_view : Icons.receipt_long,
             ),
-            label: Text(
+            label: ThemeTypography.bodyLarge(
+              context,
               hasSuccessfulSubmission!
                   ? 'Excel Dosya Sayfasına Git'
                   : 'Başa Dön',
+              color: context.colorScheme.onPrimary,
             ),
           ),
         ],
