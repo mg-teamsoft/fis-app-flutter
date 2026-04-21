@@ -58,8 +58,10 @@ class _ExcelCustomerPicker extends StatelessWidget {
                         .map(
                           (item) => DropdownMenuItem<String>(
                             value: item.id,
-                            child: Text(
+                            child: ThemeTypography.bodyLarge(
+                              context,
                               item.name,
+                              color: context.colorScheme.onSurface,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -68,14 +70,20 @@ class _ExcelCustomerPicker extends StatelessWidget {
                     onChanged: onCustomerChanged,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: ThemeSize.spacingS),
                 SizedBox(
-                  height: 56,
+                  height: ThemeSize.buttonHeightLarge,
                   child: FilledButton(
                     onPressed: selectedCustomerId == null
                         ? null
                         : applyCustomerSelection,
-                    child: const Text('Seç'),
+                    style: FilledButton.styleFrom(
+                        backgroundColor: context.colorScheme.primary),
+                    child: ThemeTypography.bodyLarge(
+                      context,
+                      'Seç',
+                      color: context.colorScheme.surface,
+                    ),
                   ),
                 ),
               ],
@@ -84,15 +92,10 @@ class _ExcelCustomerPicker extends StatelessWidget {
                 appliedCustomerId == selectedCustomerId)
               Padding(
                 padding: const EdgeInsets.only(top: 6),
-                child: Text(
+                child: ThemeTypography.bodySmall(
+                  context,
                   'Seçili müşteri aktif.',
-                  style: ThemeTypography.bodySmall(
-                    context,
-                    '',
-                    style: TextStyle(
-                      color: context.colorScheme.onSurfaceVariant,
-                    ),
-                  ).style,
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
               ),
           ],

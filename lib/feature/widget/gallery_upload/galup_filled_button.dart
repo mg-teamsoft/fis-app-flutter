@@ -17,9 +17,10 @@ final class _GalleryUploadFilledButton extends StatelessWidget {
         Icons.photo_library,
         size: ThemeSize.iconMedium,
       ),
-      label: Text(
+      label: ThemeTypography.bodyMedium(
+        context,
         'Galeriden Seç',
-        style: context.textTheme.bodyMedium,
+        color: context.colorScheme.onSurfaceVariant,
       ),
     );
   }

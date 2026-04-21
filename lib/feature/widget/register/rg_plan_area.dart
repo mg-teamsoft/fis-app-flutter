@@ -39,7 +39,7 @@ class __RegisterPlanAreaState extends State<_RegisterPlanArea> {
             color: context.colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: ThemeSize.spacingM),
         FutureBuilder<List<PlanOption>>(
           future: widget.plansFuture,
           builder: (context, snapshot) {

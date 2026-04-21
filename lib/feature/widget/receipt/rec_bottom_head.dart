@@ -29,7 +29,7 @@ class _ReceiptBottomHead extends StatelessWidget {
               foregroundColor: context.colorScheme.surface,
               padding: const ThemePadding.verticalSymmetricMedium(),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: ThemeRadius.circular8,
               ),
             ),
             child: ThemeTypography.bodyMedium(context, processButtonLabel),

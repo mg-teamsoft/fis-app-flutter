@@ -14,17 +14,18 @@ class _ReceiptTableExtraField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 12),
-        Text(
+        const SizedBox(height: ThemeSize.spacingM),
+        ThemeTypography.titleSmall(
+          context,
           'Diğer Alanlar',
-          style: context.textTheme.titleSmall
-              ?.copyWith(fontWeight: FontWeight.w700),
+          weight: FontWeight.w900,
+          color: context.colorScheme.onSurface,
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: ThemeSize.spacingS),
         Container(
           decoration: BoxDecoration(
             color: context.colorScheme.surface,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: ThemeRadius.circular12,
             border: Border.all(color: context.colorScheme.outlineVariant),
           ),
           child: Column(
@@ -37,25 +38,23 @@ class _ReceiptTableExtraField extends StatelessWidget {
               return Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
+                    padding: const ThemePadding.all10(),
                     child: Row(
                       children: [
                         SizedBox(
-                          width: 110,
+                          width: ThemeSize.avatarXL,
                           child: Text(
                             kv.key,
                             style: context.textTheme.labelMedium,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: ThemeSize.spacingS),
                         Expanded(
-                          child: Text(
+                          child: ThemeTypography.bodyMedium(
+                            context,
                             kv.value?.toString() ?? '—',
-                            style: context.textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w600),
+                            weight: FontWeight.w600,
+                            color: context.colorScheme.onSurface,
                             textAlign: TextAlign.right,
                           ),
                         ),

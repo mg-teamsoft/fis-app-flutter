@@ -79,13 +79,13 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _FieldLabel('İşletme Adı*'),
-            const SizedBox(height: 8),
+            const SizedBox(height: ThemeSize.spacingS),
             _TextFieldBox(
               controller: widget.businessNameController,
               hintText: 'Acme Corp',
               validator: widget.businessNameValidator,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: ThemeSize.spacingL),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -94,7 +94,7 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const _FieldLabel('Tarih*'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ThemeSize.spacingS),
                       _DateFieldBox(
                         value: widget.dateText,
                         onTap: widget.pickDate,
@@ -103,13 +103,13 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: ThemeSize.spacingM),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const _FieldLabel('Fiş No*'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ThemeSize.spacingS),
                       _TextFieldBox(
                         controller: widget.receiptNoController,
                         hintText: 'REC-12345',
@@ -120,12 +120,12 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: ThemeSize.spacingL),
             const _FieldLabel.rich(
               main: 'İşlem Türü',
               suffix: ' (Opsiyonel)',
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: ThemeSize.spacingM),
             Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -137,9 +137,9 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: ThemeSize.spacingL),
             const _FieldLabel('Toplam Tutar*'),
-            const SizedBox(height: 8),
+            const SizedBox(height: ThemeSize.spacingS),
             _TextFieldBox(
               controller: widget.totalAmountController,
               hintText: '0.00',
@@ -149,7 +149,7 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
               textAlign: TextAlign.right,
               validator: widget.totalAmountValidator,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: ThemeSize.spacingL),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -158,7 +158,7 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const _FieldLabel('KDV Oranı (%)'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ThemeSize.spacingS),
                       _DropdownFieldBox(
                         value: _selectedKdvRate,
                         hintText: 'Oran Seç',
@@ -174,13 +174,13 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: ThemeSize.spacingM),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const _FieldLabel('KDV Tutarı*'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ThemeSize.spacingS),
                       _TextFieldBox(
                         controller: widget.kdvAmountController,
                         hintText: '0.00',
@@ -188,7 +188,7 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.right,
                         readOnly: true,
-                        fillColor: const Color(0xFFF2F4F7),
+                        fillColor: context.colorScheme.surfaceContainer,
                         validator: widget.kdvAmountValidator,
                       ),
                     ],
@@ -196,15 +196,15 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: ThemeSize.spacingL),
             const _FieldLabel.rich(
               main: 'Ödeme Türü',
               suffix: ' (Opsiyonel)',
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: ThemeSize.spacingM),
             Wrap(
-              spacing: 10,
-              runSpacing: 10,
+              spacing: ThemeSize.spacingM,
+              runSpacing: ThemeSize.spacingM,
               children: [
                 _ChoiceChipButton(
                   label: 'Nakit',
@@ -218,7 +218,7 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: ThemeSize.spacingM),
           ],
         ),
       ),

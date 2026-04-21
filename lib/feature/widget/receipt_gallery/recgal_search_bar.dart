@@ -39,7 +39,7 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
     final shouldShowCustomerField = customerItems.isNotEmpty;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      padding: const ThemePadding.all20(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -56,7 +56,8 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                 child: Icon(
                   Icons.search,
                   color: context.colorScheme.onSurface,
-                  size: 20, // İkonu biraz küçültmek de boşluk hissini azaltır
+                  size: ThemeSize
+                      .iconMedium, // İkonu biraz küçültmek de boşluk hissini azaltır
                 ),
               ),
               suffixIcon: searchQuery.isNotEmpty
@@ -83,10 +84,10 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: ThemeSize.spacingS),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: ThemeSize.spacingS,
+            runSpacing: ThemeSize.spacingS,
             children: [
               ActionChip(
                 color: WidgetStatePropertyAll(context.colorScheme.secondary),
@@ -95,18 +96,13 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                   size: ThemeSize.iconMedium,
                   color: context.colorScheme.onSecondary,
                 ),
-                label: Text(
+                label: ThemeTypography.bodyLarge(
+                  context,
                   selectedDateRange == null
                       ? 'Tarih Aralığı Seç'
                       : '${DateFormat('d MMM', 'tr_TR').format(selectedDateRange!.start)} - ${DateFormat('d MMM', 'tr_TR').format(selectedDateRange!.end)}',
-                  style: ThemeTypography.bodyLarge(
-                    context,
-                    '',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: context.colorScheme.onSecondary,
-                    ),
-                  ).style,
+                  weight: FontWeight.w600,
+                  color: context.colorScheme.onSecondary,
                 ),
                 onPressed: pickDateRange,
               ),
@@ -117,12 +113,11 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                     size: ThemeSize.iconMedium,
                     color: context.colorScheme.onSurface,
                   ),
-                  label: Text(
+                  label: ThemeTypography.bodyLarge(
+                    context,
                     'Temizle',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: context.colorScheme.onPrimary,
-                    ),
+                    weight: FontWeight.w600,
+                    color: context.colorScheme.onPrimary,
                   ),
                   onPressed: clearDateRange,
                 ),
@@ -130,11 +125,11 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
             ],
           ),
           if (isLoadingCustomers) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: ThemeSize.spacingS),
             const LinearProgressIndicator(minHeight: 2),
           ],
           if (shouldShowCustomerField) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: ThemeSize.spacingS),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -162,9 +157,11 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                         .map(
                           (item) => DropdownMenuItem<String>(
                             value: item.id,
-                            child: Text(
+                            child: ThemeTypography.bodyLarge(
+                              context,
                               item.name,
                               overflow: TextOverflow.ellipsis,
+                              color: context.colorScheme.onSurface,
                             ),
                           ),
                         )
@@ -172,14 +169,16 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                     onChanged: onCustomerChanged,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: ThemeSize.spacingS),
                 SizedBox(
-                  height: 56,
+                  height: ThemeSize.buttonHeightLarge,
                   child: FilledButton(
                     onPressed: selectedCustomerId == null
                         ? null
                         : applyCustomerSelection,
-                    child: const Text('Seç'),
+                    child: ThemeTypography.bodyLarge(context, 'Seç',
+                        weight: FontWeight.w600,
+                        color: context.colorScheme.onPrimary),
                   ),
                 ),
               ],
@@ -188,15 +187,10 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                 appliedCustomerId == selectedCustomerId)
               Padding(
                 padding: const EdgeInsets.only(top: 6),
-                child: Text(
+                child: ThemeTypography.bodySmall(
+                  context,
                   'Seçili müşteri aktif.',
-                  style: ThemeTypography.bodySmall(
-                    context,
-                    '',
-                    style: TextStyle(
-                      color: context.colorScheme.onSurfaceVariant,
-                    ),
-                  ).style,
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
               ),
           ],

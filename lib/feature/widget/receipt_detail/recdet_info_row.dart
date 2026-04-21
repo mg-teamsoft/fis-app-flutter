@@ -16,7 +16,7 @@ final class _ReceiptDetailInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const ThemePadding.verticalSymmetricSmall(),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -24,39 +24,37 @@ final class _ReceiptDetailInfoRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                ThemeTypography.bodySmall(
+                  context,
                   label,
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(height: 4),
-                Text(
+                const SizedBox(height: ThemeSize.spacingS),
+                ThemeTypography.titleMedium(
+                  context,
                   value,
-                  style: context.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  weight: FontWeight.w600,
+                  color: context.colorScheme.onSurface,
                 ),
               ],
             ),
           ),
           if (secondaryLabel != null && secondaryValue != null) ...[
-            const SizedBox(width: 16),
+            const SizedBox(width: ThemeSize.spacingM),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
+                ThemeTypography.bodySmall(
+                  context,
                   secondaryLabel!,
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(height: 4),
-                Text(
+                const SizedBox(height: ThemeSize.spacingS),
+                ThemeTypography.titleMedium(
+                  context,
                   secondaryValue!,
-                  style: context.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  weight: FontWeight.w600,
+                  color: context.colorScheme.onSurface,
                 ),
               ],
             ),

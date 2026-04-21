@@ -17,6 +17,8 @@ final class ThemeSize {
   static const double buttonHeightSmall = 36;
   static const double buttonHeightMedium = 48;
   static const double buttonHeightLarge = 56;
+  static const double buttonHeightXLarge = 64;
+  static const double buttonHeightXXLarge = 128;
 
   static const double appBarHeight = 72;
   static const double bottomBarHeight = 72;

@@ -18,11 +18,11 @@ final class _SettingsSaveButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: context.colorScheme.primary,
         disabledBackgroundColor: context.colorScheme.outline,
-        foregroundColor: context.colorScheme.surface,
-        disabledForegroundColor: context.colorScheme.surface,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        foregroundColor: context.colorScheme.onPrimary,
+        disabledForegroundColor: context.colorScheme.onSurface,
+        padding: const ThemePadding.verticalSymmetricMedium(),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: ThemeRadius.circular12,
         ),
       ),
       child: saving
@@ -36,12 +36,11 @@ final class _SettingsSaveButton extends StatelessWidget {
                 ),
               ),
             )
-          : Text(
+          : ThemeTypography.bodyLarge(
+              context,
               'Değişiklikleri Kaydet',
-              style: context.textTheme.bodyLarge?.copyWith(
-                color: context.colorScheme.surface,
-                fontWeight: FontWeight.w600,
-              ),
+              weight: FontWeight.w600,
+              color: context.colorScheme.onPrimary,
             ),
     );
   }

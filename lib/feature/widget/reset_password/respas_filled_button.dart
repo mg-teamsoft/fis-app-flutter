@@ -18,12 +18,12 @@ final class _ResetPasswordFilledButton extends StatelessWidget {
         style: FilledButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: ThemeRadius.circular8),
           padding: const ThemePadding.all10(),
-          minimumSize: const Size(120, 40),
+          fixedSize: const Size(ThemeSize.spacingM, ThemeSize.avatarMedium),
         ),
         child: submitting
             ? const SizedBox(
-                width: 18,
-                height: 18,
+                width: ThemeSize.spacingM,
+                height: ThemeSize.spacingM,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : ThemeTypography.bodyMedium(

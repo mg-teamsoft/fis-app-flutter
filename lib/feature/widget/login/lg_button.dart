@@ -15,12 +15,13 @@ final class _LoginButton extends StatelessWidget {
         style: FilledButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: ThemeRadius.circular8),
           padding: const ThemePadding.all10(),
-          minimumSize: const Size(120, 40),
+          fixedSize: const Size(
+              ThemeSize.buttonHeightLarge, ThemeSize.buttonHeightMedium),
         ),
         child: isLoading
             ? const SizedBox(
-                height: 18,
-                width: 18,
+                height: ThemeSize.iconSmall,
+                width: ThemeSize.iconSmall,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : Row(

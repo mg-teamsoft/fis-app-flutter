@@ -26,14 +26,15 @@ class _ReceiptTableTextRow extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: SizedBox(
-              width: 110,
-              child: Text(
+              width: ThemeSize.avatarXL,
+              child: ThemeTypography.labelMedium(
+                context,
                 scalarRows[row].label,
-                style: context.textTheme.labelMedium,
+                color: context.colorScheme.onSurfaceVariant,
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: ThemeSize.spacingS),
           Expanded(
             child: TextField(
               controller: scalarRows[row].ctrl,
@@ -42,7 +43,6 @@ class _ReceiptTableTextRow extends StatelessWidget {
               style: scalarRows[row].highlight
                   ? context.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w700,
-                      fontSize: 15,
                       color: context.colorScheme.primary,
                     )
                   : context.textTheme.bodyMedium?.copyWith(
@@ -52,7 +52,8 @@ class _ReceiptTableTextRow extends StatelessWidget {
                           : null,
                     ),
               decoration:
-                  _inputDecoration('', errorText: scalarRows[row].err).copyWith(
+                  _inputDecoration(context, '', errorText: scalarRows[row].err)
+                      .copyWith(
                 fillColor: scalarRows[row].readOnly
                     ? context.colorScheme.surfaceContainerHighest
                     : null,

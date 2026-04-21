@@ -15,35 +15,47 @@ final class _GalleryError extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const ThemePadding.all32(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.error_outline,
-              size: 56,
+              size: ThemeSize.iconXL,
               color: context.colorScheme.error,
             ),
-            const SizedBox(height: 16),
-            Text(
+            const SizedBox(height: ThemeSize.spacingM),
+            ThemeTypography.titleMedium(
+              context,
               message,
-              style: context.textTheme.titleMedium,
               textAlign: TextAlign.center,
+              color: context.colorScheme.error,
             ),
             if (details != null && details!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
+              const SizedBox(height: ThemeSize.spacingS),
+              ThemeTypography.bodySmall(
+                context,
                 details!,
-                style: context.textTheme.bodySmall
-                    ?.copyWith(color: context.colorScheme.onSurfaceVariant),
+                color: context.theme.warning,
                 textAlign: TextAlign.center,
               ),
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: ThemeSize.spacingM),
             FilledButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Tekrar dene'),
+              style: FilledButton.styleFrom(
+                backgroundColor: context.colorScheme.primary,
+              ),
+              icon: Icon(
+                Icons.refresh,
+                size: ThemeSize.iconXL,
+                color: context.colorScheme.onPrimary,
+              ),
+              label: ThemeTypography.bodyLarge(
+                context,
+                'Tekrar dene',
+                color: context.colorScheme.onPrimary,
+              ),
             ),
           ],
         ),

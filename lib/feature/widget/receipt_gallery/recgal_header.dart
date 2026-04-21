@@ -7,12 +7,10 @@ final class _ReceiptGalleryHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-      child: Text(
+      child: ThemeTypography.h4(
+        context,
         'Fişler',
-        style: context.textTheme.headlineLarge?.copyWith(
-          color: context.colorScheme.onSurface.withValues(alpha: 0.8),
-          fontWeight: FontWeight.w600,
-        ),
+        color: context.colorScheme.onSurface.withValues(alpha: 0.8),
         textAlign: TextAlign.center,
       ),
     );

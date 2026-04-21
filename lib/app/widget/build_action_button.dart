@@ -35,7 +35,7 @@ class WidgetBuildActionButton extends StatelessWidget {
             ),
           ).style,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: ThemeRadius.circular12,
           ),
         ),
       ),

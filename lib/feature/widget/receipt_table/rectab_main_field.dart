@@ -19,7 +19,7 @@ class _ReceiptTableMainField extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: context.colorScheme.surface,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: ThemeRadius.circular12,
         border: Border.all(color: context.colorScheme.outlineVariant),
       ),
       child: Column(

@@ -14,16 +14,20 @@ class CheckBoxTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const ThemePadding.verticalSymmetricSmall(),
       decoration: BoxDecoration(
         border: Border.all(color: context.colorScheme.secondary),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: ThemeRadius.circular12,
       ),
       child: CheckboxListTile(
-        title: Text(title),
+        title: ThemeTypography.bodyLarge(
+          context,
+          title,
+          color: context.colorScheme.onSurface,
+        ),
         value: value,
         onChanged: onChanged,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: ThemeRadius.circular12),
         controlAffinity: ListTileControlAffinity.leading,
       ),
     );

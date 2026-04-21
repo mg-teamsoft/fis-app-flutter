@@ -73,7 +73,7 @@ class _ReceiptsListState extends State<_ReceiptsList> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const ThemePadding.marginBottom32(),
       itemCount: groups.length,
       itemBuilder: (context, index) {
         final group = groups[index];
@@ -91,7 +91,7 @@ class _ReceiptsListState extends State<_ReceiptsList> {
         final visibleItems = group.items.sublist(startIndex, endIndex);
 
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const ThemePadding.horizontalSymmetricMedium(),
           child: Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -116,10 +116,7 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                     });
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 14,
-                    ),
+                    padding: const ThemePadding.horizontalSymmetric(),
                     child: Row(
                       children: [
                         Icon(
@@ -127,34 +124,29 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                               ? Icons.expand_less_rounded
                               : Icons.expand_more_rounded,
                           color: context.colorScheme.primary,
-                          size: 24,
+                          size: ThemeSize.iconLarge,
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: ThemeSize.spacingM),
                         Expanded(
-                          child: Text(
+                          child: ThemeTypography.titleMedium(
+                            context,
                             group.label,
-                            style: context.textTheme.titleMedium?.copyWith(
-                              color: context.colorScheme.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            color: context.colorScheme.primary,
+                            weight: FontWeight.w600,
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
+                          padding: const ThemePadding.verticalSymmetricSmall(),
                           decoration: BoxDecoration(
                             color: context.colorScheme.primaryContainer
                                 .withValues(alpha: 0.6),
                             borderRadius: ThemeRadius.circular12,
                           ),
-                          child: Text(
+                          child: ThemeTypography.labelMedium(
+                            context,
                             '$totalItems fiş',
-                            style: context.textTheme.labelMedium?.copyWith(
-                              color: context.colorScheme.onPrimaryContainer,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            color: context.colorScheme.onPrimaryContainer,
+                            weight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -179,10 +171,8 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                             ? dateFormatter.format(date)
                             : 'Tarih bilgisi yok';
                         return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
+                          padding:
+                              const ThemePadding.horizontalSymmetricMedium(),
                           child: _ReceiptListTile(
                             summary: receipt,
                             dateText: dateText,
@@ -196,7 +186,7 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                       // ── Pagination Controls ──
                       if (needsPagination)
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 12, top: 4),
+                          padding: const ThemePadding.marginBottom12(),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -224,14 +214,13 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                                 ),
                               ),
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                child: Text(
+                                padding: const ThemePadding
+                                    .horizontalSymmetricMedium(),
+                                child: ThemeTypography.bodyMedium(
+                                  context,
                                   '${currentPage + 1} / $totalPages',
-                                  style: context.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: context.colorScheme.onSurface,
-                                  ),
+                                  weight: FontWeight.w600,
+                                  color: context.colorScheme.onSurface,
                                 ),
                               ),
                               IconButton(

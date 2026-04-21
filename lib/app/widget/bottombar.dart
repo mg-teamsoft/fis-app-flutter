@@ -83,13 +83,12 @@ class WidgetBottomBar extends StatelessWidget {
             semanticLabel: label,
           ),
           const SizedBox(height: _navItemSpacing),
-          Text(
+          ThemeTypography.bodySmall(
+            context,
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: context.textTheme.bodySmall?.copyWith(
-              height: 1,
-            ),
+            color: context.colorScheme.onSurface,
           ),
         ],
       ),

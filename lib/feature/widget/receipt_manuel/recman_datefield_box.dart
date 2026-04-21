@@ -15,30 +15,29 @@ class _DateFieldBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: ThemeRadius.circular16,
       child: Ink(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const ThemePadding.horizontalSymmetricMedium(),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: context.colorScheme.surfaceContainer,
+          borderRadius: ThemeRadius.circular16,
           border: Border.all(
-            color: hasError ? const Color(0xFFF04438) : const Color(0xFFD0D5DD),
+            color: hasError ? context.theme.error : context.colorScheme.surface,
           ),
         ),
         child: Row(
           children: [
             Expanded(
-              child: Text(
+              child: ThemeTypography.bodyMedium(
+                context,
                 value.isEmpty ? 'gg/aa/yyyy' : value,
-                style: TextStyle(
-                  color: value.isEmpty
-                      ? const Color(0xFF98A2B3)
-                      : const Color(0xFF101828),
-                  fontSize: 16,
-                ),
+                color: value.isEmpty
+                    ? context.colorScheme.onSurfaceVariant
+                    : context.colorScheme.onSurface,
               ),
             ),
-            const Icon(Icons.calendar_today_outlined, size: 20),
+            const Icon(Icons.calendar_today_outlined,
+                size: ThemeSize.iconMedium),
           ],
         ),
       ),

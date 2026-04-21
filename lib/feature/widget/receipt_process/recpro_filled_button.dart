@@ -19,22 +19,24 @@ class _ReceiptProcessFilledButton extends StatelessWidget {
         style: FilledButton.styleFrom(
           fixedSize: const Size(double.infinity, ThemeSize.buttonHeightLarge),
           backgroundColor: context.colorScheme.primary,
-          foregroundColor: context.colorScheme.surface,
+          foregroundColor: context.colorScheme.onPrimary,
           padding: const ThemePadding.all15(),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: ThemeRadius.circular12,
           ),
         ),
         icon: processing
             ? const SizedBox(
-                height: 18,
-                width: 18,
+                height: ThemeSize.iconMedium,
+                width: ThemeSize.iconMedium,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.play_arrow),
         label: ThemeTypography.bodyLarge(
           context,
           processing ? 'İşleniyor...' : 'İşle',
+          weight: FontWeight.w900,
+          color: context.colorScheme.onPrimary,
         ),
       ),
     );
