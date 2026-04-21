@@ -17,6 +17,9 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
   String? _invitesError;
   List<_Contact> _contacts = const [];
   List<ContactInviteDto> _invites = const [];
+  List<ContactInviteDto> _pendingInvites = const [];
+  bool _isPendingInvitesLoading = true;
+  String? _pendingInvitesError;
 
   @override
   void initState() {
@@ -30,6 +33,7 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     });
     unawaited(_loadSupervisors());
     unawaited(_loadInvites());
+    unawaited(_loadPendingInvites());
   }
 
   @override
@@ -153,6 +157,54 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       }
     }
   }
+
+  Future<void> _loadPendingInvites() async {
+    setState(() {
+      _isPendingInvitesLoading = true;
+      _pendingInvitesError = null;
+    });
+
+    try {
+      final invites = await _connectionsService.fetchPendingInvites();
+      if (!mounted) return;
+
+      setState(() {
+        _pendingInvites = invites;
+      });
+    } on Exception catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _pendingInvitesError = e.toString().replaceAll('Exception: ', '');
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPendingInvitesLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleAcceptInvite(String inviteId) async {
+    try {
+      await _connectionsService.acceptInvite(inviteId);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Davet başarıyla kabul edildi')),
+      );
+      await _loadPendingInvites();
+      await _loadSupervisors(); 
+    } on Exception catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+        ),
+      );
+    }
+  }
+
 
   Future<void> _handleResendInvite(ContactInviteDto invite) async {
     if (invite.id.trim().isEmpty) {
@@ -281,6 +333,6 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     if (value == null) {
       return '-';
     }
-    return DateFormat('MMM d, yyyy', 'en_US').format(value.toLocal());
+    return DateFormat('dd:MM:yyyy', 'tr').format(value.toLocal());
   }
 }

@@ -68,7 +68,7 @@ class TwiceButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: ThemeRadius.circular8,
         ),
-        fixedSize: const Size(0, ThemeSize.buttonHeightSmall),
+        minimumSize: const Size(0, ThemeSize.buttonHeightSmall),
         padding: const ThemePadding.all10(),
       ),
       child: Row(

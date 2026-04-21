@@ -52,15 +52,14 @@ final class _SettingsView extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     } else {
       return ListView(
-        padding: const ThemePadding.all20(),
+        padding: const ThemePadding.all8(),
         children: [
           const _SettingsHeader(),
           const SizedBox(height: ThemeSize.spacingL),
-          Text(
+          ThemeTypography.bodyMedium(
+            context,
             'Fişler için minimum ve maksimum tutarları ayarlayın.',
-            style: context.textTheme.bodyLarge?.copyWith(
-              color: context.colorScheme.onSurface,
-            ),
+            color: context.colorScheme.onSurface,
           ),
           const SizedBox(height: ThemeSize.spacingM),
           _SettingsTextFieldArea(

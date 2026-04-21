@@ -1,6 +1,6 @@
 part of '../../page/home_page.dart';
 
-final class _TargetProgressRing extends StatelessWidget {
+class _TargetProgressRing extends StatefulWidget {
   const _TargetProgressRing({
     required this.progress,
     required this.percentageText,
@@ -14,31 +14,54 @@ final class _TargetProgressRing extends StatelessWidget {
   final String limitText;
 
   @override
+  State<_TargetProgressRing> createState() => _TargetProgressRingState();
+}
+
+class _TargetProgressRingState extends State<_TargetProgressRing> {
+  late List<Color> _gradientColors;
+  late double _clamped;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _clamped = widget.progress.clamp(0.0, 1.2);
+    _gradientColors = [
+      context.theme.info,
+      context.theme.success,
+      context.theme.warning,
+      context.theme.error,
+    ];
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final clamped = progress.clamp(0.0, 1.2);
     return Column(
       children: [
         SizedBox(
           height: ThemeSize.avatarXXL,
           width: ThemeSize.avatarXXL,
           child: CustomPaint(
-            painter: _RingPainter(context: context, progress: clamped),
+            painter: _RingPainter(
+                outlineColor:
+                    context.colorScheme.outline.withValues(alpha: 0.2),
+                progress: _clamped,
+                gradientColors: _gradientColors),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ThemeTypography.h2(
                     context,
-                    percentageText,
+                    widget.percentageText,
                     weight: FontWeight.w800,
                     color: context.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: ThemeSize.spacingXs),
-                  ThemeTypography.bodyMedium(
+                  ThemeTypography.bodyLarge(
                     context,
-                    hasLimit ? 'Hedef' : 'Limit yok',
+                    widget.hasLimit ? 'Hedef' : 'Limit yok',
                     weight: FontWeight.w600,
-                    color: context.colorScheme.outline.withValues(alpha: 0.2),
+                    color: context.colorScheme.onSurface.withValues(alpha: 0.3),
                   ),
                 ],
               ),
@@ -46,9 +69,9 @@ final class _TargetProgressRing extends StatelessWidget {
           ),
         ),
         const SizedBox(height: ThemeSize.spacingM),
-        ThemeTypography.h2(
+        ThemeTypography.h4(
           context,
-          limitText,
+          widget.limitText,
           weight: FontWeight.w800,
           color: context.colorScheme.onSurfaceVariant,
         ),
@@ -58,38 +81,40 @@ final class _TargetProgressRing extends StatelessWidget {
 }
 
 class _RingPainter extends CustomPainter {
-  _RingPainter({required this.context, required this.progress});
+  _RingPainter({
+    required this.outlineColor,
+    required this.gradientColors,
+    required this.progress,
+  });
 
-  final BuildContext context;
-  final double progress; // 0.0 -> 1.2
+  final Color outlineColor;
+  final List<Color> gradientColors;
+  final double progress;
 
   @override
   void paint(Canvas canvas, Size size) {
     const strokeWidth = 14.0;
-    final rect = const Offset(strokeWidth / 2, strokeWidth / 2) &
-        Size(size.width - strokeWidth, size.height - strokeWidth);
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width - strokeWidth) / 2;
+    final rect = Rect.fromCircle(center: center, radius: radius);
 
     const pi = math.pi;
 
     final backgroundPaint = Paint()
-      ..color = context.colorScheme.surfaceContainer
+      ..color = outlineColor.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
-    canvas.drawArc(rect, -pi / 2, 2 * pi, false, backgroundPaint);
+
+    canvas.drawCircle(center, radius, backgroundPaint);
 
     if (progress <= 0) return;
+
     final sweep = 2 * pi * progress.clamp(0.0, 1.0);
 
     final gradient = SweepGradient(
       startAngle: -pi / 2,
       endAngle: (3 * pi) / 2,
-      colors: [
-        context.theme.info,
-        context.theme.success,
-        context.theme.warning,
-        context.theme.error,
-      ],
-      stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
+      colors: gradientColors,
     );
 
     final foregroundPaint = Paint()
@@ -103,6 +128,7 @@ class _RingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _RingPainter oldDelegate) {
-    return oldDelegate.progress != progress;
+    return oldDelegate.progress != progress ||
+        oldDelegate.outlineColor != outlineColor;
   }
 }

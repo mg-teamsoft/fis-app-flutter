@@ -80,8 +80,17 @@ class _AccountSettingsView extends StatelessWidget {
         child: ListView(
           controller: scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const ThemePadding.all20(),
+          padding: const ThemePadding.all8(),
           children: [
+            Align(
+              child: ThemeTypography.h4(
+                context,
+                'Hesap Ayarları',
+                weight: FontWeight.w900,
+                color: context.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: ThemeSize.spacingM),
             const _AccountSettingsSectionTitle(text: 'Hesap Detayları'),
             const SizedBox(height: ThemeSize.spacingM),
             _AccountSettingsDetailsCard(

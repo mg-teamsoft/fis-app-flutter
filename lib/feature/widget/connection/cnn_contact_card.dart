@@ -16,24 +16,22 @@ class _ConnectionCard extends StatefulWidget {
 }
 
 class __ConnectionCardState extends State<_ConnectionCard> {
-  late bool _isActive;
-  late Color _statusColor;
-  late Color _cardBorderColor;
   late _Contact _contact;
   bool _isRemovingAccess = false;
 
   @override
   void initState() {
-    _isActive = widget.contact.status == 'ACTIVE';
-    _statusColor = _isActive ? context.theme.success : context.theme.warning;
-    _cardBorderColor =
-        _isActive ? context.theme.divider : context.theme.warning;
     _contact = widget.contact;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final _isActive = _contact.status == 'ACTIVE';
+    final _statusColor = _isActive ? context.theme.success : context.theme.warning;
+    final _cardBorderColor =
+        _isActive ? context.theme.divider : context.theme.warning;
+
     return Container(
       margin: const ThemePadding.marginBottom12(),
       padding: const ThemePadding.all16(),

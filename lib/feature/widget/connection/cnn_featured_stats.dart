@@ -47,22 +47,24 @@ class _CnnFeaturedStats extends StatelessWidget {
                       weight: FontWeight.w800,
                     ),
                     const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.colorScheme.surface,
-                        foregroundColor: context.colorScheme.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: ThemeRadius.circular8,
+                    Visibility(
+                      visible: false, // Buraya değişkenini bağlayabilirsin
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: context.colorScheme.surface,
+                          foregroundColor: context.colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: ThemeRadius.circular8,
+                          ),
+                          padding: const ThemePadding.verticalSymmetricMedium(),
                         ),
-                        padding: const ThemePadding.verticalSymmetricMedium(
+                        child: ThemeTypography.bodyLarge(
+                          context,
+                          'Daha Fazla Bilgi',
+                          color: context.colorScheme.primary,
+                          weight: FontWeight.w800,
                         ),
-                      ),
-                      child: ThemeTypography.bodyLarge(
-                        context,
-                        'Daha Fazla Bilgi',
-                        color: context.colorScheme.primary,
-                        weight: FontWeight.w800,
                       ),
                     ),
                   ],

@@ -136,7 +136,7 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                           ),
                         ),
                         Container(
-                          padding: const ThemePadding.verticalSymmetricSmall(),
+                          padding: ThemePadding.all8(),
                           decoration: BoxDecoration(
                             color: context.colorScheme.primaryContainer
                                 .withValues(alpha: 0.6),
@@ -144,7 +144,7 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                           ),
                           child: ThemeTypography.labelMedium(
                             context,
-                            '$totalItems fiş',
+                            '$totalItems Fiş',
                             color: context.colorScheme.onPrimaryContainer,
                             weight: FontWeight.w600,
                           ),

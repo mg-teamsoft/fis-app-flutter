@@ -30,7 +30,7 @@ class _AccountSettingsAvailablePlanTile extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
-          padding: const ThemePadding.verticalSymmetricMedium(),
+          padding: const ThemePadding.all10(),
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: ThemeRadius.circular16,

@@ -60,7 +60,17 @@ class _ReceiptGalleryView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const _ReceiptGalleryHeader(),
+        // Header
+        const SizedBox(height: ThemeSize.spacingXs),
+        Align(
+          child: ThemeTypography.h4(
+            context,
+            'Fişler',
+            weight: FontWeight.w900,
+            color: context.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: ThemeSize.spacingM),
         _ReceiptGallerySearchBar(
           searchController: searchController,
           searchQuery: searchQuery,

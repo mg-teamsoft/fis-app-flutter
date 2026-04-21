@@ -25,19 +25,21 @@ final class _HomeHeader extends StatelessWidget {
         ThemeTypography.h4(
           context,
           'Aylık Birikim',
+          weight: FontWeight.w900,
+          color: context.colorScheme.onSurface,
         ),
         ThemeTypography.bodyMedium(
           context,
           dateString,
-          color: context.colorScheme.outline,
+          color: context.colorScheme.onSurface.withValues(alpha: 0.7),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: ThemeSize.spacingXs),
         ThemeTypography.h2(
           context,
           totalSpentText,
           weight: FontWeight.w900,
           textAlign: TextAlign.center,
-          color: context.theme.success,
+          color: context.colorScheme.onSurface,
         ),
         const SizedBox(height: ThemeSize.spacingM),
         _TargetProgressRing(
