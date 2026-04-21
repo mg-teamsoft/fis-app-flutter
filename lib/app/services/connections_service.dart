@@ -181,6 +181,44 @@ class ConnectionsService {
     }
   }
 
+  Future<String?> acceptInvite(String inviteId) async {
+    final normalizedInviteId = inviteId.trim();
+    if (normalizedInviteId.isEmpty) {
+      throw Exception('Geçerli bir davet kimliği bulunamadı');
+    }
+
+    try {
+      final response = await _api.dio.post<Map<String, dynamic>>(
+        '/api/contacts/invites/$normalizedInviteId/accept',
+      );
+
+      if (response.statusCode != 200 &&
+          response.statusCode != 201 &&
+          response.statusCode != 204) {
+        throw Exception('Davet kabul edilemedi');
+      }
+
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final message = data['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          return message;
+        }
+      }
+
+      return null;
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Davet kabul edilemedi');
+    }
+  }
+
   List<Map<String, dynamic>> _extractContactList(dynamic data) {
     if (data is List) {
       return data

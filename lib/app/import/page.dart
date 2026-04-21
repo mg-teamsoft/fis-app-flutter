@@ -1,5 +1,6 @@
 export '../../feature/page/about_page.dart';
 export '../../feature/page/account_settings_page.dart';
+export '../../feature/page/contact_invite_accept_page.dart';
 export '../../feature/page/connection_page.dart';
 export '../../feature/page/excel_page.dart';
 export '../../feature/page/forget_password_page.dart';

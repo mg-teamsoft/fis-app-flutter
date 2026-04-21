@@ -9,6 +9,7 @@ final class RouterGeneral {
     '/login': (_) => const PageLogin(),
     '/register': (_) => const PageRegister(),
     '/forgotPassword': (_) => const PageForgotPassword(),
+    '/contacts/invites/accept': (_) => const PageContactInviteAccept(),
     '/home': (_) => const MainLayout(), // Home Page is default value
     '/connections': (_) => const MainLayout(initialRoute: '/connections'),
     '/excelFiles': (_) => const MainLayout(initialRoute: '/excelFiles'),
