@@ -56,11 +56,10 @@ final class _SettingsView extends StatelessWidget {
         children: [
           const _SettingsHeader(),
           const SizedBox(height: ThemeSize.spacingL),
-          Text(
+          ThemeTypography.bodyMedium(
+            context,
             'Fişler için minimum ve maksimum tutarları ayarlayın.',
-            style: context.textTheme.bodyLarge?.copyWith(
-              color: context.colorScheme.onSurface,
-            ),
+            color: context.colorScheme.onSurface,
           ),
           const SizedBox(height: ThemeSize.spacingM),
           _SettingsTextFieldArea(

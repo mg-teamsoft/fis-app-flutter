@@ -20,6 +20,7 @@ final class _SettingsSaveButton extends StatelessWidget {
         disabledBackgroundColor: context.colorScheme.outline,
         foregroundColor: context.colorScheme.onPrimary,
         disabledForegroundColor: context.colorScheme.onSurface,
+        minimumSize: const Size(0, ThemeSize.buttonHeightMedium),
         padding: const ThemePadding.verticalSymmetricMedium(),
         shape: RoundedRectangleBorder(
           borderRadius: ThemeRadius.circular12,

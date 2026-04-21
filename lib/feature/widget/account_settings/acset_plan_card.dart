@@ -52,9 +52,11 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: ThemePadding.horizontalSymmetricFree(10),
+                      padding: const ThemePadding.all10(),
                       decoration: BoxDecoration(
-                        color: context.colorScheme.surfaceContainer,
+                        color: context.colorScheme.outline.withValues(
+                          alpha: 0.15,
+                        ),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: ThemeTypography.bodySmall(
@@ -113,9 +115,9 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
               onPressed: () =>
                   widget.onBuyAdditional!(widget.additionalPlans.first),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1570EF),
-                foregroundColor: Colors.white,
-                minimumSize: const Size.fromHeight(56),
+                backgroundColor: context.colorScheme.primary,
+                foregroundColor: context.colorScheme.onPrimary,
+                minimumSize: const Size.fromHeight(ThemeSize.buttonHeightLarge),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -127,7 +129,7 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
               label: ThemeTypography.bodyMedium(
                 context,
                 'Ek ${widget.additionalPlans.first.quota} Kota Satın Al - ${widget.additionalPlans.first.priceLabel}',
-                color: context.colorScheme.onSurface,
+                color: context.colorScheme.onPrimary,
                 weight: FontWeight.w700,
               ),
             ),

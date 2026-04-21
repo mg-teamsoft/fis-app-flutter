@@ -25,13 +25,13 @@ class _ReceiptMidHead extends StatelessWidget {
                 ThemeTypography.titleMedium(
                   context,
                   'Henüz fiş seçilmedi.',
-                  color: context.theme.warning,
+                  color: context.colorScheme.primary,
                 ),
                 const SizedBox(height: ThemeSize.spacingS),
                 ThemeTypography.bodyMedium(
                   context,
                   'Galerinizden fiş seçin veya kamerayla çekin.',
-                  color: context.theme.warning,
+                  color: context.colorScheme.primary,
                   textAlign: TextAlign.center,
                 ),
               ],

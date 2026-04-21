@@ -42,7 +42,7 @@ class _ActiveSettingsUpdateButton extends StatelessWidget {
             : ThemeTypography.bodyMedium(
                 context,
                 'Planı Güncelle',
-                color: context.colorScheme.onSurface,
+                color: context.colorScheme.onPrimary,
                 weight: FontWeight.w700,
               ),
       ),

@@ -61,6 +61,17 @@ class _ConnectionView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Header
+        const SizedBox(height: ThemeSize.spacingM),
+        Align(
+          child: ThemeTypography.h4(
+            context,
+            'Kişiler',
+            weight: FontWeight.w900,
+            color: context.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: ThemeSize.spacingM),
         // Tabs
         TabBar(
           controller: tabController,
