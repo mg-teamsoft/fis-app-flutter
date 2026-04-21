@@ -109,7 +109,7 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
           const SizedBox(height: ThemeSize.spacingM),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
+            child: ElevatedButton(
               onPressed: () =>
                   widget.onBuyAdditional!(widget.additionalPlans.first),
               style: ElevatedButton.styleFrom(
@@ -120,15 +120,26 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              icon: const Icon(
-                Icons.shopping_cart_checkout,
-                size: ThemeSize.iconMedium,
-              ),
-              label: ThemeTypography.bodyMedium(
-                context,
-                'Ek ${widget.additionalPlans.first.quota} Kota Satın Al - ${widget.additionalPlans.first.priceLabel}',
-                color: context.colorScheme.onSurface,
-                weight: FontWeight.w700,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.shopping_cart_checkout,
+                    size: ThemeSize.iconMedium,
+                  ),
+                  const SizedBox(width: ThemeSize.spacingS),
+                  Expanded(
+                    child: ThemeTypography.labelSmall(
+                      context,
+                      'Ek ${widget.additionalPlans.first.quota} Kota Satın Al - ${widget.additionalPlans.first.priceLabel}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      color: context.colorScheme.onPrimary,
+                      weight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
