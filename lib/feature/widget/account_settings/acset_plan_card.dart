@@ -131,11 +131,11 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
                   Expanded(
                     child: ThemeTypography.labelSmall(
                       context,
-                      'Ek ${widget.additionalPlans.first.quota} Kota Satın Al - ${widget.additionalPlans.first.priceLabel}',
+                      'Ek ${widget.additionalPlans.first.quota} Kota Al - ${widget.additionalPlans.first.priceLabel}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
-                      color: context.colorScheme.onPrimary,
+                      color: context.colorScheme.onPrimaryContainer,
                       weight: FontWeight.w700,
                     ),
                   ),
