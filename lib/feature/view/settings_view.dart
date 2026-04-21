@@ -52,7 +52,7 @@ final class _SettingsView extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     } else {
       return ListView(
-        padding: const ThemePadding.all20(),
+        padding: const ThemePadding.all8(),
         children: [
           const _SettingsHeader(),
           const SizedBox(height: ThemeSize.spacingL),

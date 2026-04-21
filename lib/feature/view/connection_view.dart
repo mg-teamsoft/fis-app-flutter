@@ -27,6 +27,9 @@ class _ConnectionView extends StatelessWidget {
     required this.invitesError,
     required this.contacts,
     required this.invites,
+    required this.pendingInvites,
+    required this.isPendingInvitesLoading,
+    required this.handleAcceptInvite,
   });
 
   final TabController tabController;
@@ -44,7 +47,10 @@ class _ConnectionView extends StatelessWidget {
   final String? invitesError;
   final List<_Contact> contacts;
   final List<ContactInviteDto> invites;
+  final List<ContactInviteDto> pendingInvites;
+  final bool isPendingInvitesLoading;
 
+  final Future<void> Function(String) handleAcceptInvite;
   final Future<void> Function() handleInvite;
   final Future<void> Function() loadSupervisors;
   final Future<void> Function() loadInvites;
@@ -62,7 +68,7 @@ class _ConnectionView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header
-        const SizedBox(height: ThemeSize.spacingM),
+        const SizedBox(height: ThemeSize.spacingXs),
         Align(
           child: ThemeTypography.h4(
             context,
@@ -92,6 +98,14 @@ class _ConnectionView extends StatelessWidget {
               ListView(
                 padding: const ThemePadding.marginBottom16(),
                 children: [
+                  if (isPendingInvitesLoading || pendingInvites.isNotEmpty)
+                    _CnnPendingInvitesSection(
+                      pendingInvites: pendingInvites,
+                      isPendingLoading: isPendingInvitesLoading,
+                      onAccept: handleAcceptInvite,
+                    ),
+                  if (isPendingInvitesLoading || pendingInvites.isNotEmpty)
+                    const SizedBox(height: ThemeSize.spacingL),
                   _CnnInviteSection(
                     handleInvite: handleInvite,
                     isInviteLoading: isInviteLoading,

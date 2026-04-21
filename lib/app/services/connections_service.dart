@@ -28,6 +28,8 @@ class ContactInviteDto {
     required this.respondedAt,
     required this.createdAt,
     required this.updatedAt,
+    this.inviterName,
+    this.inviterEmail,
   });
 
   final String id;
@@ -38,6 +40,8 @@ class ContactInviteDto {
   final DateTime? respondedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? inviterName;
+  final String? inviterEmail;
 }
 
 class ConnectionsService {
@@ -150,6 +154,55 @@ class ConnectionsService {
         }
       }
       throw Exception('Davetler alınamadı');
+    }
+  }
+
+  Future<List<ContactInviteDto>> fetchPendingInvites() async {
+    try {
+      final response = await _api.dio
+          .get<Map<String, dynamic>>('/api/contacts/invites/pending');
+      if (response.statusCode != 200) {
+        throw Exception('Bekleyen davetler alınamadı');
+      }
+
+      final items = _extractInviteList(response.data);
+      return items.map(_mapInvite).toList();
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Bekleyen davetler alınamadı');
+    }
+  }
+
+  Future<void> acceptInvite(String inviteId, {String? token}) async {
+    final normalizedInviteId = inviteId.trim();
+    if (normalizedInviteId.isEmpty) {
+      throw Exception('Geçerli bir davet kimliği bulunamadı');
+    }
+
+    try {
+      final response = await _api.dio.post<Map<String, dynamic>>(
+        '/api/contacts/invites/$normalizedInviteId/accept',
+        data: token != null && token.isNotEmpty ? {'token': token} : {},
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception('Davet kabul edilemedi');
+      }
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Davet kabul edilemedi');
     }
   }
 
@@ -269,6 +322,7 @@ class ConnectionsService {
   }
 
   ContactInviteDto _mapInvite(Map<String, dynamic> json) {
+    final inviter = json['inviter'] as Map?;
     return ContactInviteDto(
       id: (json['inviteId'] ?? json['_id'] ?? json['id'] ?? '').toString(),
       inviteeEmail: _pickFirstNonEmpty([
@@ -289,6 +343,8 @@ class ConnectionsService {
       respondedAt: _parseDateTime(json['respondedAt']),
       createdAt: _parseDateTime(json['createdAt']),
       updatedAt: _parseDateTime(json['updatedAt']),
+      inviterName: inviter?['userName']?.toString(),
+      inviterEmail: inviter?['email']?.toString(),
     );
   }
 

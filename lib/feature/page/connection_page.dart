@@ -12,6 +12,7 @@ part '../view/connection_view.dart';
 part '../widget/connection/cnn_class.dart';
 part '../widget/connection/cnn_contact_card.dart';
 part '../widget/connection/cnn_contacts_section.dart';
+part '../widget/connection/cnn_pending_invites_section.dart';
 part '../widget/connection/cnn_featured_stats.dart';
 part '../widget/connection/cnn_invite_card.dart';
 part '../widget/connection/cnn_invite_meta_item.dart';
@@ -58,6 +59,9 @@ class _PageConnectionsState extends State<PageConnections>
       invitesError: _invitesError,
       contacts: _contacts,
       invites: _invites,
+      pendingInvites: _pendingInvites,
+      isPendingInvitesLoading: _isPendingInvitesLoading,
+      handleAcceptInvite: _handleAcceptInvite,
     );
   }
 }

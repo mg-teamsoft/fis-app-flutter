@@ -12,6 +12,7 @@ class _AboutView extends StatelessWidget {
           // App name
           ThemeTypography.h4(
             context,
+            weight: FontWeight.bold,
             'My Fiş App',
             color: context.colorScheme.onSurface,
           ),

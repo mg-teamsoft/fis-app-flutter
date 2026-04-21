@@ -61,7 +61,7 @@ class _ReceiptGalleryView extends StatelessWidget {
     return Column(
       children: [
         // Header
-        const SizedBox(height: ThemeSize.spacingM),
+        const SizedBox(height: ThemeSize.spacingXs),
         Align(
           child: ThemeTypography.h4(
             context,

@@ -23,6 +23,7 @@ class _NotificationView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(height: ThemeSize.spacingXs),
         const _NotificationHeader(text: 'Bildirimler'),
         const SizedBox(height: ThemeSize.spacingM),
         Expanded(
