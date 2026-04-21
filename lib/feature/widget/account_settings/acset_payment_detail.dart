@@ -11,7 +11,7 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormatter = DateFormat('d MMM yyyy HH:mm', 'tr_TR');
+    final dateFormatter = DateFormat('dd.MM.yy', 'tr_TR');
 
     final sortedTransactions = [...transactions]..sort((a, b) {
         final aDate = a.purchaseDate ??
@@ -89,17 +89,7 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
                     context,
                     'Ürün',
                     transaction.productId.isNotEmpty
-                        ? transaction.productId
-                            .replaceAll('.', ' ')
-                            .replaceAll('_', ' ')
-                            .split(' ')
-                            .where((w) => w.isNotEmpty)
-                            .map(
-                              (w) =>
-                                  w[0].toUpperCase() +
-                                  w.substring(1).toLowerCase(),
-                            )
-                            .join(' ')
+                        ? transaction.productId.split('.').last
                         : '-',
                   ),
                   const SizedBox(height: ThemeSize.spacingXs),
@@ -119,9 +109,9 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
                         : '-',
                   ),
                   const SizedBox(height: ThemeSize.spacingXs),
-                  _buildRow(context, 'Satın Alma Tarihi', purchaseDate),
+                  _buildRow(context, 'Satın Alma', purchaseDate),
                   const SizedBox(height: ThemeSize.spacingXs),
-                  _buildRow(context, 'Bitiş Tarihi', expiresDateStr),
+                  _buildRow(context, 'Bitiş', expiresDateStr),
                 ],
               ),
             ),
@@ -133,19 +123,29 @@ class _AccountSettingsPaymentDetailsTable extends StatelessWidget {
 
   Widget _buildRow(BuildContext context, String label, String value) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ThemeTypography.bodyMedium(
-          context,
-          label,
-          color: context.colorScheme.onSurfaceVariant,
-          weight: FontWeight.w500,
+        Expanded(
+          child: ThemeTypography.bodyMedium(
+            context,
+            label,
+            color: context.colorScheme.onSurfaceVariant,
+            weight: FontWeight.w500,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
-        ThemeTypography.bodyMedium(
-          context,
-          value,
-          color: context.colorScheme.onSurface,
-          weight: FontWeight.w600,
+        const SizedBox(width: ThemeSize.spacingM),
+        Flexible(
+          child: ThemeTypography.bodyMedium(
+            context,
+            value,
+            color: context.colorScheme.onSurface,
+            weight: FontWeight.w600,
+            textAlign: TextAlign.right,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );
