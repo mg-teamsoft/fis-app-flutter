@@ -42,7 +42,7 @@ class _PageContactInviteAcceptState extends State<PageContactInviteAccept> {
     }
 
     try {
-      final message = await _connectionsService.acceptInvite(token);
+      final message = await _connectionsService.acceptInviteByToken(token);
       if (!mounted) return;
       setState(() {
         _submitting = false;

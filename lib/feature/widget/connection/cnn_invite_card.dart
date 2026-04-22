@@ -22,8 +22,6 @@ class _CnnInvateCard extends StatefulWidget {
 }
 
 class __CnnInvateCardState extends State<_CnnInvateCard> {
-  late Color _statusColor;
-  late String _statusText;
   late bool _isPending;
   late bool _isExpired;
   late bool _hasResponded;
@@ -31,7 +29,6 @@ class __CnnInvateCardState extends State<_CnnInvateCard> {
 
   @override
   void initState() {
-    _statusColor = widget.statusColor(widget.invite.status);
     _isPending = widget.invite.status.toUpperCase() == 'PENDING';
     _isExpired = widget.invite.status.toUpperCase() == 'EXPIRED';
     _hasResponded = widget.invite.respondedAt != null;

@@ -176,9 +176,12 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                     onPressed: selectedCustomerId == null
                         ? null
                         : applyCustomerSelection,
-                    child: ThemeTypography.bodyLarge(context, 'Seç',
-                        weight: FontWeight.w600,
-                        color: context.colorScheme.onPrimary),
+                    child: ThemeTypography.bodyLarge(
+                      context,
+                      'Seç',
+                      weight: FontWeight.w600,
+                      color: context.colorScheme.onPrimary,
+                    ),
                   ),
                 ),
               ],

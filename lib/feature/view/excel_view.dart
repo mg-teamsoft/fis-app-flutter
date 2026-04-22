@@ -38,6 +38,7 @@ class _ExcelView extends StatelessWidget {
             child: ThemeTypography.h4(
               context,
               'Excel Dosyaları',
+              weight: FontWeight.w900,
               color: context.colorScheme.onSurface,
             ),
           ),

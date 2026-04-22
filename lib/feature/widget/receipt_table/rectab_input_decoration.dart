@@ -1,7 +1,10 @@
 part of '../../page/receipt_table_page.dart';
 
-InputDecoration _inputDecoration(BuildContext context, String hint,
-        {String? errorText}) =>
+InputDecoration _inputDecoration(
+  BuildContext context,
+  String hint, {
+  String? errorText,
+}) =>
     InputDecoration(
       hintText: hint,
       errorText: errorText,

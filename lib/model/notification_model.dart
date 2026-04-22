@@ -1,13 +1,14 @@
 class NotificationModel {
-  NotificationModel(
-      {required this.id,
-      required this.title,
-      required this.time,
-      this.subtitle,
-      this.content = '',
-      this.isUnread = false,
-      this.actionType,
-      this.screen});
+  NotificationModel({
+    required this.id,
+    required this.title,
+    required this.time,
+    this.subtitle,
+    this.content = '',
+    this.isUnread = false,
+    this.actionType,
+    this.screen,
+  });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(

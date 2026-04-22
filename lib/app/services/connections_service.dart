@@ -28,7 +28,8 @@ class ContactInviteDto {
     required this.respondedAt,
     required this.createdAt,
     required this.updatedAt,
-    this.inviterName,
+    this.token,
+    this.inviterUsername,
     this.inviterEmail,
   });
 
@@ -40,7 +41,8 @@ class ContactInviteDto {
   final DateTime? respondedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final String? inviterName;
+  final String? token;
+  final String? inviterUsername;
   final String? inviterEmail;
 }
 
@@ -179,33 +181,6 @@ class ConnectionsService {
     }
   }
 
-  Future<void> acceptInvite(String inviteId, {String? token}) async {
-    final normalizedInviteId = inviteId.trim();
-    if (normalizedInviteId.isEmpty) {
-      throw Exception('Geçerli bir davet kimliği bulunamadı');
-    }
-
-    try {
-      final response = await _api.dio.post<Map<String, dynamic>>(
-        '/api/contacts/invites/$normalizedInviteId/accept',
-        data: token != null && token.isNotEmpty ? {'token': token} : {},
-      );
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        throw Exception('Davet kabul edilemedi');
-      }
-    } on DioException catch (e) {
-      final responseData = e.response?.data;
-      if (responseData is Map<String, dynamic>) {
-        final message = responseData['message'];
-        if (message is String && message.trim().isNotEmpty) {
-          throw Exception(message);
-        }
-      }
-      throw Exception('Davet kabul edilemedi');
-    }
-  }
-
   Future<void> resendInvite(String inviteId) async {
     final normalizedInviteId = inviteId.trim();
     if (normalizedInviteId.isEmpty) {
@@ -243,6 +218,45 @@ class ConnectionsService {
     try {
       final response = await _api.dio.post<Map<String, dynamic>>(
         '/api/contacts/invites/$normalizedInviteId/accept',
+      );
+
+      if (response.statusCode != 200 &&
+          response.statusCode != 201 &&
+          response.statusCode != 204) {
+        throw Exception('Davet kabul edilemedi');
+      }
+
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final message = data['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          return message;
+        }
+      }
+
+      return null;
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Davet kabul edilemedi');
+    }
+  }
+
+  Future<String?> acceptInviteByToken(String inviteToken) async {
+    final normalizedInviteToken = inviteToken.trim();
+    if (normalizedInviteToken.isEmpty) {
+      throw Exception('Geçerli bir davet belirteci bulunamadı');
+    }
+
+    try {
+      final response = await _api.dio.post<Map<String, dynamic>>(
+        '/api/contacts/invites/accept',
+        queryParameters: {'token': normalizedInviteToken},
       );
 
       if (response.statusCode != 200 &&
@@ -360,7 +374,13 @@ class ConnectionsService {
   }
 
   ContactInviteDto _mapInvite(Map<String, dynamic> json) {
-    final inviter = json['inviter'] as Map?;
+    final inviter = json['inviter'] is Map<String, dynamic>
+        ? json['inviter'] as Map<String, dynamic>
+        : json['inviter'] is Map
+            ? Map<String, dynamic>.from(json['inviter'] as Map)
+            : const <String, dynamic>{};
+    final inviteToken = _extractInviteToken(json, inviter);
+
     return ContactInviteDto(
       id: (json['inviteId'] ?? json['_id'] ?? json['id'] ?? '').toString(),
       inviteeEmail: _pickFirstNonEmpty([
@@ -381,9 +401,65 @@ class ConnectionsService {
       respondedAt: _parseDateTime(json['respondedAt']),
       createdAt: _parseDateTime(json['createdAt']),
       updatedAt: _parseDateTime(json['updatedAt']),
-      inviterName: inviter?['userName']?.toString(),
-      inviterEmail: inviter?['email']?.toString(),
+      token: inviteToken,
+      inviterUsername: _pickFirstNonEmpty([
+        json['inviterUsername']?.toString(),
+        inviter['inviterUsername']?.toString(),
+      ]),
+      inviterEmail: _pickFirstNonEmpty([
+        json['inviterEmail']?.toString(),
+        inviter['inviterEmail']?.toString(),
+      ]),
     );
+  }
+
+  String _extractInviteToken(
+    Map<String, dynamic> json,
+    Map<String, dynamic> inviter,
+  ) {
+    final directToken = _pickFirstNonEmpty([
+      json['token']?.toString(),
+      json['inviteToken']?.toString(),
+      inviter['token']?.toString(),
+      inviter['inviteToken']?.toString(),
+    ]);
+    if (directToken.isNotEmpty) {
+      return directToken;
+    }
+
+    const linkKeys = [
+      'acceptUrl',
+      'acceptLink',
+      'inviteUrl',
+      'inviteLink',
+      'invitationUrl',
+      'invitationLink',
+      'url',
+      'link',
+    ];
+
+    for (final key in linkKeys) {
+      final token = _extractTokenFromUrl(json[key]);
+      if (token.isNotEmpty) {
+        return token;
+      }
+    }
+
+    return '';
+  }
+
+  String _extractTokenFromUrl(dynamic value) {
+    final text = value?.toString().trim();
+    if (text == null || text.isEmpty) {
+      return '';
+    }
+
+    final uri = Uri.tryParse(text);
+    if (uri == null) {
+      return '';
+    }
+
+    return uri.queryParameters['token']?.trim() ?? '';
   }
 
   List<ContactPermission> _parsePermissions(dynamic rawPermissions) {

@@ -42,10 +42,10 @@ class _TargetProgressRingState extends State<_TargetProgressRing> {
           width: ThemeSize.avatarXXL,
           child: CustomPaint(
             painter: _RingPainter(
-                outlineColor:
-                    context.colorScheme.outline.withValues(alpha: 0.2),
-                progress: _clamped,
-                gradientColors: _gradientColors),
+              outlineColor: context.colorScheme.outline.withValues(alpha: 0.2),
+              progress: _clamped,
+              gradientColors: _gradientColors,
+            ),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

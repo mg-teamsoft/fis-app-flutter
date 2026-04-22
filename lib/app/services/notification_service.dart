@@ -19,8 +19,10 @@ class NotificationService {
   ApiClient _api;
   final ValueNotifier<int> unreadCount = ValueNotifier<int>(0);
 
-  Future<List<NotificationModel>> fetchNotifications(
-      {int page = 1, int limit = 10}) async {
+  Future<List<NotificationModel>> fetchNotifications({
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
       final response = await _api.dio.get<dynamic>(
         '/api/notifications',

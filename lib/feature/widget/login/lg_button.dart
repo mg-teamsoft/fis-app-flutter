@@ -16,7 +16,9 @@ final class _LoginButton extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: ThemeRadius.circular8),
           padding: const ThemePadding.all10(),
           minimumSize: const Size(
-              ThemeSize.buttonHeightLarge, ThemeSize.buttonHeightMedium),
+            ThemeSize.buttonHeightLarge,
+            ThemeSize.buttonHeightMedium,
+          ),
         ),
         child: isLoading
             ? const SizedBox(

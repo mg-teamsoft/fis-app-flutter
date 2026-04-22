@@ -19,7 +19,6 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
   List<ContactInviteDto> _invites = const [];
   List<ContactInviteDto> _pendingInvites = const [];
   bool _isPendingInvitesLoading = true;
-  String? _pendingInvitesError;
 
   @override
   void initState() {
@@ -161,7 +160,6 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
   Future<void> _loadPendingInvites() async {
     setState(() {
       _isPendingInvitesLoading = true;
-      _pendingInvitesError = null;
     });
 
     try {
@@ -171,11 +169,9 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       setState(() {
         _pendingInvites = invites;
       });
-    } on Exception catch (e) {
+    } on Exception {
       if (!mounted) return;
-      setState(() {
-        _pendingInvitesError = e.toString().replaceAll('Exception: ', '');
-      });
+      setState(() {});
     } finally {
       if (mounted) {
         setState(() {
@@ -185,9 +181,9 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     }
   }
 
-  Future<void> _handleAcceptInvite(String inviteId) async {
+  Future<void> _handleAcceptInvite(ContactInviteDto invite) async {
     try {
-      await _connectionsService.acceptInvite(inviteId);
+      await _connectionsService.acceptInvite(invite.id);
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(

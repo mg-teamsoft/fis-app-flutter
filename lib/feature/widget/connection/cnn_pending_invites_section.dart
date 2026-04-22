@@ -9,7 +9,7 @@ class _CnnPendingInvitesSection extends StatelessWidget {
 
   final List<ContactInviteDto> pendingInvites;
   final bool isPendingLoading;
-  final Future<void> Function(String) onAccept;
+  final Future<void> Function(ContactInviteDto) onAccept;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class _CnnPendingInviteCard extends StatefulWidget {
   });
 
   final ContactInviteDto invite;
-  final Future<void> Function(String) onAccept;
+  final Future<void> Function(ContactInviteDto) onAccept;
 
   @override
   State<_CnnPendingInviteCard> createState() => _CnnPendingInviteCardState();
@@ -57,7 +57,7 @@ class _CnnPendingInviteCardState extends State<_CnnPendingInviteCard> {
       _isLoading = true;
     });
     try {
-      await widget.onAccept(widget.invite.id);
+      await widget.onAccept(widget.invite);
     } finally {
       if (mounted) {
         setState(() {
@@ -69,11 +69,15 @@ class _CnnPendingInviteCardState extends State<_CnnPendingInviteCard> {
 
   @override
   Widget build(BuildContext context) {
-    final inviterName = widget.invite.inviterName?.trim().isNotEmpty == true
-        ? widget.invite.inviterName
-        : (widget.invite.inviterEmail?.trim().isNotEmpty == true
-            ? widget.invite.inviterEmail
-            : 'Bir kullanıcı');
+    final inviterEmail = widget.invite.inviterEmail?.trim();
+    final inviterUsername = widget.invite.inviterUsername?.trim();
+    final inviterParts = [
+      if (inviterEmail != null && inviterEmail.isNotEmpty) inviterEmail,
+      if (inviterUsername != null && inviterUsername.isNotEmpty)
+        inviterUsername,
+    ];
+    final inviterName =
+        inviterParts.isNotEmpty ? inviterParts.join(' - ') : 'Bir kullanıcı';
 
     return Container(
       margin: const ThemePadding.marginBottom16(),
@@ -95,8 +99,10 @@ class _CnnPendingInviteCardState extends State<_CnnPendingInviteCard> {
         children: [
           Row(
             children: [
-              Icon(Icons.mark_email_unread_rounded,
-                  color: context.theme.warning),
+              Icon(
+                Icons.mark_email_unread_rounded,
+                color: context.theme.warning,
+              ),
               const SizedBox(width: ThemeSize.spacingS),
               Expanded(
                 child: ThemeTypography.titleMedium(
@@ -113,7 +119,7 @@ class _CnnPendingInviteCardState extends State<_CnnPendingInviteCard> {
             TextSpan(
               children: [
                 TextSpan(
-                  text: "$inviterName ",
+                  text: '$inviterName ',
                   style: context.textTheme.bodyLarge?.copyWith(
                     color: context.colorScheme.outline,
                     fontWeight:
@@ -143,10 +149,10 @@ class _CnnPendingInviteCardState extends State<_CnnPendingInviteCard> {
                 ),
               ),
               child: _isLoading
-                  ? SizedBox(
+                  ? const SizedBox(
                       width: ThemeSize.iconMedium,
                       height: ThemeSize.iconMedium,
-                      child: const CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),

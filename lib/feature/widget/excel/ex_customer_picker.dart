@@ -78,7 +78,8 @@ class _ExcelCustomerPicker extends StatelessWidget {
                         ? null
                         : applyCustomerSelection,
                     style: FilledButton.styleFrom(
-                        backgroundColor: context.colorScheme.primary),
+                      backgroundColor: context.colorScheme.primary,
+                    ),
                     child: ThemeTypography.bodyLarge(
                       context,
                       'Seç',
