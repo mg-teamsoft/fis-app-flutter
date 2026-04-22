@@ -95,11 +95,17 @@ mixin _NotificationController on State<PageNotification> {
   }
 
   Future<void> _handleNotificationTap(NotificationModel notification) async {
-    if (!notification.isUnread || notification.id.trim().isEmpty) {
-      return;
+    // 1. OKUNMA DURUMU GÜNCELLEMESİ (Sadece okunmamışsa çalışır)
+    if (notification.isUnread && notification.id.trim().isNotEmpty) {
+      _markNotificationAsReadOptimistically(notification);
     }
 
-    // Optimistic UI update
+    // 2. YÖNLENDİRME MANTIĞI (Okunmuş olsa bile her tıklamada çalışır)
+    _navigateToTarget(notification);
+  }
+
+// Okunma durumunu yöneten yardımcı fonksiyon
+  void _markNotificationAsReadOptimistically(NotificationModel notification) {
     setState(() {
       _notifications = _notifications
           .map(
@@ -112,9 +118,8 @@ mixin _NotificationController on State<PageNotification> {
 
     _notificationService.decrementUnreadCount();
 
-    try {
-      await _notificationService.markAsRead([notification.id]);
-    } on Exception catch (e) {
+    _notificationService.markAsRead([notification.id]).catchError((e) {
+      // Hata durumunda Rollback işlemleri
       _notificationService.incrementUnreadCount();
       if (!mounted) return;
       setState(() {
@@ -126,9 +131,31 @@ mixin _NotificationController on State<PageNotification> {
             )
             .toList();
       });
+      // Hata mesajını göster
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
       );
+    });
+  }
+
+// Yönlendirmeyi yöneten yardımcı fonksiyon
+  void _navigateToTarget(NotificationModel notification) {
+    if (notification.actionType == null || notification.actionType!.isEmpty) {
+      return;
+    }
+
+    final screen = notification.screen;
+
+    switch (notification.actionType) {
+      case 'CONTACT_INVITE':
+        if (screen != null) {
+          Navigator.pushNamed(context, screen);
+        }
+        break;
+
+      default:
+        debugPrint("Tanımlanmayan bildirim tipi: ${notification.actionType}");
+        break;
     }
   }
 }

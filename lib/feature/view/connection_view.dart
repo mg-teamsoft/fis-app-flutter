@@ -14,6 +14,7 @@ class _ConnectionView extends StatelessWidget {
     required this.formatShortDate,
     required this.tabController,
     required this.mailController,
+    required this.statusText,
     required this.mailFocusNode,
     required this.connectionsService,
     required this.isInviteLoading,
@@ -46,6 +47,7 @@ class _ConnectionView extends StatelessWidget {
   final String? contactsError;
   final String? invitesError;
   final List<_Contact> contacts;
+  final String Function(String) statusText;
   final List<ContactInviteDto> invites;
   final List<ContactInviteDto> pendingInvites;
   final bool isPendingInvitesLoading;
@@ -132,6 +134,7 @@ class _ConnectionView extends StatelessWidget {
                 padding: const ThemePadding.marginBottom24(),
                 children: [
                   _CnnInviteTableSection(
+                    statusText: statusText,
                     handleResendInvite: handleResendInvite,
                     isInviteLoading: isInviteLoading,
                     isInvitesLoading: isInvitesLoading,
