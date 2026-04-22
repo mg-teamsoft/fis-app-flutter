@@ -6,6 +6,7 @@ class _CnnInvateCard extends StatefulWidget {
     required this.formatShortDate,
     required this.resendingInviteIds,
     required this.invite,
+    required this.statusText,
     required this.statusColor,
   });
 
@@ -13,6 +14,7 @@ class _CnnInvateCard extends StatefulWidget {
   final Set<String> resendingInviteIds;
   final Color Function(String) statusColor;
   final String Function(DateTime?) formatShortDate;
+  final String Function(String) statusText;
   final Future<void> Function(ContactInviteDto) handleResendInvite;
 
   @override
@@ -21,6 +23,7 @@ class _CnnInvateCard extends StatefulWidget {
 
 class __CnnInvateCardState extends State<_CnnInvateCard> {
   late Color _statusColor;
+  late String _statusText;
   late bool _isPending;
   late bool _isExpired;
   late bool _hasResponded;
@@ -74,15 +77,12 @@ class __CnnInvateCardState extends State<_CnnInvateCard> {
           Container(
             padding: ThemePadding.horizontalSymmetricFree(12),
             decoration: BoxDecoration(
-              color: widget
-                  .statusColor(widget.invite.status)
-                  .withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(999),
+              color: widget.statusColor(widget.invite.status),
+              borderRadius: BorderRadius.circular(6),
             ),
             child: ThemeTypography.bodySmall(
               context,
-              widget.invite.status.toUpperCase(),
-              color: _statusColor,
+              widget.statusText(widget.invite.status),
               weight: FontWeight.w800,
             ),
           ),

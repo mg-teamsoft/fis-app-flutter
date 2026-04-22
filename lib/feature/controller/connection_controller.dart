@@ -194,7 +194,7 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
         const SnackBar(content: Text('Davet başarıyla kabul edildi')),
       );
       await _loadPendingInvites();
-      await _loadSupervisors(); 
+      await _loadSupervisors();
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -204,7 +204,6 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       );
     }
   }
-
 
   Future<void> _handleResendInvite(ContactInviteDto invite) async {
     if (invite.id.trim().isEmpty) {
@@ -305,12 +304,31 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
         return context.theme.brandPrimary;
       case 'PENDING':
         return context.theme.warning;
+      case 'REVOKED':
+        return const Color(0xFFF97066);
       case 'ACCEPTED':
         return const Color(0xFF12B76A);
       case 'EXPIRED':
         return const Color(0xFFF97066);
       default:
         return Colors.indigo;
+    }
+  }
+
+  String _statusText(String status) {
+    switch (status.toUpperCase()) {
+      case 'ACTIVE':
+        return 'AKTİF';
+      case 'PENDING':
+        return 'BEKLEMEDE';
+      case 'REVOKED':
+        return 'İPTAL EDİLDİ';
+      case 'ACCEPTED':
+        return 'KABUL EDİLDİ';
+      case 'EXPIRED':
+        return 'SÜRESİ DOLDU';
+      default:
+        return 'BİLİNMİYOR';
     }
   }
 
@@ -333,6 +351,6 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     if (value == null) {
       return '-';
     }
-    return DateFormat('dd:MM:yyyy', 'tr').format(value.toLocal());
+    return DateFormat('d MMMM yyyy', 'tr').format(value.toLocal());
   }
 }

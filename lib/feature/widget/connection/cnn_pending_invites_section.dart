@@ -69,11 +69,11 @@ class _CnnPendingInviteCardState extends State<_CnnPendingInviteCard> {
 
   @override
   Widget build(BuildContext context) {
-    final inviterName = widget.invite.inviterName?.trim().isNotEmpty == true 
-      ? widget.invite.inviterName 
-      : (widget.invite.inviterEmail?.trim().isNotEmpty == true 
-        ? widget.invite.inviterEmail 
-        : 'Bir kullanıcı');
+    final inviterName = widget.invite.inviterName?.trim().isNotEmpty == true
+        ? widget.invite.inviterName
+        : (widget.invite.inviterEmail?.trim().isNotEmpty == true
+            ? widget.invite.inviterEmail
+            : 'Bir kullanıcı');
 
     return Container(
       margin: const ThemePadding.marginBottom16(),
@@ -95,7 +95,8 @@ class _CnnPendingInviteCardState extends State<_CnnPendingInviteCard> {
         children: [
           Row(
             children: [
-              Icon(Icons.mark_email_unread_rounded, color: context.theme.warning),
+              Icon(Icons.mark_email_unread_rounded,
+                  color: context.theme.warning),
               const SizedBox(width: ThemeSize.spacingS),
               Expanded(
                 child: ThemeTypography.titleMedium(
@@ -108,10 +109,26 @@ class _CnnPendingInviteCardState extends State<_CnnPendingInviteCard> {
             ],
           ),
           const SizedBox(height: ThemeSize.spacingS),
-          ThemeTypography.bodySmall(
-            context,
-            '$inviterName sizi bağlantı olarak eklemek istiyor. Daveti kabul ederek bağlantı kurabilirsiniz.',
-            color: context.colorScheme.outline,
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: "$inviterName ",
+                  style: context.textTheme.bodyLarge?.copyWith(
+                    color: context.colorScheme.outline,
+                    fontWeight:
+                        FontWeight.w900, // İsmi kalın (span gibi) yapmak için
+                  ),
+                ),
+                TextSpan(
+                  text:
+                      'sizi bağlantı olarak eklemek istiyor. Daveti kabul ederek bağlantı kurabilirsiniz.',
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: context.colorScheme.outline,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: ThemeSize.spacingM),
           SizedBox(

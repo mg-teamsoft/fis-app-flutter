@@ -10,12 +10,14 @@ class _CnnInviteTableSection extends StatelessWidget {
     required this.isInvitesLoading,
     required this.invitesError,
     required this.invites,
+    required this.statusText,
     required this.loadInvites,
   });
 
   final bool isInviteLoading;
   final bool isInvitesLoading;
   final String? invitesError;
+  final String Function(String) statusText;
   final Set<String> resendingInviteIds;
   final Color Function(String) statusColor;
   final String Function(DateTime?) formatShortDate;
@@ -88,6 +90,7 @@ class _CnnInviteTableSection extends StatelessWidget {
         const SizedBox(height: 16),
         ...invites.map(
           (invite) => _CnnInvateCard(
+            statusText: statusText,
             handleResendInvite: handleResendInvite,
             invite: invite,
             formatShortDate: formatShortDate,

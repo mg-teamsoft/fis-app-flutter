@@ -19,7 +19,8 @@ class NotificationService {
   ApiClient _api;
   final ValueNotifier<int> unreadCount = ValueNotifier<int>(0);
 
-  Future<List<NotificationModel>> fetchNotifications({int page = 1, int limit = 10}) async {
+  Future<List<NotificationModel>> fetchNotifications(
+      {int page = 1, int limit = 10}) async {
     try {
       final response = await _api.dio.get<dynamic>(
         '/api/notifications',
@@ -31,13 +32,13 @@ class NotificationService {
 
       final items = _extractItems(response.data);
       final mappedItems = items.map(_mapNotification).toList();
-      
+
       var count = 0;
       for (final item in mappedItems) {
         if (item.isUnread) count++;
       }
       unreadCount.value = count;
-      
+
       return mappedItems;
     } on DioException catch (e) {
       final responseData = e.response?.data;
@@ -120,7 +121,7 @@ class NotificationService {
 
   NotificationModel _mapNotification(Map<String, dynamic> json) {
     final createdAt = _parseDateTime(
-      json['createdAt'] ?? json['date'] ?? json['timestamp'] ?? json['time'],
+      json['createdAt'] ?? json['date'] ?? json['timestamp'],
     );
 
     return NotificationModel(
@@ -129,24 +130,28 @@ class NotificationService {
       title: _pickFirstNonEmpty([
         json['title']?.toString(),
         json['subject']?.toString(),
-        json['name']?.toString(),
         'Bildirim',
       ]),
       subtitle: _emptyToNull(
         _pickFirstNonEmpty([
           json['subtitle']?.toString(),
           json['summary']?.toString(),
-          json['description']?.toString(),
         ]),
       ),
       content: _pickFirstNonEmpty([
         json['content']?.toString(),
         json['message']?.toString(),
-        json['body']?.toString(),
         '',
       ]),
-      time: createdAt == null ? '' : _formatRelativeTime(createdAt),
+      // Eğer backend'den 'time' zaten "2 dk önce" şeklinde geliyorsa doğrudan kullan,
+      // yoksa createdAt üzerinden formatla.
+      time: json['time']?.toString() ??
+          (createdAt == null ? '' : _formatRelativeTime(createdAt)),
       isUnread: _parseIsUnread(json),
+
+      // BURASI KRİTİK: Yeni alanları ekliyoruz
+      actionType: json['actionType']?.toString(),
+      screen: json['screen']?.toString(),
     );
   }
 

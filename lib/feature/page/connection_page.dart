@@ -12,7 +12,6 @@ part '../view/connection_view.dart';
 part '../widget/connection/cnn_class.dart';
 part '../widget/connection/cnn_contact_card.dart';
 part '../widget/connection/cnn_contacts_section.dart';
-part '../widget/connection/cnn_pending_invites_section.dart';
 part '../widget/connection/cnn_featured_stats.dart';
 part '../widget/connection/cnn_invite_card.dart';
 part '../widget/connection/cnn_invite_meta_item.dart';
@@ -20,6 +19,7 @@ part '../widget/connection/cnn_invite_permission_switch.dart';
 part '../widget/connection/cnn_invite_section.dart';
 part '../widget/connection/cnn_invite_summary_card.dart';
 part '../widget/connection/cnn_invite_table_section.dart';
+part '../widget/connection/cnn_pending_invites_section.dart';
 part '../widget/connection/cnn_permission_chip.dart';
 
 class PageConnections extends StatefulWidget {
@@ -43,6 +43,7 @@ class _PageConnectionsState extends State<PageConnections>
       buildInitials: _buildInitials,
       statusColor: _statusColor,
       statusLabel: _statusLabel,
+      statusText: _statusText,
       formatShortDate: _formatShortDate,
       tabController: _tabController,
       mailController: _emailController,
