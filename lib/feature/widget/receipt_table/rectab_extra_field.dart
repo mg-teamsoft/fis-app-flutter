@@ -43,9 +43,11 @@ class _ReceiptTableExtraField extends StatelessWidget {
                       children: [
                         SizedBox(
                           width: ThemeSize.avatarXL,
-                          child: Text(
+                          child: ThemeTypography.labelMedium(
+                            context,
                             kv.key,
-                            style: context.textTheme.labelMedium,
+                            weight: FontWeight.w700,
+                            color: context.colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(width: ThemeSize.spacingS),

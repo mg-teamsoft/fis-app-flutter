@@ -47,7 +47,14 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen bir e-posta adresi girin')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Lütfen bir e-posta adresi girin',
+            color: context.theme.info,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       return;
     }
@@ -59,7 +66,14 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
 
     if (permissions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen en az bir yetki seçin')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Lütfen en az bir yetki seçin',
+            color: context.theme.info,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       return;
     }
@@ -75,7 +89,14 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Davet başarıyla gönderildi!')),
+          SnackBar(
+            content: ThemeTypography.bodyLarge(
+              context,
+              'Davet başarıyla gönderildi!',
+              color: context.theme.info,
+              weight: FontWeight.w700,
+            ),
+          ),
         );
         setState(() {
           _emailController.clear();
@@ -89,8 +110,12 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text('Hata: ${e.toString().replaceAll('Exception: ', '')}'),
+            content: ThemeTypography.bodyLarge(
+              context,
+              'Hata: ${e.toString().replaceAll('Exception: ', '')}',
+              color: context.colorScheme.error,
+              weight: FontWeight.w700,
+            ),
           ),
         );
       }
@@ -187,7 +212,14 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Davet başarıyla kabul edildi')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Davet başarıyla kabul edildi',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       await _loadPendingInvites();
       await _loadSupervisors();
@@ -195,7 +227,12 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', '')),
+          content: ThemeTypography.bodyLarge(
+            context,
+            e.toString().replaceAll('Exception: ', ''),
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
         ),
       );
     }
@@ -204,7 +241,14 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
   Future<void> _handleResendInvite(ContactInviteDto invite) async {
     if (invite.id.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Geçerli bir davet bulunamadı')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Geçerli bir davet bulunamadı',
+            color: context.theme.info,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       return;
     }
@@ -218,14 +262,26 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Davet yeniden gönderildi')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Davet yeniden gönderildi',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       await _loadInvites();
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', '')),
+          content: ThemeTypography.bodyLarge(
+            context,
+            e.toString().replaceAll('Exception: ', ''),
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
         ),
       );
     } finally {
@@ -240,7 +296,14 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
   Future<void> _handleRemoveSupervisorAccess(_Contact contact) async {
     if (contact.id.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Geçerli bir danışman bulunamadı')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Geçerli bir danışman bulunamadı',
+            color: context.theme.info,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       return;
     }
@@ -253,13 +316,25 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
         _contacts = _contacts.where((item) => item.id != contact.id).toList();
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erişim kaldırıldı')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Erişim kaldırıldı',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', '')),
+          content: ThemeTypography.bodyLarge(
+            context,
+            e.toString().replaceAll('Exception: ', ''),
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
         ),
       );
     }

@@ -260,7 +260,14 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
     final productId = _productIdForPlan(plan);
     if (productId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bu plan bulunamadı.')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Bu plan bulunamadı.',
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       return;
     }
@@ -275,7 +282,14 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
 
     if (product == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Plan App Store'da mevcut değil.")),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            "Plan App Store'da mevcut değil.",
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       return;
     }
@@ -313,8 +327,13 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
       if (selected == 'FREE') {
         if (_userPlanId == null || _userPlanId!.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Güncellenecek kullanıcı planı bulunamadı.'),
+            SnackBar(
+              content: ThemeTypography.bodyLarge(
+                context,
+                'Güncellenecek kullanıcı planı bulunamadı.',
+                color: context.colorScheme.error,
+                weight: FontWeight.w700,
+              ),
             ),
           );
           return;
@@ -333,7 +352,14 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Plan güncellendi.')),
+          SnackBar(
+            content: ThemeTypography.bodyLarge(
+              context,
+              'Plan güncellendi.',
+              color: context.theme.success,
+              weight: FontWeight.w700,
+            ),
+          ),
         );
         return;
       }
@@ -341,12 +367,26 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
       await _buyPlan(selectedPlan, syncCurrentPlan: true);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Plan güncellendi.')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Plan güncellendi.',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Plan güncelleme başarısız: $e')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Plan güncelleme başarısız: $e',
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     } finally {
       if (mounted) {
@@ -361,12 +401,26 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
       await _buyPlan(plan, syncCurrentPlan: false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ek kota satın alındı.')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Ek kota satın alındı.',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Satın alma başarısız: $e')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Satın alma başarısız: $e',
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     } finally {
       if (mounted) {
@@ -385,7 +439,14 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
     if (email.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('E-posta adresi bulunamadı.')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'E-posta adresi bulunamadı.',
+            color: context.theme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       return;
     }
@@ -395,12 +456,26 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
       await _userService.resendVerificationEmail(email);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Doğrulama e-postası gönderildi.')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Doğrulama e-postası gönderildi.',
+            color: context.theme.info,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('İşlem başarısız: $e')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'İşlem başarısız: $e',
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     } finally {
       if (mounted) {

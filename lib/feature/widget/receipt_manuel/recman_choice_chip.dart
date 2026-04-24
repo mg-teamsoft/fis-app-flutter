@@ -20,23 +20,22 @@ class _ChoiceChipButton extends StatelessWidget {
         padding: const ThemePadding.horizontalSymmetricMedium(),
         decoration: BoxDecoration(
           color: selected
-              ? context.colorScheme.onPrimary
+              ? context.colorScheme.secondary
               : context.colorScheme.surface,
           borderRadius: BorderRadius.circular(999),
           border: Border.all(
             color: selected
-                ? context.colorScheme.onPrimary
+                ? context.colorScheme.onSecondary
                 : context.colorScheme.onSurface,
           ),
         ),
-        child: Text(
+        child: ThemeTypography.bodyLarge(
+          context,
           label,
-          style: TextStyle(
-            color: selected
-                ? context.colorScheme.primary
-                : context.colorScheme.surfaceContainer,
-            fontWeight: FontWeight.w500,
-          ),
+          color: selected
+              ? context.colorScheme.onSecondary
+              : context.colorScheme.onSurface.withValues(alpha: 0.3),
+          weight: FontWeight.w500,
         ),
       ),
     );

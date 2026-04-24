@@ -202,14 +202,27 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Mükerrer Görsel'),
-        content: const Text(
+        title: ThemeTypography.bodyLarge(
+          context,
+          'Mükerrer Görsel',
+          color: ctx.colorScheme.onSurface,
+          weight: FontWeight.w700,
+        ),
+        content: ThemeTypography.bodyLarge(
+          context,
           'Bu görsel daha önce sisteme yüklenmiş. Lütfen farklı bir görsel seçin.',
+          color: ctx.theme.error,
+          weight: FontWeight.w500,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Tamam'),
+            child: ThemeTypography.bodyLarge(
+              ctx,
+              'Tamam',
+              color: ctx.colorScheme.primary,
+              weight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -220,8 +233,12 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
-        backgroundColor: color ?? const Color(0xFFF04438),
+        content: ThemeTypography.bodyLarge(
+          context,
+          msg,
+          color: context.colorScheme.error,
+        ),
+        backgroundColor: color ?? context.colorScheme.surface,
       ),
     );
   }
@@ -231,12 +248,27 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Hata'),
-        content: Text(message),
+        title: ThemeTypography.bodyLarge(
+          context,
+          'Hata',
+          color: ctx.colorScheme.onSurface,
+          weight: FontWeight.w800,
+        ),
+        content: ThemeTypography.bodyLarge(
+          context,
+          message,
+          color: ctx.colorScheme.error,
+          weight: FontWeight.w500,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Tamam'),
+            child: ThemeTypography.bodyLarge(
+              context,
+              'Tamam',
+              color: ctx.colorScheme.onSurface,
+              weight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -339,8 +371,13 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(successMsg),
-          backgroundColor: const Color(0xFF12B76A),
+          content: ThemeTypography.bodyLarge(
+            context,
+            successMsg,
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+          backgroundColor: context.colorScheme.surface,
         ),
       );
 

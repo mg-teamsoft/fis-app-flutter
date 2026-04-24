@@ -1,3 +1,4 @@
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:flutter/material.dart';
 
 class AuthNavigation {
@@ -12,7 +13,14 @@ class AuthNavigation {
     if (message != null && message.isNotEmpty) {
       final ctx = nav.context;
       ScaffoldMessenger.of(ctx).showSnackBar(
-        SnackBar(content: Text(message)),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            ctx,
+            message,
+            color: ctx.theme.warning,
+            weight: FontWeight.w800,
+          ),
+        ),
       );
     }
 

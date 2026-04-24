@@ -118,37 +118,6 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
       saveText: 'Seç',
       cancelText: 'İptal',
       helpText: 'Tarih Aralığı Seçin',
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            //Header background color
-            primaryColor: context.colorScheme.secondary,
-            //Background color
-            scaffoldBackgroundColor: context.colorScheme.surface,
-            //Divider color
-            dividerColor: context.colorScheme.outline,
-            //Non selected days of the month color
-            textTheme: TextTheme(
-              bodyMedium: context.textTheme.bodyMedium!.copyWith(
-                color: context.colorScheme.onSurface,
-              ),
-            ),
-            colorScheme: ColorScheme.fromSwatch().copyWith(
-              //Selected dates background color
-              primary: context.colorScheme.primary,
-              //Month title and week days color
-              onSurface: context.colorScheme.onSurface,
-              //Header elements and selected dates text color
-              onPrimary: context.colorScheme.onSurface,
-            ),
-            appBarTheme: const AppBarTheme().copyWith(
-              backgroundColor: context.colorScheme.surfaceContainerHigh,
-              foregroundColor: context.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
     if (picked != null && picked != _selectedDateRange) {
       setState(() {

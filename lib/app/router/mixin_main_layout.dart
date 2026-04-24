@@ -104,7 +104,14 @@ mixin _MixinMainLayout on State<MainLayout> {
   Widget _buildCurrentPage(BuildContext context) {
     final builder = _pageBuilders[_currentRoute];
     if (builder == null) {
-      return const Center(child: Text('Sayfa bulunamadı'));
+      return Center(
+        child: ThemeTypography.bodyLarge(
+          context,
+          'Sayfa bulunamadı',
+          weight: FontWeight.w600,
+          color: context.colorScheme.error,
+        ),
+      );
     }
     return builder(context, _currentArguments);
   }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/services/api_client.dart';
 import 'package:fis_app_flutter/app/services/connections_service.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,8 @@ class PageContactInviteAccept extends StatefulWidget {
   final String? initialToken;
 
   @override
-  State<PageContactInviteAccept> createState() => _PageContactInviteAcceptState();
+  State<PageContactInviteAccept> createState() =>
+      _PageContactInviteAcceptState();
 }
 
 class _PageContactInviteAcceptState extends State<PageContactInviteAccept> {
@@ -76,43 +78,60 @@ class _PageContactInviteAcceptState extends State<PageContactInviteAccept> {
                     _submitting
                         ? Icons.hourglass_top_rounded
                         : _success
-                        ? Icons.check_circle_outline_rounded
-                        : Icons.error_outline_rounded,
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.error_outline_rounded,
                     size: 56,
                     color: _submitting
                         ? Theme.of(context).colorScheme.primary
                         : _success
-                        ? Colors.green
-                        : Theme.of(context).colorScheme.error,
+                            ? context.theme.success
+                            : context.theme.error,
                   ),
                   const SizedBox(height: 20),
-                  Text(
+                  ThemeTypography.bodyLarge(
+                    context,
                     _submitting
                         ? 'Davet kabul ediliyor'
                         : _success
-                        ? 'Davet kabul edildi'
-                        : 'Davet kabul edilemedi',
+                            ? 'Davet kabul edildi'
+                            : 'Davet kabul edilemedi',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    color:
+                        _success ? context.theme.success : context.theme.error,
+                    weight: FontWeight.w600,
                   ),
                   const SizedBox(height: 12),
-                  Text(
+                  ThemeTypography.bodyLarge(
+                    context,
                     _submitting
                         ? "İsteğiniz backend API'ye gönderiliyor."
                         : (_message ?? ''),
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    color: _submitting
+                        ? context.colorScheme.primary
+                        : _success
+                            ? context.theme.success
+                            : context.colorScheme.error,
+                    weight: FontWeight.w600,
                   ),
                   const SizedBox(height: 24),
                   if (_submitting)
                     const Center(child: CircularProgressIndicator())
                   else
                     FilledButton(
-                      onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+                      onPressed: () =>
+                          Navigator.of(context).pushNamedAndRemoveUntil(
                         _success ? '/connections' : '/login',
                         (route) => false,
                       ),
-                      child: Text(_success ? 'Bağlantılara Git' : 'Giriş Yap'),
+                      child: ThemeTypography.bodyLarge(
+                        context,
+                        _success ? 'Bağlantılara Git' : 'Giriş Yap',
+                        color: _success
+                            ? context.theme.success
+                            : context.theme.brandPrimary,
+                        weight: FontWeight.w600,
+                      ),
                     ),
                 ],
               ),

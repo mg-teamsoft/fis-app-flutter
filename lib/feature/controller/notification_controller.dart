@@ -136,7 +136,14 @@ mixin _NotificationController on State<PageNotification> {
       });
       // Hata mesajını göster
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            e.toString().replaceAll('Exception: ', ''),
+            color: context.theme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     });
   }
