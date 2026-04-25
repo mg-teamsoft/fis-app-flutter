@@ -149,7 +149,7 @@ mixin _NotificationController on State<PageNotification> {
     switch (notification.actionType) {
       case 'CONTACT_INVITE':
         if (screen != null) {
-          Navigator.pushNamed(context, screen);
+          Navigator.pushNamed(context, screen, arguments: {'tab': 2});
         }
         break;
 
