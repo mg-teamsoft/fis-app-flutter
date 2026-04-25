@@ -20,11 +20,18 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
   List<ContactInviteDto> _pendingInvites = const [];
   bool _isPendingInvitesLoading = true;
   String? _pendingInvitesError;
+  bool _isCustomersLoading = true;
+  String? _customersError;
+  List<_Customer> _customers = const [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: widget.initialTabIndex?.clamp(0, 2) ?? 0,
+    );
     _emailFocusNode.addListener(() {
       if (!mounted) return;
       setState(() {
@@ -34,6 +41,7 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     unawaited(_loadSupervisors());
     unawaited(_loadInvites());
     unawaited(_loadPendingInvites());
+    unawaited(_loadCustomers());
   }
 
   @override
@@ -42,6 +50,15 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     _emailFocusNode.dispose();
     _tabController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant PageConnections oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialTabIndex != oldWidget.initialTabIndex &&
+        widget.initialTabIndex != null) {
+      _tabController.animateTo(widget.initialTabIndex!);
+    }
   }
 
   Future<void> _handleInvite() async {
@@ -267,6 +284,47 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
         ),
       );
     }
+  }
+
+  Future<void> _loadCustomers() async {
+    setState(() {
+      _isCustomersLoading = true;
+      _customersError = null;
+    });
+
+    try {
+      final customers = await _connectionsService.fetchCustomers();
+      if (!mounted) return;
+
+      setState(() {
+        _customers = customers.map(_mapCustomer).toList();
+      });
+    } on Exception catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _customersError = e.toString().replaceAll('Exception: ', '');
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCustomersLoading = false;
+        });
+      }
+    }
+  }
+
+  _Customer _mapCustomer(CustomerContactDto customer) {
+    return _Customer(
+      id: customer.id,
+      initials: _buildInitials(customer.name, customer.email),
+      name: customer.name.isEmpty ? customer.email : customer.name,
+      email: customer.email,
+      baseColor: context.theme.brandPrimary,
+      canViewReceipts:
+          customer.permissions.contains(ContactPermission.viewReceipts),
+      canDownloadFiles:
+          customer.permissions.contains(ContactPermission.downloadFiles),
+    );
   }
 
   _Contact _mapContact(SupervisorContactDto supervisor) {

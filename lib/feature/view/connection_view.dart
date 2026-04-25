@@ -31,6 +31,10 @@ class _ConnectionView extends StatelessWidget {
     required this.pendingInvites,
     required this.isPendingInvitesLoading,
     required this.handleAcceptInvite,
+    required this.customers,
+    required this.isCustomersLoading,
+    required this.customersError,
+    required this.loadCustomers,
   });
 
   final TabController tabController;
@@ -53,6 +57,10 @@ class _ConnectionView extends StatelessWidget {
   final bool isPendingInvitesLoading;
 
   final Future<void> Function(String) handleAcceptInvite;
+  final List<_Customer> customers;
+  final bool isCustomersLoading;
+  final String? customersError;
+  final Future<void> Function() loadCustomers;
   final Future<void> Function() handleInvite;
   final Future<void> Function() loadSupervisors;
   final Future<void> Function() loadInvites;
@@ -88,6 +96,7 @@ class _ConnectionView extends StatelessWidget {
           indicatorColor: const Color(0xFF2563EB),
           tabs: const [
             Tab(text: 'Mali Müşavirler'),
+            Tab(text: 'Müşteriler'),
             Tab(text: 'Davetler'),
           ],
         ),
@@ -99,6 +108,33 @@ class _ConnectionView extends StatelessWidget {
             children: [
               ListView(
                 padding: const ThemePadding.marginBottom16(),
+                children: [
+                  const SizedBox(height: ThemeSize.spacingM),
+                  _CnnContactsSection(
+                    statusLabel: statusLabel,
+                    isContactsLoading: isContactsLoading,
+                    contacts: contacts,
+                    contactsError: contactsError,
+                    onRetry: loadSupervisors,
+                    onRemoveAccess: handleRemoveSupervisorAccess,
+                  ),
+                  const SizedBox(height: ThemeSize.spacingL),
+                  _CnnFeaturedStats(contacts: contacts),
+                ],
+              ),
+              ListView(
+                padding: const ThemePadding.marginBottom16(),
+                children: [
+                  _CnnCustomersSection(
+                    isCustomersLoading: isCustomersLoading,
+                    customers: customers,
+                    customersError: customersError,
+                    onRetry: loadCustomers,
+                  ),
+                ],
+              ),
+              ListView(
+                padding: const ThemePadding.marginBottom24(),
                 children: [
                   if (isPendingInvitesLoading || pendingInvites.isNotEmpty)
                     _CnnPendingInvitesSection(
@@ -118,21 +154,6 @@ class _ConnectionView extends StatelessWidget {
                     emailFocusNode: mailFocusNode,
                   ),
                   const SizedBox(height: ThemeSize.spacingM),
-                  _CnnContactsSection(
-                    statusLabel: statusLabel,
-                    isContactsLoading: isContactsLoading,
-                    contacts: contacts,
-                    contactsError: contactsError,
-                    onRetry: loadSupervisors,
-                    onRemoveAccess: handleRemoveSupervisorAccess,
-                  ),
-                  const SizedBox(height: ThemeSize.spacingL),
-                  _CnnFeaturedStats(contacts: contacts),
-                ],
-              ),
-              ListView(
-                padding: const ThemePadding.marginBottom24(),
-                children: [
                   _CnnInviteTableSection(
                     statusText: statusText,
                     handleResendInvite: handleResendInvite,

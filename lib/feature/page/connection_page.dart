@@ -21,9 +21,13 @@ part '../widget/connection/cnn_invite_summary_card.dart';
 part '../widget/connection/cnn_invite_table_section.dart';
 part '../widget/connection/cnn_pending_invites_section.dart';
 part '../widget/connection/cnn_permission_chip.dart';
+part '../widget/connection/cnn_customer_class.dart';
+part '../widget/connection/cnn_customers_section.dart';
 
 class PageConnections extends StatefulWidget {
-  const PageConnections({super.key});
+  const PageConnections({super.key, this.initialTabIndex});
+
+  final int? initialTabIndex;
 
   @override
   State<PageConnections> createState() => _PageConnectionsState();
@@ -63,6 +67,10 @@ class _PageConnectionsState extends State<PageConnections>
       pendingInvites: _pendingInvites,
       isPendingInvitesLoading: _isPendingInvitesLoading,
       handleAcceptInvite: _handleAcceptInvite,
+      customers: _customers,
+      isCustomersLoading: _isCustomersLoading,
+      customersError: _customersError,
+      loadCustomers: _loadCustomers,
     );
   }
 }

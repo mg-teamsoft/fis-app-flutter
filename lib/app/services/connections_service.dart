@@ -18,6 +18,20 @@ class SupervisorContactDto {
   final List<ContactPermission> permissions;
 }
 
+class CustomerContactDto {
+  CustomerContactDto({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.permissions,
+  });
+
+  final String id;
+  final String name;
+  final String email;
+  final List<ContactPermission> permissions;
+}
+
 class ContactInviteDto {
   ContactInviteDto({
     required this.id,
@@ -234,6 +248,28 @@ class ConnectionsService {
     }
   }
 
+  Future<List<CustomerContactDto>> fetchCustomers() async {
+    try {
+      final response =
+          await _api.dio.get<Map<String, dynamic>>('/api/contacts/customers');
+      if (response.statusCode != 200) {
+        throw Exception('Müşteriler alınamadı');
+      }
+
+      final items = _extractCustomerList(response.data);
+      return items.map(_mapCustomerContact).toList();
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Müşteriler alınamadı');
+    }
+  }
+
   List<Map<String, dynamic>> _extractContactList(dynamic data) {
     if (data is List) {
       return data
@@ -270,6 +306,20 @@ class ConnectionsService {
       final invites = data['invites'];
       if (invites is List) {
         return invites
+            .whereType<Map<String, dynamic>>()
+            .map(Map<String, dynamic>.from)
+            .toList();
+      }
+    }
+
+    return _extractContactList(data);
+  }
+
+  List<Map<String, dynamic>> _extractCustomerList(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      final customers = data['customers'];
+      if (customers is List) {
+        return customers
             .whereType<Map<String, dynamic>>()
             .map(Map<String, dynamic>.from)
             .toList();
@@ -364,6 +414,35 @@ class ConnectionsService {
       }
     }
     return permissions;
+  }
+
+  CustomerContactDto _mapCustomerContact(Map<String, dynamic> json) {
+    final customer = json['customer'] is Map
+        ? Map<String, dynamic>.from(json['customer'] as Map)
+        : const <String, dynamic>{};
+    final email = _pickFirstNonEmpty([
+      customer['email']?.toString(),
+      json['email']?.toString(),
+    ]);
+
+    return CustomerContactDto(
+      id: (json['customerUserId'] ??
+              customer['userId'] ??
+              customer['_id'] ??
+              json['linkId'] ??
+              json['id'] ??
+              json['_id'] ??
+              email)
+          .toString(),
+      name: _pickFirstNonEmpty([
+        customer['name']?.toString(),
+        customer['fullName']?.toString(),
+        customer['userName']?.toString(),
+        email,
+      ]),
+      email: email,
+      permissions: _parsePermissions(json['permissions']),
+    );
   }
 
   String _pickFirstNonEmpty(List<String?> values) {

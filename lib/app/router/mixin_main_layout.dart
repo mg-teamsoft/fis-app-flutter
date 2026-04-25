@@ -39,7 +39,10 @@ mixin _MixinMainLayout on State<MainLayout> {
     '/home': (_, __) => const PageHome(),
     '/about': (_, __) => const PageAbout(),
     '/accountSettings': (_, __) => const PageAccountSettings(),
-    '/connections': (_, __) => const PageConnections(),
+    '/connections': (_, args) {
+      final initialTab = (args is Map) ? (args['tab'] as int?) : null;
+      return PageConnections(initialTabIndex: initialTab);
+    },
     '/excelFiles': (_, __) => const PageExcel(),
     '/receipt': (_, __) => const PageReceipt(),
     '/gallery': (_, __) => const PageReceiptGallery(),
