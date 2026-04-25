@@ -82,16 +82,13 @@ class TwiceButton extends StatelessWidget {
             const SizedBox(width: ThemeSize.spacingS),
           ],
           Flexible(
-            child: Text(
+            child: ThemeTypography.bodyLarge(
+              context,
               title.trim(),
-              style: (textStyle ?? context.textTheme.bodyMedium)?.copyWith(
-                color: context.colorScheme.onPrimaryContainer,
-                fontWeight: FontWeight.w700,
-              ),
+              color: context.colorScheme.onPrimaryContainer,
+              weight: FontWeight.w700,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              softWrap: false,
-              textAlign: TextAlign.center,
             ),
           ),
         ],

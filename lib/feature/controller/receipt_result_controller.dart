@@ -358,7 +358,15 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
         ? "✅ $okCount fiş Excel'e yazıldı"
         : '✅ $okCount yazıldı • ❌ $failCount başarısız\n${failures.join('\n')}';
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
+      SnackBar(
+        content: ThemeTypography.bodyLarge(
+          context,
+          msg,
+          color: context.theme.error,
+          weight: FontWeight.w600,
+        ),
+        duration: const Duration(seconds: 3),
+      ),
     );
 
     setState(() {

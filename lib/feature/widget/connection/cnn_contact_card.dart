@@ -27,10 +27,11 @@ class __ConnectionCardState extends State<_ConnectionCard> {
 
   @override
   Widget build(BuildContext context) {
-    final _isActive = _contact.status == 'ACTIVE';
-    final _statusColor = _isActive ? context.theme.success : context.theme.warning;
-    final _cardBorderColor =
-        _isActive ? context.theme.divider : context.theme.warning;
+    final isActive = _contact.status == 'ACTIVE';
+    final statusColor =
+        isActive ? context.theme.success : context.theme.warning;
+    final cardBorderColor =
+        isActive ? context.theme.divider : context.theme.warning;
 
     return Container(
       margin: const ThemePadding.marginBottom12(),
@@ -38,7 +39,7 @@ class __ConnectionCardState extends State<_ConnectionCard> {
       decoration: BoxDecoration(
         color: context.colorScheme.surface,
         borderRadius: ThemeRadius.circular12,
-        border: Border.all(color: _cardBorderColor, width: 1.2),
+        border: Border.all(color: cardBorderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: context.colorScheme.onPrimary.withValues(alpha: 0.02),
@@ -78,14 +79,14 @@ class __ConnectionCardState extends State<_ConnectionCard> {
                         Container(
                           padding: const ThemePadding.verticalSymmetricSmall(),
                           decoration: BoxDecoration(
-                            color: _statusColor.withValues(alpha: 0.1),
+                            color: statusColor.withValues(alpha: 0.1),
                             borderRadius: ThemeRadius.circular12,
                           ),
                           child: ThemeTypography.bodySmall(
                             context,
                             widget.statusLabel(_contact.status),
                             weight: FontWeight.w800,
-                            color: _statusColor,
+                            color: statusColor,
                           ),
                         ),
                       ],
@@ -101,7 +102,7 @@ class __ConnectionCardState extends State<_ConnectionCard> {
               ),
             ],
           ),
-          if (_isActive) ...[
+          if (isActive) ...[
             const SizedBox(height: ThemeSize.spacingM),
             const Divider(height: 1),
             const SizedBox(height: ThemeSize.spacingM),

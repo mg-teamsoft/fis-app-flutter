@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:fis_app_flutter/core/theme/extension.dart';
+import 'package:fis_app_flutter/core/theme/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -138,19 +140,39 @@ class PermissionService {
     await showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
+        title: ThemeTypography.h4(
+          context,
+          title,
+          color: context.colorScheme.onSurface,
+          weight: FontWeight.w800,
+        ),
+        content: ThemeTypography.bodyLarge(
+          context,
+          message,
+          color: context.colorScheme.onSurface,
+          weight: FontWeight.w400,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Vazgeç'),
+            child: ThemeTypography.bodyLarge(
+              context,
+              'Vazgeç',
+              color: context.colorScheme.error,
+              weight: FontWeight.w700,
+            ),
           ),
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
               await openAppSettings();
             },
-            child: const Text('Ayarları Aç'),
+            child: ThemeTypography.bodyLarge(
+              context,
+              'Ayarları Aç',
+              color: context.colorScheme.primary,
+              weight: FontWeight.w700,
+            ),
           ),
         ],
       ),

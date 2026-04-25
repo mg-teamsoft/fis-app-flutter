@@ -97,7 +97,7 @@ mixin _NotificationController on State<PageNotification> {
   Future<void> _handleNotificationTap(NotificationModel notification) async {
     // 1. OKUNMA DURUMU GÜNCELLEMESİ (Sadece okunmamışsa çalışır)
     if (notification.isUnread && notification.id.trim().isNotEmpty) {
-      _markNotificationAsReadOptimistically(notification);
+      await _markNotificationAsReadOptimistically(notification);
     }
 
     // 2. YÖNLENDİRME MANTIĞI (Okunmuş olsa bile her tıklamada çalışır)
@@ -105,7 +105,9 @@ mixin _NotificationController on State<PageNotification> {
   }
 
 // Okunma durumunu yöneten yardımcı fonksiyon
-  void _markNotificationAsReadOptimistically(NotificationModel notification) {
+  Future<void> _markNotificationAsReadOptimistically(
+    NotificationModel notification,
+  ) async {
     setState(() {
       _notifications = _notifications
           .map(
@@ -118,7 +120,8 @@ mixin _NotificationController on State<PageNotification> {
 
     _notificationService.decrementUnreadCount();
 
-    _notificationService.markAsRead([notification.id]).catchError((e) {
+    await _notificationService
+        .markAsRead([notification.id]).catchError((Object e) {
       // Hata durumunda Rollback işlemleri
       _notificationService.incrementUnreadCount();
       if (!mounted) return;
@@ -133,7 +136,14 @@ mixin _NotificationController on State<PageNotification> {
       });
       // Hata mesajını göster
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            e.toString().replaceAll('Exception: ', ''),
+            color: context.theme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     });
   }
@@ -149,13 +159,12 @@ mixin _NotificationController on State<PageNotification> {
     switch (notification.actionType) {
       case 'CONTACT_INVITE':
         if (screen != null) {
-          Navigator.pushNamed(context, screen, arguments: {'tab': 2});
+          unawaited(
+              Navigator.pushNamed(context, screen, arguments: {'tab': 2}));
         }
-        break;
 
       default:
-        debugPrint("Tanımlanmayan bildirim tipi: ${notification.actionType}");
-        break;
+        debugPrint('Tanımlanmayan bildirim tipi: ${notification.actionType}');
     }
   }
 }

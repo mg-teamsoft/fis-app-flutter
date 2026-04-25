@@ -43,7 +43,8 @@ class _ReceiptManuelImagePicker extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircularProgressIndicator(
-                          color: context.colorScheme.surface),
+                        color: context.colorScheme.surface,
+                      ),
                       const SizedBox(height: ThemeSize.spacingS),
                       ThemeTypography.bodyLarge(
                         context,

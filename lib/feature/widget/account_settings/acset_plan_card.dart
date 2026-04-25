@@ -125,9 +125,10 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.shopping_cart_checkout,
                     size: ThemeSize.iconMedium,
+                    color: context.colorScheme.onPrimary,
                   ),
                   const SizedBox(width: ThemeSize.spacingS),
                   Expanded(
@@ -137,7 +138,7 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
-                      color: context.colorScheme.onPrimaryContainer,
+                      color: context.colorScheme.onPrimary,
                       weight: FontWeight.w700,
                     ),
                   ),

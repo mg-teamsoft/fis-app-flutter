@@ -25,8 +25,11 @@ class _ReceiptManuelHelperHint extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline,
-                    color: context.theme.warning, size: ThemeSize.iconMedium),
+                Icon(
+                  Icons.info_outline,
+                  color: context.theme.warning,
+                  size: ThemeSize.iconMedium,
+                ),
                 const SizedBox(width: ThemeSize.spacingS),
                 Expanded(
                   child: ThemeTypography.labelLarge(

@@ -136,7 +136,7 @@ class _ReceiptsListState extends State<_ReceiptsList> {
                           ),
                         ),
                         Container(
-                          padding: ThemePadding.all8(),
+                          padding: const ThemePadding.all8(),
                           decoration: BoxDecoration(
                             color: context.colorScheme.primaryContainer
                                 .withValues(alpha: 0.6),

@@ -74,22 +74,21 @@ class _AccountSettingsAvailablePlanTile extends StatelessWidget {
                     ThemeTypography.bodyLarge(
                       context,
                       plan.name,
-                      color: context.colorScheme.onSurface,
+                      color: context.colorScheme.onSecondary,
                       weight: FontWeight.w700,
                     ),
                     const SizedBox(height: 4),
                     ThemeTypography.bodyMedium(
-                      context,
-                      plan.description.isNotEmpty
-                          ? plan.description
-                          : 'Abonelik planı',
-                      color: context.theme.divider,
-                    ),
+                        context,
+                        plan.description.isNotEmpty
+                            ? plan.description
+                            : 'Abonelik planı',
+                        color: context.colorScheme.onSecondary),
                     const SizedBox(height: ThemeSize.spacingM),
                     ThemeTypography.bodyMedium(
                       context,
                       '${plan.quota ?? 0} FATURA   •   ${_periodLabel(plan.period).toUpperCase()}',
-                      color: context.colorScheme.primary,
+                      color: context.colorScheme.primaryContainer,
                       weight: FontWeight.w700,
                     ),
                   ],

@@ -10,6 +10,7 @@ final class RouterGeneral {
     '/login': (_) => const PageLogin(),
     '/register': (_) => const PageRegister(),
     '/forgotPassword': (_) => const PageForgotPassword(),
+    '/contacts/invites/accept': (_) => const PageContactInviteAccept(),
     '/home': (_) => const MainLayout(), // Home Page is default value
     '/connections': (context) {
       final args = ModalRoute.of(context)?.settings.arguments;

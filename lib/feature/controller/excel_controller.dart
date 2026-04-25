@@ -124,13 +124,31 @@ mixin _ConnectionExcel on State<PageExcel> {
       if (result.type.name != StatusType.done.name) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Açılamadı: ${result.message}')));
+        ).showSnackBar(
+          SnackBar(
+            content: ThemeTypography.bodyLarge(
+              context,
+              'Açılamadı: ${result.message}',
+              color: context.theme.error,
+              weight: FontWeight.w700,
+            ),
+          ),
+        );
       }
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Açma hatası: $e')));
+      ).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Açma hatası: $e',
+            color: context.theme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _busy.remove(row.idOrKey));
     }
@@ -156,14 +174,32 @@ mixin _ConnectionExcel on State<PageExcel> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('İndirildi: $path')));
+      ).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'İndirildi: $path',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
 
       await OpenFilex.open(path);
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('İndirme hatası: $e')));
+      ).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'İndirme hatası: $e',
+            color: context.theme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _busy.remove(row.idOrKey));
     }

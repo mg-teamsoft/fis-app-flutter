@@ -56,7 +56,7 @@ class _ConnectionView extends StatelessWidget {
   final List<ContactInviteDto> pendingInvites;
   final bool isPendingInvitesLoading;
 
-  final Future<void> Function(String) handleAcceptInvite;
+  final Future<void> Function(ContactInviteDto) handleAcceptInvite;
   final List<_Customer> customers;
   final bool isCustomersLoading;
   final String? customersError;

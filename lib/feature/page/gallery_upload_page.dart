@@ -26,7 +26,14 @@ final class _PageGalleryUploadState extends State<PageGalleryUpload>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Galeriden Yükle')),
+      appBar: AppBar(
+        title: ThemeTypography.h4(
+          context,
+          'Galeriden Yükle',
+          color: Theme.of(context).colorScheme.onSurface,
+          weight: FontWeight.w700,
+        ),
+      ),
       body: _GalleryUploadView(
         picked: _picked,
         uploading: _uploading,

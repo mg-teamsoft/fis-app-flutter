@@ -36,8 +36,10 @@ class _DateFieldBox extends StatelessWidget {
                     : context.colorScheme.onSurface,
               ),
             ),
-            const Icon(Icons.calendar_today_outlined,
-                size: ThemeSize.iconMedium),
+            const Icon(
+              Icons.calendar_today_outlined,
+              size: ThemeSize.iconMedium,
+            ),
           ],
         ),
       ),
