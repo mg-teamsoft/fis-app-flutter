@@ -12,9 +12,23 @@ class ExcelService {
       };
       final res = await _api.dio
           .post<Map<String, dynamic>>('/api/excel/write', data: payload);
-      final data = res.data!;
-      return data['status'] == 'success';
+      final data = res.data ?? const <String, dynamic>{};
+      final ok = data['status'] == 'success';
+      if (!ok) {
+        final message = data['message']?.toString().trim();
+        if (message != null && message.isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      return ok;
     } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message']?.toString().trim();
+        if (message != null && message.isNotEmpty) {
+          throw Exception(message);
+        }
+      }
       throw Exception('Failed to push receipt to Excel: ${e.message}');
     } catch (e) {
       throw Exception('Unexpected error: $e');

@@ -356,7 +356,9 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
         }
       } on Exception catch (e) {
         failCount++;
-        failures.add('${s.item.jobId}: $e');
+        failures.add(
+          '${s.item.jobId}: ${e.toString().replaceFirst('Exception: ', '')}',
+        );
       }
     }
 
