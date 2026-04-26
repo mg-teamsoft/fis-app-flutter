@@ -203,13 +203,13 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: ThemeTypography.bodyLarge(
-          context,
+          ctx,
           'Mükerrer Görsel',
           color: ctx.colorScheme.onSurface,
           weight: FontWeight.w700,
         ),
         content: ThemeTypography.bodyLarge(
-          context,
+          ctx,
           'Bu görsel daha önce sisteme yüklenmiş. Lütfen farklı bir görsel seçin.',
           color: ctx.theme.error,
           weight: FontWeight.w500,
@@ -249,13 +249,13 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: ThemeTypography.bodyLarge(
-          context,
+          ctx,
           'Hata',
           color: ctx.colorScheme.onSurface,
           weight: FontWeight.w800,
         ),
         content: ThemeTypography.bodyLarge(
-          context,
+          ctx,
           message,
           color: ctx.colorScheme.error,
           weight: FontWeight.w500,
@@ -264,7 +264,7 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
             child: ThemeTypography.bodyLarge(
-              context,
+              ctx,
               'Tamam',
               color: ctx.colorScheme.onSurface,
               weight: FontWeight.w500,

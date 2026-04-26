@@ -3,9 +3,13 @@ import 'package:fis_app_flutter/app/services/api_client.dart';
 
 class ExcelService {
   final _api = ApiClient();
+  String? _lastWriteMessage;
+
+  String? get lastWriteMessage => _lastWriteMessage;
 
   Future<bool> pushReceipt(String key, Map<String, dynamic> receiptJson) async {
     try {
+      _lastWriteMessage = null;
       final payload = <String, dynamic>{
         'key': key,
         'receiptJson': receiptJson,
@@ -13,25 +17,25 @@ class ExcelService {
       final res = await _api.dio
           .post<Map<String, dynamic>>('/api/excel/write', data: payload);
       final data = res.data ?? const <String, dynamic>{};
+      final message = data['message']?.toString().trim();
+      _lastWriteMessage =
+          message != null && message.isNotEmpty ? message : null;
       final ok = data['status'] == 'success';
-      if (!ok) {
-        final message = data['message']?.toString().trim();
-        if (message != null && message.isNotEmpty) {
-          throw Exception(message);
-        }
-      }
       return ok;
     } on DioException catch (e) {
       final responseData = e.response?.data;
       if (responseData is Map<String, dynamic>) {
         final message = responseData['message']?.toString().trim();
         if (message != null && message.isNotEmpty) {
-          throw Exception(message);
+          _lastWriteMessage = message;
+          return false;
         }
       }
-      throw Exception('Failed to push receipt to Excel: ${e.message}');
-    } catch (e) {
-      throw Exception('Unexpected error: $e');
+      _lastWriteMessage = 'Failed to push receipt to Excel: ${e.message}';
+      return false;
+    } on Exception catch (e) {
+      _lastWriteMessage = 'Unexpected error: $e';
+      return false;
     }
   }
 
