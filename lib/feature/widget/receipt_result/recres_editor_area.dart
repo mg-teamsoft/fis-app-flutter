@@ -86,7 +86,15 @@ class __ReceiptResultEditorAreaState extends State<_ReceiptResultEditorArea> {
                     }
                     final encoded =
                         const JsonEncoder.withIndent('  ').convert(updated);
-                    widget.state.controller?.text = encoded;
+                    final controller = widget.state.controller;
+                    if (controller != null) {
+                      controller.value = TextEditingValue(
+                        text: encoded,
+                        selection: TextSelection.collapsed(
+                          offset: encoded.length,
+                        ),
+                      );
+                    }
                   },
                 )
               else

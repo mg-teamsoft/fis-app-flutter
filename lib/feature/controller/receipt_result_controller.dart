@@ -153,7 +153,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
         if (s.controller == null) {
           s.controller = TextEditingController(text: editorText);
         } else {
-          s.controller!.text = editorText;
+          _setControllerText(s.controller!, editorText);
         }
       } else if (s.status == StatusType.failed.name ||
           s.status == StatusType.error.name) {
@@ -171,7 +171,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
         if (s.controller == null) {
           s.controller = TextEditingController(text: editorText);
         } else {
-          s.controller!.text = editorText;
+          _setControllerText(s.controller!, editorText);
         }
       } else {
         s
@@ -183,6 +183,14 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     }
 
     if (mounted) setState(() {});
+  }
+
+  void _setControllerText(TextEditingController controller, String text) {
+    final safeOffset = text.length;
+    controller.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: safeOffset),
+    );
   }
 
   void _removeItem(SelectedItem it) {
@@ -365,7 +373,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
           color: context.theme.error,
           weight: FontWeight.w600,
         ),
-        duration: const Duration(seconds: 3),
+        duration: const Duration(seconds: 30),
       ),
     );
 
