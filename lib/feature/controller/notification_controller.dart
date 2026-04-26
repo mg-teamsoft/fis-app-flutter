@@ -160,7 +160,8 @@ mixin _NotificationController on State<PageNotification> {
       case 'CONTACT_INVITE':
         if (screen != null) {
           unawaited(
-              Navigator.pushNamed(context, screen, arguments: {'tab': 2}));
+            Navigator.pushNamed(context, screen, arguments: {'tab': 2}),
+          );
         }
 
       default:

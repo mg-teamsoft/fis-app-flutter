@@ -79,11 +79,12 @@ class _AccountSettingsAvailablePlanTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     ThemeTypography.bodyMedium(
-                        context,
-                        plan.description.isNotEmpty
-                            ? plan.description
-                            : 'Abonelik planı',
-                        color: context.colorScheme.onSecondary),
+                      context,
+                      plan.description.isNotEmpty
+                          ? plan.description
+                          : 'Abonelik planı',
+                      color: context.colorScheme.onSecondary,
+                    ),
                     const SizedBox(height: ThemeSize.spacingM),
                     ThemeTypography.bodyMedium(
                       context,
