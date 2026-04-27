@@ -31,7 +31,7 @@ class __ReceiptResultAppbarState extends State<_ReceiptResultAppbar> {
         context,
         'Sonuçlar',
         weight: FontWeight.w900,
-        color: context.colorScheme.onPrimary,
+        color: context.colorScheme.onSurface,
       ),
       actions: [
         IconButton(

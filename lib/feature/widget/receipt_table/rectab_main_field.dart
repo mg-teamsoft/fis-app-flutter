@@ -7,11 +7,13 @@ class _ReceiptTableMainField extends StatelessWidget {
 
   final List<
       ({
-        String label,
         TextEditingController ctrl,
-        bool highlight,
-        bool readOnly,
+        String key,
         String? err,
+        bool highlight,
+        String label,
+        bool hasError,
+        bool readOnly
       })> scalarRows;
 
   @override

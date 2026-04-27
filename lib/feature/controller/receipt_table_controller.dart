@@ -13,86 +13,118 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
   late final TextEditingController _vat;
   late final TextEditingController _total;
 
+  bool _businessCTRL = false;
+  bool _dateCTRL = false;
+  bool _receiptNoCTRL = false;
+  bool _transTypeCTRL = false;
+  bool _paymentTypeCTRL = false;
+  bool _vatRateCTRL = false;
+  bool _businessTaxNoCTRL = false;
+  bool _vatCTRL = false;
+  bool _totalCTRL = false;
+
   Map<String, dynamic>? get _extras =>
       _pick<Map<String, dynamic>>(['Diğer Alanlar']);
 
   List<
       ({
         TextEditingController ctrl,
+        String key,
         String? err,
         bool highlight,
         String label,
+        bool hasError,
         bool readOnly
       })> get _scalarRows => <({
         String label,
+        String key,
         TextEditingController ctrl,
         bool highlight,
         bool readOnly,
+        bool hasError,
         String? err,
       })>[
         (
           label: 'Şirket Adı',
+          key: 'businessName',
           ctrl: _businessName,
           highlight: false,
           readOnly: false,
-          err: _errorOf(_businessName, required: true)
+          hasError: _businessCTRL,
+          err: _errorOf('businessName', _businessName, required: true)
         ),
         (
           label: 'Tarih',
+          key: 'transactionDate',
           ctrl: _date,
           highlight: false,
           readOnly: false,
-          err: _errorOf(_date, required: true)
+          hasError: _dateCTRL,
+          err: _errorOf('transactionDate', _date, required: true)
         ),
         (
           label: 'Fiş No',
+          key: 'receiptNumber',
           ctrl: _receiptNo,
           highlight: false,
           readOnly: false,
-          err: _errorOf(_receiptNo)
+          hasError: _receiptNoCTRL,
+          err: _errorOf('receiptNumber', _receiptNo)
         ),
         // KDV Tutarı — editable, value comes from backend
         (
           label: 'KDV Tutarı',
+          key: 'vatAmount',
           ctrl: _vat,
           highlight: false,
           readOnly: false,
-          err: _errorOf(_vat, numeric: true)
+          hasError: _vatCTRL,
+          err: _errorOf('vatAmount', _vat, numeric: true)
         ),
         (
           label: 'Toplam Tutar',
+          key: 'totalAmount',
           ctrl: _total,
           highlight: true,
           readOnly: false,
-          err: _errorOf(_total, required: true, numeric: true)
+          hasError: _totalCTRL,
+          err: _errorOf('totalAmount', _total, required: true, numeric: true)
         ),
         (
           label: 'İşlem Türü',
+          key: 'transactionType',
           ctrl: _transType,
           highlight: false,
           readOnly: false,
-          err: _errorOf(_transType)
+          hasError: _transTypeCTRL,
+          err: _errorOf('transactionType', _transType)
         ),
         (
           label: 'Ödeme Türü',
+          key: 'paymentType',
           ctrl: _paymentType,
           highlight: false,
           readOnly: false,
-          err: _errorOf(_paymentType)
+          hasError: _paymentTypeCTRL,
+          err: _errorOf('paymentType', _paymentType)
         ),
         (
           label: 'KDV (%)',
+          key: 'vatRate',
           ctrl: _vatRate,
           highlight: false,
           readOnly: false,
-          err: _errorOf(_vatRate, numeric: true)
+          hasError: _vatRateCTRL,
+          err: _errorOf('vatRate', _vatRate, numeric: true)
         ),
         (
           label: 'Vergi No',
+          key: 'businessTaxNo',
           ctrl: _businessTaxNo,
           highlight: false,
           readOnly: false,
-          err: _errorOf(_businessTaxNo)
+          hasError: _businessTaxNoCTRL,
+          err: _errorOf('businessTaxNo', _businessTaxNo)
         ),
       ];
 
@@ -216,16 +248,44 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
   }
 
   String? _errorOf(
+    String key,
     TextEditingController ctrl, {
     bool required = false,
     bool numeric = false,
   }) {
-    if (!widget.showErrors) return null;
     final val = ctrl.text.trim();
-    if (required && val.isEmpty) return 'Bu alan zorunludur';
-    if (numeric && val.isNotEmpty && double.tryParse(val) == null) {
+    final numValue = double.tryParse(val);
+
+    if (key == 'businessName') {
+      _businessCTRL = required && val.isEmpty;
+    } else if (key == 'transactionDate') {
+      _dateCTRL = required && val.isEmpty;
+    } else if (key == 'receiptNumber') {
+      _receiptNoCTRL = required && val.isEmpty;
+    } else if (key == 'vatRate') {
+      _vatRateCTRL = numeric && (numValue == null || numValue <= 0);
+    } else if (key == 'vatAmount') {
+      _vatCTRL = numeric && (numValue == null || numValue <= 0);
+    } else if (key == 'totalAmount') {
+      _totalCTRL = numeric && (numValue == null || numValue < 0);
+    } else if (key == 'businessTaxNo') {
+      _businessTaxNoCTRL = required && val.isEmpty;
+    } else if (key == 'transactionType') {
+      _transTypeCTRL = required && val.isEmpty;
+    } else if (key == 'paymentType') {
+      _paymentTypeCTRL = required && val.isEmpty;
+    }
+
+    if (!widget.showErrors) return null;
+
+    if (required && val.isEmpty) {
+      return 'Bu alan zorunludur';
+    }
+
+    if (numeric && val.isNotEmpty && numValue == null) {
       return 'Geçerli bir sayı girin';
     }
+
     return null;
   }
 }
