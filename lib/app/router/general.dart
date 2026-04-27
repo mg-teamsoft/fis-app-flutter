@@ -20,7 +20,13 @@ final class RouterGeneral {
             initialArguments: args,
           );
         },
-        '/excelFiles': (_) => const MainLayout(initialRoute: '/excelFiles'),
+        '/excelFiles': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
+          return MainLayout(
+            initialRoute: '/excelFiles',
+            initialArguments: args,
+          );
+        },
         '/about': (_) => const MainLayout(initialRoute: '/about'),
         '/settings': (_) => const MainLayout(initialRoute: '/settings'),
         '/accountSettings': (_) =>
