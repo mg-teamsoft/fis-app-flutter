@@ -38,8 +38,8 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
     _filteredReceipts = [];
     _debounce = null;
     _selectedDateRange = null;
-    _selectedCustomerId = null;
-    _appliedCustomerId = null;
+    _selectedCustomerId = widget.initialCustomerId;
+    _appliedCustomerId = widget.initialCustomerId;
     _showOverlay = _searchQuery.isNotEmpty || _selectedDateRange != null;
     unawaited(_initializePage());
   }

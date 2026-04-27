@@ -35,6 +35,8 @@ class _ConnectionView extends StatelessWidget {
     required this.isCustomersLoading,
     required this.customersError,
     required this.loadCustomers,
+    required this.onViewReceipts,
+    required this.onDownloadFiles,
   });
 
   final TabController tabController;
@@ -61,6 +63,8 @@ class _ConnectionView extends StatelessWidget {
   final bool isCustomersLoading;
   final String? customersError;
   final Future<void> Function() loadCustomers;
+  final void Function(_Customer customer) onViewReceipts;
+  final void Function(_Customer customer) onDownloadFiles;
   final Future<void> Function() handleInvite;
   final Future<void> Function() loadSupervisors;
   final Future<void> Function() loadInvites;
@@ -130,6 +134,8 @@ class _ConnectionView extends StatelessWidget {
                     customers: customers,
                     customersError: customersError,
                     onRetry: loadCustomers,
+                    onViewReceipts: onViewReceipts,
+                    onDownloadFiles: onDownloadFiles,
                   ),
                 ],
               ),

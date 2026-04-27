@@ -27,7 +27,13 @@ final class RouterGeneral {
             const MainLayout(initialRoute: '/accountSettings'),
         '/receipt': (_) => const MainLayout(initialRoute: '/receipt'),
         '/notification': (_) => const MainLayout(initialRoute: '/notification'),
-        '/gallery': (_) => const MainLayout(initialRoute: '/gallery'),
+        '/gallery': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
+          return MainLayout(
+            initialRoute: '/gallery',
+            initialArguments: args,
+          );
+        },
         '/receipt/process': (context) {
           final args = ModalRoute.of(context)?.settings.arguments;
           return MainLayout(

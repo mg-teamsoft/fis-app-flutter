@@ -43,9 +43,17 @@ mixin _MixinMainLayout on State<MainLayout> {
       final initialTab = (args is Map) ? (args['tab'] as int?) : null;
       return PageConnections(initialTabIndex: initialTab);
     },
-    '/excelFiles': (_, __) => const PageExcel(),
+    '/excelFiles': (_, args) {
+      final customerId =
+          (args is Map) ? (args['customerId'] as String?) : null;
+      return PageExcel(initialCustomerId: customerId);
+    },
     '/receipt': (_, __) => const PageReceipt(),
-    '/gallery': (_, __) => const PageReceiptGallery(),
+    '/gallery': (_, args) {
+      final customerId =
+          (args is Map) ? (args['customerId'] as String?) : null;
+      return PageReceiptGallery(initialCustomerId: customerId);
+    },
     '/settings': (_, __) => const PageSettings(),
     '/receipt/process': (_, args) {
       final files = (args is List<XFile>) ? args : const <XFile>[];

@@ -23,9 +23,11 @@ part '../widget/receipt_gallery/recgal_search_bar.dart';
 part '../widget/receipt_gallery/recgal_search_result.dart';
 
 final class PageReceiptGallery extends StatefulWidget {
-  const PageReceiptGallery({super.key});
+  const PageReceiptGallery({super.key, this.initialCustomerId});
 
   @override
+  final String? initialCustomerId;
+
   State<PageReceiptGallery> createState() => _PageReceiptGalleryState();
 }
 

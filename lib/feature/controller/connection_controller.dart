@@ -398,6 +398,22 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     );
   }
 
+  void _handleViewReceipts(_Customer customer) {
+    Navigator.pushNamed(
+      context,
+      '/gallery',
+      arguments: {'customerId': customer.id},
+    );
+  }
+
+  void _handleDownloadFiles(_Customer customer) {
+    Navigator.pushNamed(
+      context,
+      '/excelFiles',
+      arguments: {'customerId': customer.id},
+    );
+  }
+
   _Contact _mapContact(SupervisorContactDto supervisor) {
     return _Contact(
       id: supervisor.id,

@@ -6,12 +6,16 @@ class _CnnCustomersSection extends StatelessWidget {
     required this.customers,
     required this.customersError,
     required this.onRetry,
+    required this.onViewReceipts,
+    required this.onDownloadFiles,
   });
 
   final bool isCustomersLoading;
   final List<_Customer> customers;
   final String? customersError;
   final VoidCallback onRetry;
+  final void Function(_Customer customer) onViewReceipts;
+  final void Function(_Customer customer) onDownloadFiles;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +77,11 @@ class _CnnCustomersSection extends StatelessWidget {
     return Column(
       children: customers
           .map(
-            (customer) => _CnnCustomerCard(customer: customer),
+            (customer) => _CnnCustomerCard(
+              customer: customer,
+              onViewReceipts: () => onViewReceipts(customer),
+              onDownloadFiles: () => onDownloadFiles(customer),
+            ),
           )
           .toList(),
     );
@@ -81,9 +89,15 @@ class _CnnCustomersSection extends StatelessWidget {
 }
 
 class _CnnCustomerCard extends StatelessWidget {
-  const _CnnCustomerCard({required this.customer});
+  const _CnnCustomerCard({
+    required this.customer,
+    required this.onViewReceipts,
+    required this.onDownloadFiles,
+  });
 
   final _Customer customer;
+  final VoidCallback onViewReceipts;
+  final VoidCallback onDownloadFiles;
 
   @override
   Widget build(BuildContext context) {
@@ -144,16 +158,22 @@ class _CnnCustomerCard extends StatelessWidget {
           Row(
             children: [
               if (customer.canViewReceipts)
-                const _CnnPermissionChip(
-                  icon: Icons.receipt_long_rounded,
-                  label: 'Fişleri Görüntüle',
+                GestureDetector(
+                  onTap: onViewReceipts,
+                  child: const _CnnPermissionChip(
+                    icon: Icons.receipt_long_rounded,
+                    label: 'Fişleri Görüntüle',
+                  ),
                 ),
               if (customer.canViewReceipts && customer.canDownloadFiles)
                 const SizedBox(width: ThemeSize.spacingS),
               if (customer.canDownloadFiles)
-                const _CnnPermissionChip(
-                  icon: Icons.download_rounded,
-                  label: 'Dosya İndir',
+                GestureDetector(
+                  onTap: onDownloadFiles,
+                  child: const _CnnPermissionChip(
+                    icon: Icons.download_rounded,
+                    label: 'Dosya Görüntüle',
+                  ),
                 ),
             ],
           ),

@@ -18,8 +18,8 @@ mixin _ConnectionExcel on State<PageExcel> {
     super.initState();
     _isLoadingCustomers = false;
     _customerItems = [];
-    _selectedCustomerId = null;
-    _appliedCustomerId = null;
+    _selectedCustomerId = widget.initialCustomerId;
+    _appliedCustomerId = widget.initialCustomerId;
     _future = _load();
     unawaited(_loadCustomers());
   }

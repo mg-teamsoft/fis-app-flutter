@@ -71,6 +71,8 @@ class _PageConnectionsState extends State<PageConnections>
       isCustomersLoading: _isCustomersLoading,
       customersError: _customersError,
       loadCustomers: _loadCustomers,
+      onViewReceipts: _handleViewReceipts,
+      onDownloadFiles: _handleDownloadFiles,
     );
   }
 }
