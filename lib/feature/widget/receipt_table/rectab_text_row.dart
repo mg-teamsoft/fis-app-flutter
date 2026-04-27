@@ -9,11 +9,13 @@ class _ReceiptTableTextRow extends StatelessWidget {
   final int row;
   final List<
       ({
-        String label,
         TextEditingController ctrl,
-        bool highlight,
-        bool readOnly,
+        String key,
         String? err,
+        bool highlight,
+        String label,
+        bool hasError,
+        bool readOnly
       })> scalarRows;
 
   @override
@@ -29,8 +31,12 @@ class _ReceiptTableTextRow extends StatelessWidget {
               width: ThemeSize.avatarXL,
               child: ThemeTypography.labelMedium(
                 context,
-                scalarRows[row].label,
-                color: context.colorScheme.onSurfaceVariant,
+                scalarRows[row].hasError
+                    ? '⚠️ ${scalarRows[row].label}'
+                    : scalarRows[row].label,
+                color: scalarRows[row].hasError
+                    ? context.theme.warning
+                    : context.colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -51,9 +57,12 @@ class _ReceiptTableTextRow extends StatelessWidget {
                           ? context.colorScheme.onSurfaceVariant
                           : null,
                     ),
-              decoration:
-                  _inputDecoration(context, '', errorText: scalarRows[row].err)
-                      .copyWith(
+              decoration: _inputDecoration(
+                context,
+                scalarRows[row].hasError ? '⚠️' : '',
+                isError: scalarRows[row].hasError,
+                errorText: scalarRows[row].err,
+              ).copyWith(
                 fillColor: scalarRows[row].readOnly
                     ? context.colorScheme.surfaceContainerHighest
                     : null,
