@@ -35,7 +35,7 @@ class _ReceiptTableTextRow extends StatelessWidget {
                     ? '⚠️ ${scalarRows[row].label}'
                     : scalarRows[row].label,
                 color: scalarRows[row].hasError
-                    ? context.theme.warning
+                    ? context.theme.error
                     : context.colorScheme.onSurfaceVariant,
               ),
             ),
