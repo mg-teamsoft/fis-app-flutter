@@ -14,7 +14,7 @@ InputDecoration _inputDecoration(
       border: OutlineInputBorder(
         borderRadius: ThemeRadius.circular8,
         borderSide: isError
-            ? BorderSide(color: context.theme.warning, width: 1.5)
+            ? BorderSide(color: context.theme.error, width: 1.5)
             : BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(

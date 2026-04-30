@@ -89,7 +89,7 @@ class _ReceiptTableTextRowState extends State<_ReceiptTableTextRow> {
                     ? '⚠️ ${widget.scalarRows[widget.row].label}'
                     : widget.scalarRows[widget.row].label,
                 color: _hasError
-                    ? context.theme.warning
+                    ? context.theme.error
                     : context.colorScheme.onSurfaceVariant,
               ),
             ),

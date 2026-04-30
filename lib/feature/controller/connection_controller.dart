@@ -398,16 +398,16 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     );
   }
 
-  void _handleViewReceipts(_Customer customer) {
-    Navigator.pushNamed(
+  Future<void> _handleViewReceipts(_Customer customer) async {
+    await Navigator.pushNamed(
       context,
       '/gallery',
       arguments: {'customerId': customer.id},
     );
   }
 
-  void _handleDownloadFiles(_Customer customer) {
-    Navigator.pushNamed(
+  Future<void> _handleDownloadFiles(_Customer customer) async {
+    await Navigator.pushNamed(
       context,
       '/excelFiles',
       arguments: {'customerId': customer.id},
