@@ -2,6 +2,9 @@ part of '../page/receipt_manuel_page.dart';
 
 class _ReceiptManuelView extends StatelessWidget {
   const _ReceiptManuelView({
+    required this.paymentType,
+    required this.saving,
+    required this.save,
     required this.formKey,
     required this.receiptNoController,
     required this.kdvAmountController,
@@ -18,10 +21,9 @@ class _ReceiptManuelView extends StatelessWidget {
     required this.dateText,
     required this.pickDate,
     required this.dateError,
-    required this.recalculateKdv,
-    required this.paymentType,
-    required this.saving,
-    required this.save,
+    required this.onCategoryChanged,
+    required this.onKdvRateChanged,
+    required this.onPaymentTypeChanged,
     this.selectedCategory,
     this.selectedKdvRate,
     this.invoiceImage,
@@ -49,7 +51,9 @@ class _ReceiptManuelView extends StatelessWidget {
   final bool dateError;
   final ReceiptCategory? selectedCategory;
   final String? selectedKdvRate;
-  final void Function() recalculateKdv;
+  final void Function(ReceiptCategory?) onCategoryChanged;
+  final void Function(String?) onKdvRateChanged;
+  final void Function(String) onPaymentTypeChanged;
   final String paymentType;
   final bool saving;
   final Future<void> Function() save;
@@ -90,7 +94,9 @@ class _ReceiptManuelView extends StatelessWidget {
               dateText: dateText,
               pickDate: pickDate,
               dateError: dateError,
-              recalculateKdv: recalculateKdv,
+              onCategoryChanged: onCategoryChanged,
+              onKdvRateChanged: onKdvRateChanged,
+              onPaymentTypeChanged: onPaymentTypeChanged,
               paymentType: paymentType,
               saving: saving,
               save: save,

@@ -17,7 +17,9 @@ class _ReceiptManuelRestForm extends StatefulWidget {
     required this.dateText,
     required this.pickDate,
     required this.dateError,
-    required this.recalculateKdv,
+    required this.onCategoryChanged,
+    required this.onKdvRateChanged,
+    required this.onPaymentTypeChanged,
     required this.paymentType,
     required this.saving,
     required this.save,
@@ -47,7 +49,9 @@ class _ReceiptManuelRestForm extends StatefulWidget {
   final bool dateError;
   final ReceiptCategory? selectedCategory;
   final String? selectedKdvRate;
-  final void Function() recalculateKdv;
+  final void Function(ReceiptCategory?) onCategoryChanged;
+  final void Function(String?) onKdvRateChanged;
+  final void Function(String) onPaymentTypeChanged;
   final String paymentType;
   final bool saving;
   final Future<void> Function() save;
@@ -58,15 +62,25 @@ class _ReceiptManuelRestForm extends StatefulWidget {
 
 class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
   ReceiptCategory? _selectedCategory;
-  String? _selectedKdvRate;
   String _paymentType = 'cash';
 
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.selectedCategory;
-    _selectedKdvRate = widget.selectedKdvRate;
     _paymentType = widget.paymentType;
+  }
+
+  @override
+  void didUpdateWidget(covariant _ReceiptManuelRestForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedCategory != oldWidget.selectedCategory) {
+      _selectedCategory = widget.selectedCategory;
+    }
+    if (widget.selectedKdvRate != oldWidget.selectedKdvRate) {}
+    if (widget.paymentType != oldWidget.paymentType) {
+      _paymentType = widget.paymentType;
+    }
   }
 
   @override
@@ -133,7 +147,10 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                 return _ChoiceChipButton(
                   label: category.label,
                   selected: _selectedCategory == category,
-                  onTap: () => setState(() => _selectedCategory = category),
+                  onTap: () {
+                    setState(() => _selectedCategory = category);
+                    widget.onCategoryChanged(category);
+                  },
                 );
               }).toList(),
             ),
@@ -160,12 +177,11 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                       const _FieldLabel('KDV Oranı (%)'),
                       const SizedBox(height: ThemeSize.spacingS),
                       _DropdownFieldBox(
-                        value: _selectedKdvRate,
+                        value: widget.selectedKdvRate,
                         hintText: 'Oran Seç',
                         items: const ['1', '8', '10', '18', '20'],
                         onChanged: (value) {
-                          setState(() => _selectedKdvRate = value);
-                          widget.recalculateKdv();
+                          widget.onKdvRateChanged(value);
                         },
                         validator: (value) => (value == null || value.isEmpty)
                             ? 'KDV oranı seçiniz'
@@ -209,16 +225,50 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                 _ChoiceChipButton(
                   label: 'Nakit',
                   selected: _paymentType == 'cash',
-                  onTap: () => setState(() => _paymentType = 'cash'),
+                  onTap: () {
+                    setState(() => _paymentType = 'cash');
+                    widget.onPaymentTypeChanged('cash');
+                  },
                 ),
                 _ChoiceChipButton(
                   label: 'Kredi Kartı',
                   selected: _paymentType == 'card',
-                  onTap: () => setState(() => _paymentType = 'card'),
+                  onTap: () {
+                    setState(() => _paymentType = 'card');
+                    widget.onPaymentTypeChanged('card');
+                  },
                 ),
               ],
             ),
-            const SizedBox(height: ThemeSize.spacingM),
+            const SizedBox(height: ThemeSize.spacingXXXl),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: widget.save,
+                icon: Icon(
+                  Icons.save,
+                  size: ThemeSize.iconMedium,
+                  color: context.colorScheme.onPrimary,
+                ),
+                label: ThemeTypography.bodyLarge(
+                  context,
+                  'Kaydet',
+                  color: context.colorScheme.onPrimary,
+                  weight: FontWeight.w900,
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: context.colorScheme.primary,
+                  foregroundColor: context.colorScheme.onPrimary,
+                  padding: const ThemePadding.verticalSymmetricMedium(),
+                  minimumSize:
+                      const Size.fromHeight(ThemeSize.buttonHeightLarge),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: ThemeRadius.circular12,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: ThemeSize.spacingXXXl),
           ],
         ),
       ),

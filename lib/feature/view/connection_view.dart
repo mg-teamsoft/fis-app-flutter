@@ -95,9 +95,9 @@ class _ConnectionView extends StatelessWidget {
         // Tabs
         TabBar(
           controller: tabController,
-          labelColor: const Color(0xFF2563EB),
-          unselectedLabelColor: Colors.grey.shade600,
-          indicatorColor: const Color(0xFF2563EB),
+          labelColor: context.colorScheme.primary,
+          unselectedLabelColor: context.colorScheme.outline,
+          indicatorColor: context.colorScheme.primaryContainer,
           tabs: const [
             Tab(text: 'Mali Müşavirler'),
             Tab(text: 'Müşteriler'),

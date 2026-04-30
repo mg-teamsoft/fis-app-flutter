@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart';
+
 void main() {
-  final args = {'tab': 2};
-  print(args is Map<String, dynamic>);
-  print(args.runtimeType);
+  final args = <String, dynamic>{'tab': 2};
+  debugPrint('args runtimeType : ${args.runtimeType}');
 }

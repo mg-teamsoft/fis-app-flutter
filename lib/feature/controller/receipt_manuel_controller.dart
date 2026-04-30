@@ -10,8 +10,8 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
   final _totalAmountController = TextEditingController();
 
   DateTime? _selectedDate;
-  late final ReceiptCategory? _selectedCategory;
-  final String _paymentType = 'card';
+  ReceiptCategory? _selectedCategory;
+  String _paymentType = 'cash';
   String? _selectedKdvRate;
   XFile? _invoiceImage;
   Uint8List? _invoiceImageBytes;
@@ -46,15 +46,35 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     super.dispose();
   }
 
+  void _onCategoryChanged(ReceiptCategory? category) {
+    setState(() => _selectedCategory = category);
+  }
+
+  void _onPaymentTypeChanged(String type) {
+    setState(() => _paymentType = type);
+  }
+
+  void _onKdvRateChanged(String? rate) {
+    setState(() {
+      _selectedKdvRate = rate;
+    });
+    _recalculateKdv();
+  }
+
   void _recalculateKdv() {
     final total = double.tryParse(_totalAmountController.text.trim());
     final rate = int.tryParse(_selectedKdvRate ?? '');
     if (total == null || rate == null || rate == 0) {
-      _kdvAmountController.text = '';
+      setState(() {
+        _kdvAmountController.text = '';
+      });
+
       return;
     }
     final vat = total * rate / (100 + rate);
-    _kdvAmountController.text = vat.toStringAsFixed(2);
+    setState(() {
+      _kdvAmountController.text = vat.toStringAsFixed(2);
+    });
   }
 
   Future<void> _pickDate() async {
