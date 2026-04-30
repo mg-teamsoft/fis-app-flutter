@@ -13,7 +13,6 @@ class _ReceiptTableView extends StatelessWidget {
         String? err,
         bool highlight,
         String label,
-        bool hasError,
         bool readOnly
       })> scalarRows;
   final Map<String, dynamic>? extras;

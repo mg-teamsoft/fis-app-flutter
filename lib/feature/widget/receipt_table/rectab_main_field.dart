@@ -12,7 +12,6 @@ class _ReceiptTableMainField extends StatelessWidget {
         String? err,
         bool highlight,
         String label,
-        bool hasError,
         bool readOnly
       })> scalarRows;
 
