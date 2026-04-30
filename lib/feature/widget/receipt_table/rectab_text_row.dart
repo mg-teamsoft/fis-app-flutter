@@ -1,6 +1,6 @@
 part of '../../page/receipt_table_page.dart';
 
-class _ReceiptTableTextRow extends StatelessWidget {
+class _ReceiptTableTextRow extends StatefulWidget {
   const _ReceiptTableTextRow({
     required this.row,
     required this.scalarRows,
@@ -14,9 +14,63 @@ class _ReceiptTableTextRow extends StatelessWidget {
         String? err,
         bool highlight,
         String label,
-        bool hasError,
         bool readOnly
       })> scalarRows;
+
+  @override
+  State<_ReceiptTableTextRow> createState() => _ReceiptTableTextRowState();
+}
+
+class _ReceiptTableTextRowState extends State<_ReceiptTableTextRow> {
+  late bool _hasError;
+  late String? _err;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _fieldCTRL(
+      required: widget.scalarRows[widget.row].err != null,
+      numeric: widget.scalarRows[widget.row].key == 'vatRate' ||
+          widget.scalarRows[widget.row].key == 'vatAmount' ||
+          widget.scalarRows[widget.row].key == 'totalAmount',
+    );
+  }
+
+  void _fieldCTRL({
+    bool required = false,
+    bool numeric = false,
+  }) {
+    final val = widget.scalarRows[widget.row].ctrl.text.trim();
+    final numValue = double.tryParse(val);
+    if (widget.scalarRows[widget.row].key == 'businessName') {
+      _hasError = required && val.isEmpty;
+      _err = _hasError ? 'İşletme adı boş olamaz' : null;
+    } else if (widget.scalarRows[widget.row].key == 'transactionDate') {
+      _hasError = required && val.isEmpty;
+      _err = _hasError ? 'İşlem tarihi boş olamaz' : null;
+    } else if (widget.scalarRows[widget.row].key == 'receiptNumber') {
+      _hasError = required && val.isEmpty;
+      _err = _hasError ? 'Fiş numarası boş olamaz' : null;
+    } else if (widget.scalarRows[widget.row].key == 'vatRate') {
+      _hasError = numeric && (numValue == null || numValue <= 0);
+      _err = _hasError ? 'KDV oranı 0 dan büyük olmalıdır' : null;
+    } else if (widget.scalarRows[widget.row].key == 'vatAmount') {
+      _hasError = numeric && (numValue == null || numValue <= 0);
+      _err = _hasError ? 'KDV tutarı 0 dan büyük olmalıdır' : null;
+    } else if (widget.scalarRows[widget.row].key == 'totalAmount') {
+      _hasError = numeric && (numValue == null || numValue < 0);
+      _err = _hasError ? 'Toplam tutar 0 dan büyük veya eşit olmalıdır' : null;
+    } else if (widget.scalarRows[widget.row].key == 'businessTaxNo') {
+      _hasError = required && val.isEmpty;
+      _err = _hasError ? 'İşletme vergi numarası boş olamaz' : null;
+    } else if (widget.scalarRows[widget.row].key == 'transactionType') {
+      _hasError = required && val.isEmpty;
+      _err = _hasError ? 'İşlem türü boş olamaz' : null;
+    } else if (widget.scalarRows[widget.row].key == 'paymentType') {
+      _hasError = required && val.isEmpty;
+      _err = _hasError ? 'Ödeme türü boş olamaz' : null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +85,10 @@ class _ReceiptTableTextRow extends StatelessWidget {
               width: ThemeSize.avatarXL,
               child: ThemeTypography.labelMedium(
                 context,
-                scalarRows[row].hasError
-                    ? '⚠️ ${scalarRows[row].label}'
-                    : scalarRows[row].label,
-                color: scalarRows[row].hasError
+                _hasError
+                    ? '⚠️ ${widget.scalarRows[widget.row].label}'
+                    : widget.scalarRows[widget.row].label,
+                color: _hasError
                     ? context.theme.warning
                     : context.colorScheme.onSurfaceVariant,
               ),
@@ -43,30 +97,36 @@ class _ReceiptTableTextRow extends StatelessWidget {
           const SizedBox(width: ThemeSize.spacingS),
           Expanded(
             child: TextField(
-              controller: scalarRows[row].ctrl,
+              controller: widget.scalarRows[widget.row].ctrl,
               textAlign: TextAlign.right,
-              readOnly: scalarRows[row].readOnly,
-              style: scalarRows[row].highlight
+              readOnly: widget.scalarRows[widget.row].readOnly,
+              onChanged: (value) {
+                _fieldCTRL(required: widget.scalarRows[widget.row].err != null);
+                setState(() {});
+              },
+              style: widget.scalarRows[widget.row].highlight
                   ? context.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: context.colorScheme.primary,
                     )
                   : context.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: scalarRows[row].readOnly
+                      color: widget.scalarRows[widget.row].readOnly
                           ? context.colorScheme.onSurfaceVariant
                           : null,
                     ),
               decoration: _inputDecoration(
                 context,
-                scalarRows[row].hasError ? '⚠️' : '',
-                isError: scalarRows[row].hasError,
-                errorText: scalarRows[row].err,
+                _hasError ? '⚠️' : '',
+                isError: _hasError,
+                errorText: widget.scalarRows[widget.row].err,
               ).copyWith(
-                fillColor: scalarRows[row].readOnly
+                fillColor: widget.scalarRows[widget.row].readOnly
                     ? context.colorScheme.surfaceContainerHighest
                     : null,
-                hintText: scalarRows[row].readOnly ? 'Otomatik hesaplanır' : '',
+                hintText: widget.scalarRows[widget.row].readOnly
+                    ? 'Otomatik hesaplanır'
+                    : _err!,
               ),
             ),
           ),

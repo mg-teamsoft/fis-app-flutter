@@ -13,16 +13,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
   late final TextEditingController _vat;
   late final TextEditingController _total;
 
-  bool _businessCTRL = false;
-  bool _dateCTRL = false;
-  bool _receiptNoCTRL = false;
-  bool _transTypeCTRL = false;
-  bool _paymentTypeCTRL = false;
-  bool _vatRateCTRL = false;
-  bool _businessTaxNoCTRL = false;
-  bool _vatCTRL = false;
-  bool _totalCTRL = false;
-
   Map<String, dynamic>? get _extras =>
       _pick<Map<String, dynamic>>(['Diğer Alanlar']);
 
@@ -33,7 +23,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
         String? err,
         bool highlight,
         String label,
-        bool hasError,
         bool readOnly
       })> get _scalarRows => <({
         String label,
@@ -41,7 +30,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
         TextEditingController ctrl,
         bool highlight,
         bool readOnly,
-        bool hasError,
         String? err,
       })>[
         (
@@ -50,7 +38,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
           ctrl: _businessName,
           highlight: false,
           readOnly: false,
-          hasError: _businessCTRL,
           err: _errorOf('businessName', _businessName, required: true)
         ),
         (
@@ -59,7 +46,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
           ctrl: _date,
           highlight: false,
           readOnly: false,
-          hasError: _dateCTRL,
           err: _errorOf('transactionDate', _date, required: true)
         ),
         (
@@ -68,7 +54,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
           ctrl: _receiptNo,
           highlight: false,
           readOnly: false,
-          hasError: _receiptNoCTRL,
           err: _errorOf('receiptNumber', _receiptNo)
         ),
         // KDV Tutarı — editable, value comes from backend
@@ -78,7 +63,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
           ctrl: _vat,
           highlight: false,
           readOnly: false,
-          hasError: _vatCTRL,
           err: _errorOf('vatAmount', _vat, numeric: true)
         ),
         (
@@ -87,7 +71,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
           ctrl: _total,
           highlight: true,
           readOnly: false,
-          hasError: _totalCTRL,
           err: _errorOf('totalAmount', _total, required: true, numeric: true)
         ),
         (
@@ -96,7 +79,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
           ctrl: _transType,
           highlight: false,
           readOnly: false,
-          hasError: _transTypeCTRL,
           err: _errorOf('transactionType', _transType)
         ),
         (
@@ -105,7 +87,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
           ctrl: _paymentType,
           highlight: false,
           readOnly: false,
-          hasError: _paymentTypeCTRL,
           err: _errorOf('paymentType', _paymentType)
         ),
         (
@@ -114,7 +95,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
           ctrl: _vatRate,
           highlight: false,
           readOnly: false,
-          hasError: _vatRateCTRL,
           err: _errorOf('vatRate', _vatRate, numeric: true)
         ),
         (
@@ -123,7 +103,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
           ctrl: _businessTaxNo,
           highlight: false,
           readOnly: false,
-          hasError: _businessTaxNoCTRL,
           err: _errorOf('businessTaxNo', _businessTaxNo)
         ),
       ];
@@ -255,26 +234,6 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
   }) {
     final val = ctrl.text.trim();
     final numValue = double.tryParse(val);
-
-    if (key == 'businessName') {
-      _businessCTRL = required && val.isEmpty;
-    } else if (key == 'transactionDate') {
-      _dateCTRL = required && val.isEmpty;
-    } else if (key == 'receiptNumber') {
-      _receiptNoCTRL = required && val.isEmpty;
-    } else if (key == 'vatRate') {
-      _vatRateCTRL = numeric && (numValue == null || numValue <= 0);
-    } else if (key == 'vatAmount') {
-      _vatCTRL = numeric && (numValue == null || numValue <= 0);
-    } else if (key == 'totalAmount') {
-      _totalCTRL = numeric && (numValue == null || numValue < 0);
-    } else if (key == 'businessTaxNo') {
-      _businessTaxNoCTRL = required && val.isEmpty;
-    } else if (key == 'transactionType') {
-      _transTypeCTRL = required && val.isEmpty;
-    } else if (key == 'paymentType') {
-      _paymentTypeCTRL = required && val.isEmpty;
-    }
 
     if (!widget.showErrors) return null;
 
