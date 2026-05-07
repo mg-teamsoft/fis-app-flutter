@@ -214,6 +214,8 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
     return _allPlans.isNotEmpty ? _allPlans.first : null;
   }
 
+  // Retained for the additional-plan purchase flow while backend plan metadata
+  // is still being stabilized.
   // ignore: unused_element
   PlanOption? get _additionalPlan {
     for (final plan in _allPlans) {
@@ -429,6 +431,8 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
     }
   }
 
+  // Retained for the plan selection UI path that may be restored with paid
+  // plan switching.
   // ignore: unused_element
   void _onPlanSelected(String planKey) {
     setState(() => _selectedPlanKey = planKey);

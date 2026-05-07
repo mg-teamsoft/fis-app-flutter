@@ -14,6 +14,7 @@ mixin _MixinMainLayout on State<MainLayout> {
     _currentRoute = _normalizeRoute(widget.initialRoute);
     _currentArguments = widget.initialArguments;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       await context.read<UserPlanProvider>().loadMyPlan();
     });
   }
@@ -44,14 +45,12 @@ mixin _MixinMainLayout on State<MainLayout> {
       return PageConnections(initialTabIndex: initialTab);
     },
     '/excelFiles': (_, args) {
-      final customerId =
-          (args is Map) ? (args['customerId'] as String?) : null;
+      final customerId = (args is Map) ? (args['customerId'] as String?) : null;
       return PageExcel(initialCustomerId: customerId);
     },
     '/receipt': (_, __) => const PageReceipt(),
     '/gallery': (_, args) {
-      final customerId =
-          (args is Map) ? (args['customerId'] as String?) : null;
+      final customerId = (args is Map) ? (args['customerId'] as String?) : null;
       return PageReceiptGallery(initialCustomerId: customerId);
     },
     '/settings': (_, __) => const PageSettings(),

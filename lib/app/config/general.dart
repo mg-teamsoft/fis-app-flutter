@@ -26,6 +26,7 @@ class _AppConfigGeneralState extends State<AppConfigGeneral>
             localizationsDelegates: _localization.delegate,
             supportedLocales: _localization.supportLocales,
             navigatorKey: AuthNavigation.navigatorKey,
+            scaffoldMessengerKey: AuthNavigation.scaffoldMessengerKey,
             initialRoute: _router.initialRoute,
             routes: _router.routes,
             onGenerateRoute: (settings) {

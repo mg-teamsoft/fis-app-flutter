@@ -21,6 +21,7 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       await context.read<UserPlanProvider?>()?.loadMyPlan();
     });
   }
@@ -29,6 +30,7 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
   Widget build(BuildContext context) {
     final price = widget.plan.priceLabel;
 
+    // Kept while renewal copy is being finalized for plan cards.
     // ignore: unused_local_variable
     final renewLabel = _renewLabel(widget.plan.period);
     final remainingQuota =
