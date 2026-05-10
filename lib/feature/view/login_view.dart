@@ -21,34 +21,32 @@ final class _LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        controller: scrollController,
-        padding: const ThemePadding.all24(),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: ThemeSize.spacingL,
-          children: [
-            SizedBox(height: size.height * 0.075),
-            const _LoginLogo(),
-            _UsernameTextField(usernameController),
-            _PasswordTextField(
-              controller: passwordController,
-              onPressed: onLogin,
-            ),
+    return SingleChildScrollView(
+      controller: scrollController,
+      padding: const ThemePadding.all24(),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: ThemeSize.spacingL,
+        children: [
+          SizedBox(height: size.height * 0.075),
+          const _LoginLogo(),
+          _UsernameTextField(usernameController),
+          _PasswordTextField(
+            controller: passwordController,
+            onPressed: onLogin,
+          ),
+          const SizedBox(height: ThemeSize.spacingL),
+          if (error != null) ...[
+            _LoginErrorText(message: error!),
             const SizedBox(height: ThemeSize.spacingL),
-            if (error != null) ...[
-              _LoginErrorText(message: error!),
-              const SizedBox(height: ThemeSize.spacingL),
-            ],
-            _LoginButton(
-              isLoading: isLoading,
-              onPressed: onLogin,
-            ),
-            const _RegisterButton(),
-            const _ForgetPasswordButton(),
           ],
-        ),
+          _LoginButton(
+            isLoading: isLoading,
+            onPressed: onLogin,
+          ),
+          const _RegisterButton(),
+          const _ForgetPasswordButton(),
+        ],
       ),
     );
   }

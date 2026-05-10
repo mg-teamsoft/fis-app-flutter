@@ -17,11 +17,20 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
   String? _invitesError;
   List<_Contact> _contacts = const [];
   List<ContactInviteDto> _invites = const [];
+  List<ContactInviteDto> _pendingInvites = const [];
+  bool _isPendingInvitesLoading = true;
+  bool _isCustomersLoading = true;
+  String? _customersError;
+  List<_Customer> _customers = const [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: widget.initialTabIndex?.clamp(0, 2) ?? 0,
+    );
     _emailFocusNode.addListener(() {
       if (!mounted) return;
       setState(() {
@@ -30,6 +39,8 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     });
     unawaited(_loadSupervisors());
     unawaited(_loadInvites());
+    unawaited(_loadPendingInvites());
+    unawaited(_loadCustomers());
   }
 
   @override
@@ -40,11 +51,27 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(covariant PageConnections oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialTabIndex != oldWidget.initialTabIndex &&
+        widget.initialTabIndex != null) {
+      _tabController.animateTo(widget.initialTabIndex!);
+    }
+  }
+
   Future<void> _handleInvite() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen bir e-posta adresi girin')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Lütfen bir e-posta adresi girin',
+            color: context.theme.info,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       return;
     }
@@ -56,7 +83,14 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
 
     if (permissions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen en az bir yetki seçin')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Lütfen en az bir yetki seçin',
+            color: context.theme.info,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       return;
     }
@@ -72,7 +106,14 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Davet başarıyla gönderildi!')),
+          SnackBar(
+            content: ThemeTypography.bodyLarge(
+              context,
+              'Davet başarıyla gönderildi!',
+              color: context.theme.info,
+              weight: FontWeight.w700,
+            ),
+          ),
         );
         setState(() {
           _emailController.clear();
@@ -86,8 +127,12 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text('Hata: ${e.toString().replaceAll('Exception: ', '')}'),
+            content: ThemeTypography.bodyLarge(
+              context,
+              'Hata: ${e.toString().replaceAll('Exception: ', '')}',
+              color: context.colorScheme.error,
+              weight: FontWeight.w700,
+            ),
           ),
         );
       }
@@ -154,10 +199,73 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     }
   }
 
+  Future<void> _loadPendingInvites() async {
+    setState(() {
+      _isPendingInvitesLoading = true;
+    });
+
+    try {
+      final invites = await _connectionsService.fetchPendingInvites();
+      if (!mounted) return;
+
+      setState(() {
+        _pendingInvites = invites;
+      });
+    } on Exception {
+      if (!mounted) return;
+      setState(() {});
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPendingInvitesLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleAcceptInvite(ContactInviteDto invite) async {
+    try {
+      await _connectionsService.acceptInvite(invite.id);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Davet başarıyla kabul edildi',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+      await _loadPendingInvites();
+      await _loadSupervisors();
+    } on Exception catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            e.toString().replaceAll('Exception: ', ''),
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _handleResendInvite(ContactInviteDto invite) async {
     if (invite.id.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Geçerli bir davet bulunamadı')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Geçerli bir davet bulunamadı',
+            color: context.theme.info,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       return;
     }
@@ -171,14 +279,26 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Davet yeniden gönderildi')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Davet yeniden gönderildi',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
       await _loadInvites();
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', '')),
+          content: ThemeTypography.bodyLarge(
+            context,
+            e.toString().replaceAll('Exception: ', ''),
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
         ),
       );
     } finally {
@@ -188,6 +308,110 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
         });
       }
     }
+  }
+
+  Future<void> _handleRemoveSupervisorAccess(_Contact contact) async {
+    if (contact.id.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Geçerli bir danışman bulunamadı',
+            color: context.theme.info,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+      return;
+    }
+
+    try {
+      await _connectionsService.removeSupervisorAccess(contact.id);
+      if (!mounted) return;
+
+      setState(() {
+        _contacts = _contacts.where((item) => item.id != contact.id).toList();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Erişim kaldırıldı',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+    } on Exception catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            e.toString().replaceAll('Exception: ', ''),
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _loadCustomers() async {
+    setState(() {
+      _isCustomersLoading = true;
+      _customersError = null;
+    });
+
+    try {
+      final customers = await _connectionsService.fetchCustomers();
+      if (!mounted) return;
+
+      setState(() {
+        _customers = customers.map(_mapCustomer).toList();
+      });
+    } on Exception catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _customersError = e.toString().replaceAll('Exception: ', '');
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCustomersLoading = false;
+        });
+      }
+    }
+  }
+
+  _Customer _mapCustomer(CustomerContactDto customer) {
+    return _Customer(
+      id: customer.id,
+      initials: _buildInitials(customer.name, customer.email),
+      name: customer.name.isEmpty ? customer.email : customer.name,
+      email: customer.email,
+      baseColor: context.theme.brandPrimary,
+      canViewReceipts:
+          customer.permissions.contains(ContactPermission.viewReceipts),
+      canDownloadFiles:
+          customer.permissions.contains(ContactPermission.downloadFiles),
+    );
+  }
+
+  Future<void> _handleViewReceipts(_Customer customer) async {
+    await Navigator.pushNamed(
+      context,
+      '/gallery',
+      arguments: {'customerId': customer.id},
+    );
+  }
+
+  Future<void> _handleDownloadFiles(_Customer customer) async {
+    await Navigator.pushNamed(
+      context,
+      '/excelFiles',
+      arguments: {'customerId': customer.id},
+    );
   }
 
   _Contact _mapContact(SupervisorContactDto supervisor) {
@@ -222,15 +446,34 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
   Color _statusColor(String status) {
     switch (status.toUpperCase()) {
       case 'ACTIVE':
-        return Colors.blue;
+        return context.theme.brandPrimary;
       case 'PENDING':
-        return const Color(0xFFEFB53E);
+        return context.theme.warning;
+      case 'REVOKED':
+        return const Color(0xFFF97066);
       case 'ACCEPTED':
         return const Color(0xFF12B76A);
       case 'EXPIRED':
         return const Color(0xFFF97066);
       default:
         return Colors.indigo;
+    }
+  }
+
+  String _statusText(String status) {
+    switch (status.toUpperCase()) {
+      case 'ACTIVE':
+        return 'AKTİF';
+      case 'PENDING':
+        return 'BEKLEMEDE';
+      case 'REVOKED':
+        return 'İPTAL EDİLDİ';
+      case 'ACCEPTED':
+        return 'KABUL EDİLDİ';
+      case 'EXPIRED':
+        return 'SÜRESİ DOLDU';
+      default:
+        return 'BİLİNMİYOR';
     }
   }
 
@@ -253,6 +496,6 @@ mixin _ConnectionController on State<PageConnections>, TickerProvider {
     if (value == null) {
       return '-';
     }
-    return DateFormat('MMM d, yyyy', 'en_US').format(value.toLocal());
+    return DateFormat('d MMMM yyyy', 'tr').format(value.toLocal());
   }
 }

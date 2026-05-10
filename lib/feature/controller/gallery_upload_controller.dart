@@ -33,7 +33,14 @@ mixin _ConnectionGalleryUpload on State<PageGalleryUpload> {
     });
     if (file == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Herhangi bir görsel seçilmedi')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Herhangi bir görsel seçilmedi',
+            color: context.theme.warning,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     }
   }
@@ -48,7 +55,14 @@ mixin _ConnectionGalleryUpload on State<PageGalleryUpload> {
     setState(() => _uploading = false);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(res.message)),
+      SnackBar(
+        content: ThemeTypography.bodyLarge(
+          context,
+          res.message,
+          color: res.success ? context.theme.success : context.theme.error,
+          weight: FontWeight.w700,
+        ),
+      ),
     );
   }
 }

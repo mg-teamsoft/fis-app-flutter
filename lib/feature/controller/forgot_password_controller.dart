@@ -49,14 +49,28 @@ mixin _ConnectionForgotPassword on State<PageForgotPassword> {
       if (!mounted) return;
       setState(() => _statusMessage = message.toString());
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_statusMessage ?? '')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            _statusMessage ?? '',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     } on Exception catch (e) {
       if (!mounted) return;
       final msg = e.toString();
       setState(() => _errorMessage = msg);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('İstek başarısız: $msg')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'İstek başarısız: $msg',
+            color: context.theme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
       );
     } finally {
       if (mounted) {

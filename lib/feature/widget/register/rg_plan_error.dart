@@ -16,10 +16,10 @@ final class _PlanErrorState extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const ThemePadding.all16(),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: ThemeRadius.circular16,
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
@@ -30,9 +30,9 @@ final class _PlanErrorState extends StatelessWidget {
               Icon(
                 Icons.error_outline,
                 color: theme.colorScheme.error,
-                size: 20,
+                size: ThemeSize.iconMedium,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: ThemeSize.spacingS),
               Expanded(
                 child: ThemeTypography.bodyMedium(
                   context,
@@ -44,14 +44,14 @@ final class _PlanErrorState extends StatelessWidget {
             ],
           ),
           if (details != null && details!.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: ThemeSize.spacingS),
             ThemeTypography.bodySmall(
               context,
               details!,
               color: context.colorScheme.onSurfaceVariant,
             ),
           ],
-          const SizedBox(height: 10),
+          const SizedBox(height: ThemeSize.spacingS),
           Align(
             alignment: Alignment.centerLeft,
             child: TextButton.icon(

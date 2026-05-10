@@ -10,6 +10,7 @@ final class _LoginErrorText extends StatelessWidget {
     return ThemeTypography.bodySmall(
       context,
       message,
+      color: context.colorScheme.error,
     );
   }
 }

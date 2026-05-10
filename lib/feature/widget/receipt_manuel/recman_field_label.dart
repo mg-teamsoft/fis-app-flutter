@@ -17,30 +17,26 @@ class _FieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (text != null) {
-      return Text(
+      return ThemeTypography.bodyMedium(
+        context,
         text!,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF101828),
-        ),
+        color: context.colorScheme.onSurface,
       );
     }
 
     return RichText(
       text: TextSpan(
-        style: const TextStyle(
-          fontSize: 16,
+        style: context.textTheme.bodyLarge?.copyWith(
           fontWeight: FontWeight.w600,
-          color: Color(0xFF101828),
+          color: context.colorScheme.onSurface,
         ),
         children: [
           TextSpan(text: main),
           TextSpan(
             text: suffix,
-            style: const TextStyle(
+            style: context.textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.w400,
-              color: Color(0xFF98A2B3),
+              color: context.colorScheme.onSurfaceVariant,
             ),
           ),
         ],

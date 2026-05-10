@@ -54,7 +54,14 @@ mixin _ConnectionResetPassword on State<PageResetPassword> {
     if (_token == null || _token!.isEmpty) {
       setState(() => _error = 'Geçersiz veya eksik token.');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Geçersiz veya eksik token.')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Geçersiz veya eksik token.',
+            color: context.theme.error,
+            weight: FontWeight.w600,
+          ),
+        ),
       );
       return;
     }
@@ -82,13 +89,27 @@ mixin _ConnectionResetPassword on State<PageResetPassword> {
 
     if (res.success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_status!)),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            _status!,
+            color: context.theme.success,
+            weight: FontWeight.w600,
+          ),
+        ),
       );
       await Future<void>.delayed(const Duration(milliseconds: 500));
       if (mounted) await Navigator.of(context).pushReplacementNamed('/login');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_error!)),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            _error!,
+            color: context.theme.error,
+            weight: FontWeight.w600,
+          ),
+        ),
       );
     }
   }

@@ -7,6 +7,8 @@ class _AccountSettingsActivePlan extends StatelessWidget {
     required this.additionalPlans,
     required this.activePlan,
     required this.selectedPlanKey,
+    required this.productLoadError,
+    required this.onRetryProductLoad,
     required this.onBuyAdditional,
     required this.onPlanSelected,
     required this.availablePlanBackground,
@@ -18,6 +20,8 @@ class _AccountSettingsActivePlan extends StatelessWidget {
   final List<PlanOption> additionalPlans;
   final PlanOption? activePlan;
   final String? selectedPlanKey;
+  final String? productLoadError;
+  final Future<void> Function() onRetryProductLoad;
   final Future<void> Function(PlanOption plan)? onBuyAdditional;
   final void Function(String planKey) onPlanSelected;
   final Color Function(int) availablePlanBackground;
@@ -28,26 +32,34 @@ class _AccountSettingsActivePlan extends StatelessWidget {
     return Column(
       children: [
         const _AccountSettingsSectionTitle(text: 'Aktif Plan'),
-        const SizedBox(height: 12),
+        const SizedBox(height: ThemeSize.spacingM),
         if (activePlan != null)
           _ActiveSettingsPlanCard(
             plan: activePlan!,
             onBuyAdditional:
                 updatingPlan ? null : (plan) => onBuyAdditional!(plan),
             additionalPlans: additionalPlans,
+            productLoadError: productLoadError,
           )
         else
           const _AccountSettingsEmptyPlanCard(),
+        if (productLoadError != null) ...[
+          const SizedBox(height: ThemeSize.spacingM),
+          _ProductLoadFallbackCard(
+            message: productLoadError!,
+            onRetry: onRetryProductLoad,
+          ),
+        ],
         if (plans.isNotEmpty) ...[
-          const SizedBox(height: 24),
+          const SizedBox(height: ThemeSize.spacingXl),
           const _AccountSettingsSectionTitle(text: 'Mevcut Planlar'),
-          const SizedBox(height: 12),
+          const SizedBox(height: ThemeSize.spacingM),
           ...plans.asMap().entries.map(
             (entry) {
               final index = entry.key;
               final plan = entry.value;
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const ThemePadding.marginBottom12(),
                 child: _AccountSettingsAvailablePlanTile(
                   plan: plan,
                   selected: selectedPlanKey == plan.planKey,

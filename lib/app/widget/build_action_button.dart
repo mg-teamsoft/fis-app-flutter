@@ -22,10 +22,14 @@ class WidgetBuildActionButton extends StatelessWidget {
           icon,
           size: ThemeSize.iconMedium,
         ),
-        label: Text(label),
+        label: ThemeTypography.bodyLarge(
+          context,
+          label,
+          color: context.colorScheme.onPrimary,
+        ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: context.colorScheme.secondary,
-          foregroundColor: context.colorScheme.onSecondary,
+          backgroundColor: context.colorScheme.primary,
+          foregroundColor: context.colorScheme.onPrimary,
           padding: const ThemePadding.verticalSymmetricMedium(),
           textStyle: ThemeTypography.bodyLarge(
             context,
@@ -35,7 +39,7 @@ class WidgetBuildActionButton extends StatelessWidget {
             ),
           ).style,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: ThemeRadius.circular12,
           ),
         ),
       ),

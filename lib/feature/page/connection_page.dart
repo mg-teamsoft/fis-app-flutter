@@ -19,10 +19,15 @@ part '../widget/connection/cnn_invite_permission_switch.dart';
 part '../widget/connection/cnn_invite_section.dart';
 part '../widget/connection/cnn_invite_summary_card.dart';
 part '../widget/connection/cnn_invite_table_section.dart';
+part '../widget/connection/cnn_pending_invites_section.dart';
 part '../widget/connection/cnn_permission_chip.dart';
+part '../widget/connection/cnn_customer_class.dart';
+part '../widget/connection/cnn_customers_section.dart';
 
 class PageConnections extends StatefulWidget {
-  const PageConnections({super.key});
+  const PageConnections({super.key, this.initialTabIndex});
+
+  final int? initialTabIndex;
 
   @override
   State<PageConnections> createState() => _PageConnectionsState();
@@ -37,10 +42,12 @@ class _PageConnectionsState extends State<PageConnections>
       loadSupervisors: _loadSupervisors,
       loadInvites: _loadInvites,
       handleResendInvite: _handleResendInvite,
+      handleRemoveSupervisorAccess: _handleRemoveSupervisorAccess,
       mapContact: _mapContact,
       buildInitials: _buildInitials,
       statusColor: _statusColor,
       statusLabel: _statusLabel,
+      statusText: _statusText,
       formatShortDate: _formatShortDate,
       tabController: _tabController,
       mailController: _emailController,
@@ -57,6 +64,15 @@ class _PageConnectionsState extends State<PageConnections>
       invitesError: _invitesError,
       contacts: _contacts,
       invites: _invites,
+      pendingInvites: _pendingInvites,
+      isPendingInvitesLoading: _isPendingInvitesLoading,
+      handleAcceptInvite: _handleAcceptInvite,
+      customers: _customers,
+      isCustomersLoading: _isCustomersLoading,
+      customersError: _customersError,
+      loadCustomers: _loadCustomers,
+      onViewReceipts: _handleViewReceipts,
+      onDownloadFiles: _handleDownloadFiles,
     );
   }
 }

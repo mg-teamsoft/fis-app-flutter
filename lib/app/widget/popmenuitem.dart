@@ -42,15 +42,14 @@ class _MenuItemContent extends StatelessWidget {
               ? context.theme.error
               : context.colorScheme.onSurface,
         ),
-        const SizedBox(width: 12),
-        Text(
+        const SizedBox(width: ThemeSize.spacingS),
+        ThemeTypography.bodyMedium(
+          context,
           text,
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: isDestructive
-                ? context.theme.error
-                : context.colorScheme.onSurface,
-            fontWeight: FontWeight.w500,
-          ),
+          color: isDestructive
+              ? context.theme.error
+              : context.colorScheme.onSurface,
+          weight: FontWeight.w500,
         ),
       ],
     );

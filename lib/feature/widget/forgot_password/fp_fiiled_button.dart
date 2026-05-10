@@ -17,18 +17,15 @@ final class _ForgotPasswordFiiledButton extends StatelessWidget {
         style: FilledButton.styleFrom(
           backgroundColor: context.colorScheme.primary,
           foregroundColor: context.colorScheme.surface,
-          padding: const EdgeInsets.symmetric(
-            vertical: ThemeSize.spacingM,
-            horizontal: ThemeSize.spacingL,
-          ),
+          padding: const ThemePadding.all10(),
           shape: RoundedRectangleBorder(
             borderRadius: ThemeRadius.circular12,
           ),
         ),
         child: loading
             ? const SizedBox(
-                height: 18,
-                width: 18,
+                height: ThemeSize.buttonHeightSmall,
+                width: ThemeSize.buttonHeightSmall,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : ThemeTypography.titleMedium(

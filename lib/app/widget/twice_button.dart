@@ -68,30 +68,27 @@ class TwiceButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: ThemeRadius.circular8,
         ),
-        minimumSize: const Size(0, 44),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        minimumSize: const Size(0, ThemeSize.buttonHeightSmall),
+        padding: const ThemePadding.all10(),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (icon != null) ...[
             IconTheme(
-              data: const IconThemeData(size: 18),
+              data: const IconThemeData(size: ThemeSize.iconSmall),
               child: icon,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: ThemeSize.spacingS),
           ],
           Flexible(
-            child: Text(
+            child: ThemeTypography.bodyLarge(
+              context,
               title.trim(),
-              style: (textStyle ?? context.textTheme.bodyMedium)?.copyWith(
-                color: context.colorScheme.onPrimaryContainer,
-                fontWeight: FontWeight.w700,
-              ),
+              color: context.colorScheme.onPrimaryContainer,
+              weight: FontWeight.w700,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              softWrap: false,
-              textAlign: TextAlign.center,
             ),
           ),
         ],

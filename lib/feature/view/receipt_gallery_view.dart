@@ -58,38 +58,46 @@ class _ReceiptGalleryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        children: [
-          const _ReceiptGalleryHeader(),
-          _ReceiptGallerySearchBar(
-            searchController: searchController,
-            searchQuery: searchQuery,
-            isSearching: isSearching,
-            filteredReceipts: filteredReceipts,
-            selectedDateRange: selectedDateRange,
-            customerItems: customerItems,
-            selectedCustomerId: selectedCustomerId,
-            appliedCustomerId: appliedCustomerId,
-            isLoadingCustomers: isLoadingCustomers,
-            onSearchChanged: onSearchChanged,
-            pickDateRange: pickDateRange,
-            clearDateRange: clearDateRange,
-            onCustomerChanged: onCustomerChanged,
-            applyCustomerSelection: applyCustomerSelection,
+    return Column(
+      children: [
+        // Header
+        const SizedBox(height: ThemeSize.spacingXs),
+        Align(
+          child: ThemeTypography.h4(
+            context,
+            'Fişler',
+            weight: FontWeight.w900,
+            color: context.colorScheme.onSurface,
           ),
-          _ReceiptGallerySearchResult(
-            isLoadingInitial: isLoadingInitial,
-            error: error,
-            allReceipts: allReceipts,
-            loadReceipts: loadReceipts,
-            isSearching: isSearching,
-            openDetails: openDetails,
-            filteredReceipts: filteredReceipts,
-            showOverlay: showOverlay,
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: ThemeSize.spacingM),
+        _ReceiptGallerySearchBar(
+          searchController: searchController,
+          searchQuery: searchQuery,
+          isSearching: isSearching,
+          filteredReceipts: filteredReceipts,
+          selectedDateRange: selectedDateRange,
+          customerItems: customerItems,
+          selectedCustomerId: selectedCustomerId,
+          appliedCustomerId: appliedCustomerId,
+          isLoadingCustomers: isLoadingCustomers,
+          onSearchChanged: onSearchChanged,
+          pickDateRange: pickDateRange,
+          clearDateRange: clearDateRange,
+          onCustomerChanged: onCustomerChanged,
+          applyCustomerSelection: applyCustomerSelection,
+        ),
+        _ReceiptGallerySearchResult(
+          isLoadingInitial: isLoadingInitial,
+          error: error,
+          allReceipts: allReceipts,
+          loadReceipts: loadReceipts,
+          isSearching: isSearching,
+          openDetails: openDetails,
+          filteredReceipts: filteredReceipts,
+          showOverlay: showOverlay,
+        ),
+      ],
     );
   }
 }

@@ -10,8 +10,8 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
   final _totalAmountController = TextEditingController();
 
   DateTime? _selectedDate;
-  late final ReceiptCategory? _selectedCategory;
-  final String _paymentType = 'card';
+  ReceiptCategory? _selectedCategory;
+  String _paymentType = 'cash';
   String? _selectedKdvRate;
   XFile? _invoiceImage;
   Uint8List? _invoiceImageBytes;
@@ -46,15 +46,35 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     super.dispose();
   }
 
+  void _onCategoryChanged(ReceiptCategory? category) {
+    setState(() => _selectedCategory = category);
+  }
+
+  void _onPaymentTypeChanged(String type) {
+    setState(() => _paymentType = type);
+  }
+
+  void _onKdvRateChanged(String? rate) {
+    setState(() {
+      _selectedKdvRate = rate;
+    });
+    _recalculateKdv();
+  }
+
   void _recalculateKdv() {
     final total = double.tryParse(_totalAmountController.text.trim());
     final rate = int.tryParse(_selectedKdvRate ?? '');
     if (total == null || rate == null || rate == 0) {
-      _kdvAmountController.text = '';
+      setState(() {
+        _kdvAmountController.text = '';
+      });
+
       return;
     }
     final vat = total * rate / (100 + rate);
-    _kdvAmountController.text = vat.toStringAsFixed(2);
+    setState(() {
+      _kdvAmountController.text = vat.toStringAsFixed(2);
+    });
   }
 
   Future<void> _pickDate() async {
@@ -202,14 +222,27 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Mükerrer Görsel'),
-        content: const Text(
+        title: ThemeTypography.bodyLarge(
+          ctx,
+          'Mükerrer Görsel',
+          color: ctx.colorScheme.onSurface,
+          weight: FontWeight.w700,
+        ),
+        content: ThemeTypography.bodyLarge(
+          ctx,
           'Bu görsel daha önce sisteme yüklenmiş. Lütfen farklı bir görsel seçin.',
+          color: ctx.theme.error,
+          weight: FontWeight.w500,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Tamam'),
+            child: ThemeTypography.bodyLarge(
+              ctx,
+              'Tamam',
+              color: ctx.colorScheme.primary,
+              weight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -220,8 +253,12 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
-        backgroundColor: color ?? const Color(0xFFF04438),
+        content: ThemeTypography.bodyLarge(
+          context,
+          msg,
+          color: context.colorScheme.error,
+        ),
+        backgroundColor: color ?? context.colorScheme.surface,
       ),
     );
   }
@@ -231,12 +268,27 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Hata'),
-        content: Text(message),
+        title: ThemeTypography.bodyLarge(
+          ctx,
+          'Hata',
+          color: ctx.colorScheme.onSurface,
+          weight: FontWeight.w800,
+        ),
+        content: ThemeTypography.bodyLarge(
+          ctx,
+          message,
+          color: ctx.colorScheme.error,
+          weight: FontWeight.w500,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Tamam'),
+            child: ThemeTypography.bodyLarge(
+              ctx,
+              'Tamam',
+              color: ctx.colorScheme.onSurface,
+              weight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -339,8 +391,13 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(successMsg),
-          backgroundColor: const Color(0xFF12B76A),
+          content: ThemeTypography.bodyLarge(
+            context,
+            successMsg,
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+          backgroundColor: context.colorScheme.surface,
         ),
       );
 

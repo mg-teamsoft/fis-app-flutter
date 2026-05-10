@@ -16,20 +16,22 @@ class _ReceiptInitialView extends StatelessWidget {
               if (file != null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
+                    content: ThemeTypography.bodyMedium(
+                      context,
                       'Galeriden seçildi: ${file.path}',
-                      style: context.textTheme.bodyMedium,
+                      color: context.colorScheme.onSurface,
                     ),
                   ),
                 );
               }
             },
-            child: Text(
+            child: ThemeTypography.bodyMedium(
+              context,
               'Galeriden Seç',
-              style: context.textTheme.bodyMedium,
+              color: context.colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: ThemeSize.spacingM),
           ElevatedButton(
             onPressed: () async {
               final file = await ReceiptService.captureWithCamera(context);
@@ -37,17 +39,19 @@ class _ReceiptInitialView extends StatelessWidget {
               if (file != null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
+                    content: ThemeTypography.bodyMedium(
+                      context,
                       'Kameradan çekildi: ${file.path}',
-                      style: context.textTheme.bodyMedium,
+                      color: context.colorScheme.onSurface,
                     ),
                   ),
                 );
               }
             },
-            child: Text(
+            child: ThemeTypography.bodyMedium(
+              context,
               'Kamera ile Çek',
-              style: context.textTheme.bodyMedium,
+              color: context.colorScheme.onSurface,
             ),
           ),
         ],

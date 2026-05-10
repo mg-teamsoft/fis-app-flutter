@@ -37,28 +37,28 @@ class _TextFieldBox extends StatelessWidget {
         hintText: hintText,
         prefixText: prefixText,
         filled: true,
-        fillColor: fillColor ?? Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        fillColor: fillColor ?? context.colorScheme.surface,
+        contentPadding: const ThemePadding.horizontalSymmetricMedium(),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFD0D5DD)),
+          borderRadius: ThemeRadius.circular16,
+          borderSide: BorderSide(color: context.colorScheme.surface),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFD0D5DD)),
+          borderRadius: ThemeRadius.circular16,
+          borderSide: BorderSide(color: context.colorScheme.surface),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF1570EF), width: 1.5),
+          borderRadius: ThemeRadius.circular16,
+          borderSide:
+              BorderSide(color: context.colorScheme.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFF04438)),
+          borderRadius: ThemeRadius.circular16,
+          borderSide: BorderSide(color: context.theme.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFF04438)),
+          borderRadius: ThemeRadius.circular16,
+          borderSide: BorderSide(color: context.theme.error),
         ),
       ),
     );

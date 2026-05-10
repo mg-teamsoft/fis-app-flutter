@@ -15,45 +15,46 @@ class _ReceiptResultButtonArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FilledButton.icon(
+          onPressed: (submitting || state.values.any((s) => s.active))
+              ? null
+              : () => approveAll(context),
+          icon: const Icon(Icons.check),
+          label: ThemeTypography.bodyLarge(
+            context,
+            submitting
+                ? 'Gönderiliyor...'
+                : state.values.any((s) => s.active)
+                    ? 'İşleniyor...'
+                    : "Onayla ve Excel'e Yaz",
+            weight: FontWeight.w900,
+            color: context.colorScheme.onPrimary,
+          ),
+        ),
+        if (hasSuccessfulSubmission != null) ...[
+          const SizedBox(height: ThemeSize.spacingS),
           FilledButton.icon(
-            onPressed: (submitting || state.values.any((s) => s.active))
-                ? null
-                : () => approveAll(context),
-            icon: const Icon(Icons.check),
-            label: Text(
-              submitting
-                  ? 'Gönderiliyor...'
-                  : state.values.any((s) => s.active)
-                      ? 'İşleniyor...'
-                      : "Onayla ve Excel'e Yaz",
+            onPressed: () async {
+              final route =
+                  hasSuccessfulSubmission! ? '/excelFiles' : '/receipt';
+              await Navigator.pushNamed(context, route);
+            },
+            icon: Icon(
+              hasSuccessfulSubmission! ? Icons.table_view : Icons.receipt_long,
+            ),
+            label: ThemeTypography.bodyLarge(
+              context,
+              hasSuccessfulSubmission!
+                  ? 'Excel Dosya Sayfasına Git'
+                  : 'Başa Dön',
+              color: context.colorScheme.onPrimary,
             ),
           ),
-          if (hasSuccessfulSubmission != null) ...[
-            const SizedBox(height: ThemeSize.spacingS),
-            FilledButton.icon(
-              onPressed: () async {
-                final route =
-                    hasSuccessfulSubmission! ? '/excelFiles' : '/receipt';
-                await Navigator.pushNamed(context, route);
-              },
-              icon: Icon(
-                hasSuccessfulSubmission!
-                    ? Icons.table_view
-                    : Icons.receipt_long,
-              ),
-              label: Text(
-                hasSuccessfulSubmission!
-                    ? 'Excel Dosya Sayfasına Git'
-                    : 'Başa Dön',
-              ),
-            ),
-          ],
         ],
-      ),
+      ],
     );
   }
 }

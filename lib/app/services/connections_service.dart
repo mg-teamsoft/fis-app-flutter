@@ -18,6 +18,20 @@ class SupervisorContactDto {
   final List<ContactPermission> permissions;
 }
 
+class CustomerContactDto {
+  CustomerContactDto({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.permissions,
+  });
+
+  final String id;
+  final String name;
+  final String email;
+  final List<ContactPermission> permissions;
+}
+
 class ContactInviteDto {
   ContactInviteDto({
     required this.id,
@@ -28,6 +42,9 @@ class ContactInviteDto {
     required this.respondedAt,
     required this.createdAt,
     required this.updatedAt,
+    this.token,
+    this.inviterUsername,
+    this.inviterEmail,
   });
 
   final String id;
@@ -38,6 +55,9 @@ class ContactInviteDto {
   final DateTime? respondedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? token;
+  final String? inviterUsername;
+  final String? inviterEmail;
 }
 
 class ConnectionsService {
@@ -64,6 +84,32 @@ class ConnectionsService {
         }
       }
       throw Exception('Bağlantılar alınamadı');
+    }
+  }
+
+  Future<void> removeSupervisorAccess(String supervisorUserId) async {
+    final normalizedSupervisorUserId = supervisorUserId.trim();
+    if (normalizedSupervisorUserId.isEmpty) {
+      throw Exception('Geçerli bir danışman kimliği bulunamadı');
+    }
+
+    try {
+      final response = await _api.dio.delete<Map<String, dynamic>>(
+        '/api/contacts/supervisors/$normalizedSupervisorUserId',
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Erişim kaldırılamadı');
+      }
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Erişim kaldırılamadı');
     }
   }
 
@@ -127,6 +173,28 @@ class ConnectionsService {
     }
   }
 
+  Future<List<ContactInviteDto>> fetchPendingInvites() async {
+    try {
+      final response = await _api.dio
+          .get<Map<String, dynamic>>('/api/contacts/invites/pending');
+      if (response.statusCode != 200) {
+        throw Exception('Bekleyen davetler alınamadı');
+      }
+
+      final items = _extractInviteList(response.data);
+      return items.map(_mapInvite).toList();
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Bekleyen davetler alınamadı');
+    }
+  }
+
   Future<void> resendInvite(String inviteId) async {
     final normalizedInviteId = inviteId.trim();
     if (normalizedInviteId.isEmpty) {
@@ -152,6 +220,105 @@ class ConnectionsService {
         }
       }
       throw Exception('Davet yeniden gönderilemedi');
+    }
+  }
+
+  Future<List<CustomerContactDto>> fetchCustomers() async {
+    try {
+      final response =
+          await _api.dio.get<Map<String, dynamic>>('/api/contacts/customers');
+      if (response.statusCode != 200) {
+        throw Exception('Müşteriler alınamadı');
+      }
+
+      final items = _extractCustomerList(response.data);
+      return items.map(_mapCustomerContact).toList();
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Müşteriler alınamadı');
+    }
+  }
+
+  Future<String?> acceptInvite(String inviteId) async {
+    final normalizedInviteId = inviteId.trim();
+    if (normalizedInviteId.isEmpty) {
+      throw Exception('Geçerli bir davet kimliği bulunamadı');
+    }
+
+    try {
+      final response = await _api.dio.post<Map<String, dynamic>>(
+        '/api/contacts/invites/$normalizedInviteId/accept',
+      );
+
+      if (response.statusCode != 200 &&
+          response.statusCode != 201 &&
+          response.statusCode != 204) {
+        throw Exception('Davet kabul edilemedi');
+      }
+
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final message = data['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          return message;
+        }
+      }
+
+      return null;
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Davet kabul edilemedi');
+    }
+  }
+
+  Future<String?> acceptInviteByToken(String inviteToken) async {
+    final normalizedInviteToken = inviteToken.trim();
+    if (normalizedInviteToken.isEmpty) {
+      throw Exception('Geçerli bir davet belirteci bulunamadı');
+    }
+
+    try {
+      final response = await _api.dio.post<Map<String, dynamic>>(
+        '/api/contacts/invites/accept',
+        queryParameters: {'token': normalizedInviteToken},
+      );
+
+      if (response.statusCode != 200 &&
+          response.statusCode != 201 &&
+          response.statusCode != 204) {
+        throw Exception('Davet kabul edilemedi');
+      }
+
+      final data = response.data;
+      if (data is Map<String, dynamic>) {
+        final message = data['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          return message;
+        }
+      }
+
+      return null;
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Davet kabul edilemedi');
     }
   }
 
@@ -200,6 +367,20 @@ class ConnectionsService {
     return _extractContactList(data);
   }
 
+  List<Map<String, dynamic>> _extractCustomerList(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      final customers = data['customers'];
+      if (customers is List) {
+        return customers
+            .whereType<Map<String, dynamic>>()
+            .map(Map<String, dynamic>.from)
+            .toList();
+      }
+    }
+
+    return _extractContactList(data);
+  }
+
   SupervisorContactDto _mapSupervisorContact(Map<String, dynamic> json) {
     final supervisor = json['supervisor'] is Map
         ? Map<String, dynamic>.from(json['supervisor'] as Map)
@@ -216,12 +397,12 @@ class ConnectionsService {
     ]);
 
     return SupervisorContactDto(
-      id: (json['linkId'] ??
-              json['id'] ??
-              json['_id'] ??
-              json['supervisorUserId'] ??
+      id: (json['supervisorUserId'] ??
               supervisor['userId'] ??
               supervisor['_id'] ??
+              json['linkId'] ??
+              json['id'] ??
+              json['_id'] ??
               email)
           .toString(),
       name: _pickFirstNonEmpty([
@@ -243,6 +424,13 @@ class ConnectionsService {
   }
 
   ContactInviteDto _mapInvite(Map<String, dynamic> json) {
+    final inviter = json['inviter'] is Map<String, dynamic>
+        ? json['inviter'] as Map<String, dynamic>
+        : json['inviter'] is Map
+            ? Map<String, dynamic>.from(json['inviter'] as Map)
+            : const <String, dynamic>{};
+    final inviteToken = _extractInviteToken(json, inviter);
+
     return ContactInviteDto(
       id: (json['inviteId'] ?? json['_id'] ?? json['id'] ?? '').toString(),
       inviteeEmail: _pickFirstNonEmpty([
@@ -263,7 +451,65 @@ class ConnectionsService {
       respondedAt: _parseDateTime(json['respondedAt']),
       createdAt: _parseDateTime(json['createdAt']),
       updatedAt: _parseDateTime(json['updatedAt']),
+      token: inviteToken,
+      inviterUsername: _pickFirstNonEmpty([
+        json['inviterUsername']?.toString(),
+        inviter['inviterUsername']?.toString(),
+      ]),
+      inviterEmail: _pickFirstNonEmpty([
+        json['inviterEmail']?.toString(),
+        inviter['inviterEmail']?.toString(),
+      ]),
     );
+  }
+
+  String _extractInviteToken(
+    Map<String, dynamic> json,
+    Map<String, dynamic> inviter,
+  ) {
+    final directToken = _pickFirstNonEmpty([
+      json['token']?.toString(),
+      json['inviteToken']?.toString(),
+      inviter['token']?.toString(),
+      inviter['inviteToken']?.toString(),
+    ]);
+    if (directToken.isNotEmpty) {
+      return directToken;
+    }
+
+    const linkKeys = [
+      'acceptUrl',
+      'acceptLink',
+      'inviteUrl',
+      'inviteLink',
+      'invitationUrl',
+      'invitationLink',
+      'url',
+      'link',
+    ];
+
+    for (final key in linkKeys) {
+      final token = _extractTokenFromUrl(json[key]);
+      if (token.isNotEmpty) {
+        return token;
+      }
+    }
+
+    return '';
+  }
+
+  String _extractTokenFromUrl(dynamic value) {
+    final text = value?.toString().trim();
+    if (text == null || text.isEmpty) {
+      return '';
+    }
+
+    final uri = Uri.tryParse(text);
+    if (uri == null) {
+      return '';
+    }
+
+    return uri.queryParameters['token']?.trim() ?? '';
   }
 
   List<ContactPermission> _parsePermissions(dynamic rawPermissions) {
@@ -282,6 +528,35 @@ class ConnectionsService {
       }
     }
     return permissions;
+  }
+
+  CustomerContactDto _mapCustomerContact(Map<String, dynamic> json) {
+    final customer = json['customer'] is Map
+        ? Map<String, dynamic>.from(json['customer'] as Map)
+        : const <String, dynamic>{};
+    final email = _pickFirstNonEmpty([
+      customer['email']?.toString(),
+      json['email']?.toString(),
+    ]);
+
+    return CustomerContactDto(
+      id: (json['customerUserId'] ??
+              customer['userId'] ??
+              customer['_id'] ??
+              json['linkId'] ??
+              json['id'] ??
+              json['_id'] ??
+              email)
+          .toString(),
+      name: _pickFirstNonEmpty([
+        customer['name']?.toString(),
+        customer['fullName']?.toString(),
+        customer['userName']?.toString(),
+        email,
+      ]),
+      email: email,
+      permissions: _parsePermissions(json['permissions']),
+    );
   }
 
   String _pickFirstNonEmpty(List<String?> values) {

@@ -22,7 +22,6 @@ final class _HomeActions extends StatelessWidget {
         color: context.colorScheme.onPrimaryContainer,
         size: ThemeSize.iconMedium,
       ),
-      textStyle: context.textTheme.bodyLarge,
       backgroundColorTwo: context.theme.success,
     );
   }

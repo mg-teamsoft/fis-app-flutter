@@ -26,7 +26,7 @@ class _ReceiptProcessList extends StatelessWidget {
         itemBuilder: (_, i) {
           final file = files[i];
           return ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: ThemeRadius.circular8,
             child: kIsWeb
                 ? FutureBuilder<Uint8List>(
                     future: bytesCache.putIfAbsent(

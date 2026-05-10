@@ -46,6 +46,7 @@ mixin _ConnectionHome on State<PageHome> {
   }
 
   Future<void> _reload() async {
+    if (!mounted) return;
     setState(() {
       _futureSummary = _homeService.fetchSummary();
     });

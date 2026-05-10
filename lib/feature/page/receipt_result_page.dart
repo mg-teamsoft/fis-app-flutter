@@ -39,6 +39,7 @@ class _PageReceiptResultState extends State<PageReceiptResult>
   Widget build(BuildContext context) {
     return _ReceiptResultView(
       rotateImage: _rotateImage,
+      items: _items,
       removeItem: _removeItem,
       approveAll: _approveAll,
       jobs: _jobs,

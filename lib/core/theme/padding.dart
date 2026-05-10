@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 final class ThemePadding extends EdgeInsets {
+  /// [8] padding all
+  const ThemePadding.all8() : super.all(_spacingXs);
+
   /// [10] padding all
   const ThemePadding.all10() : super.all(_spacingS);
 

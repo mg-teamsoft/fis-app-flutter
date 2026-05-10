@@ -57,8 +57,8 @@ class CardButton extends StatelessWidget {
         child: Stack(
           children: [
             Positioned(
-              top: 10,
-              right: 10,
+              top: ThemeSize.spacingS,
+              right: ThemeSize.spacingS,
               child: Opacity(
                 opacity: 0.2,
                 child: imageIcon,
@@ -71,7 +71,7 @@ class CardButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: ThemeRadius.circular12,
                     child: BackdropFilter(
                       filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
                       child: Container(
@@ -81,7 +81,7 @@ class CardButton extends StatelessWidget {
                         child: Icon(
                           buttonIcon,
                           color: textColor ?? context.colorScheme.onSurface,
-                          size: 24,
+                          size: ThemeSize.iconLarge,
                         ),
                       ),
                     ),
@@ -89,26 +89,17 @@ class CardButton extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      ThemeTypography.h4(
+                        context,
                         title,
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: textColor ?? context.colorScheme.onSurface,
-                          letterSpacing: -0.48,
-                        ),
+                        color: textColor ?? context.colorScheme.onSurface,
                       ),
                       const SizedBox(height: 4),
-                      Text(
+                      ThemeTypography.bodyMedium(
+                        context,
                         description,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: (textColor ?? context.colorScheme.onSurface)
-                              .withValues(alpha: 0.7),
-                        ),
+                        color: (textColor ?? context.colorScheme.onSurface)
+                            .withValues(alpha: 0.7),
                       ),
                     ],
                   ),

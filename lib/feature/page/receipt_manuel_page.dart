@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/services/excel_service.dart';
 import 'package:fis_app_flutter/app/services/receipt_api_service.dart';
 import 'package:fis_app_flutter/app/services/s3_upload_service.dart';
@@ -40,31 +41,35 @@ class _PageReceiptManuelState extends State<PageReceiptManuel>
     with _ConnectionReceiptManuel {
   @override
   Widget build(BuildContext context) {
-    return _ReceiptManuelView(
-      formKey: _formKey,
-      receiptNoController: _receiptNoController,
-      kdvAmountController: _kdvAmountController,
-      totalAmountController: _totalAmountController,
-      businessNameController: _businessNameController,
-      isUploading: _isUploading,
-      pickInvoiceImage: _pickInvoiceImage,
-      imageError: _imageError,
-      fieldsEnabled: _fieldsEnabled,
-      businessNameValidator: _businessNameValidator,
-      receiptNoValidator: _receiptNoValidator,
-      totalAmountValidator: _totalAmountValidator,
-      kdvAmountValidator: _kdvAmountValidator,
-      dateText: _dateText,
-      pickDate: _pickDate,
-      dateError: _dateError,
-      selectedCategory: _selectedCategory,
-      selectedKdvRate: _selectedKdvRate,
-      recalculateKdv: _recalculateKdv,
-      paymentType: _paymentType,
-      saving: _saving,
-      save: _save,
-      invoiceImage: _invoiceImage,
-      invoiceImageBytes: _invoiceImageBytes,
+    return Scaffold(
+      body: _ReceiptManuelView(
+        formKey: _formKey,
+        receiptNoController: _receiptNoController,
+        kdvAmountController: _kdvAmountController,
+        totalAmountController: _totalAmountController,
+        businessNameController: _businessNameController,
+        isUploading: _isUploading,
+        pickInvoiceImage: _pickInvoiceImage,
+        imageError: _imageError,
+        fieldsEnabled: _fieldsEnabled,
+        businessNameValidator: _businessNameValidator,
+        receiptNoValidator: _receiptNoValidator,
+        totalAmountValidator: _totalAmountValidator,
+        kdvAmountValidator: _kdvAmountValidator,
+        dateText: _dateText,
+        pickDate: _pickDate,
+        dateError: _dateError,
+        selectedCategory: _selectedCategory,
+        selectedKdvRate: _selectedKdvRate,
+        onCategoryChanged: _onCategoryChanged,
+        onKdvRateChanged: _onKdvRateChanged,
+        onPaymentTypeChanged: _onPaymentTypeChanged,
+        paymentType: _paymentType,
+        saving: _saving,
+        save: _save,
+        invoiceImage: _invoiceImage,
+        invoiceImageBytes: _invoiceImageBytes,
+      ),
     );
   }
 }

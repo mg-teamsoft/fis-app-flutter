@@ -75,7 +75,7 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
                               ? Icons.light_mode_rounded
                               : Icons.dark_mode_rounded,
                           color: isDark
-                              ? Colors.orangeAccent
+                              ? context.theme.warning
                               : context.colorScheme.onSurface,
                           size: ThemeSize.iconMedium,
                         ),

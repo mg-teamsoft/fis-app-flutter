@@ -4,7 +4,7 @@ final class _DividerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const ThemePadding.verticalSymmetricMedium(),
       child: Divider(
         color: context.colorScheme.onSurface,
         height: 1,

@@ -61,7 +61,14 @@ mixin _ConnectionSettings on State<PageSettings> {
     } on Exception catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ayarlar getirilemedi: $e')),
+          SnackBar(
+            content: ThemeTypography.bodyLarge(
+              context,
+              'Ayarlar getirilemedi: $e',
+              color: context.theme.error,
+              weight: FontWeight.w600,
+            ),
+          ),
         );
       }
     } finally {
@@ -192,7 +199,14 @@ mixin _ConnectionSettings on State<PageSettings> {
       await _settingsService.updateRules(rulesString: rulesString);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ayarlar kaydedildi.')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Ayarlar kaydedildi.',
+            color: context.theme.success,
+            weight: FontWeight.w600,
+          ),
+        ),
       );
       setState(() {
         _hasChanges = false;
@@ -200,7 +214,14 @@ mixin _ConnectionSettings on State<PageSettings> {
     } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kaydetme başarısız: $e')),
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Kaydetme başarısız: $e',
+            color: context.theme.error,
+            weight: FontWeight.w600,
+          ),
+        ),
       );
       setState(() {
         _hasChanges = true;

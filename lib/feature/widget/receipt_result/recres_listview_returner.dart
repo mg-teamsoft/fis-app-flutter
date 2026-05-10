@@ -35,7 +35,7 @@ class __ReceiptResultListViewReturnerState
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const ThemePadding.marginBottom16(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -50,13 +50,14 @@ class __ReceiptResultListViewReturnerState
                     });
                   },
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: ThemeSize.spacingS),
               ],
               Expanded(
-                child: Text(
+                child: ThemeTypography.titleMedium(
+                  context,
                   'Fiş ${widget.i + 1}',
-                  style: context.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  weight: FontWeight.w900,
+                  color: context.colorScheme.onSurface,
                 ),
               ),
               IconButton(
@@ -72,7 +73,7 @@ class __ReceiptResultListViewReturnerState
                 ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: ThemeSize.spacingS),
           if (widget.wide)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +81,7 @@ class __ReceiptResultListViewReturnerState
                 Expanded(
                   child: AspectRatio(aspectRatio: 3 / 4, child: widget.image),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: ThemeSize.spacingM),
                 Expanded(child: widget.editor),
               ],
             )
@@ -88,7 +89,7 @@ class __ReceiptResultListViewReturnerState
             Column(
               children: [
                 AspectRatio(aspectRatio: 3 / 4, child: widget.image),
-                const SizedBox(height: 12),
+                const SizedBox(height: ThemeSize.spacingM),
                 widget.editor,
               ],
             ),

@@ -12,7 +12,7 @@ class _AccountSettingsResetPasswordButton extends StatelessWidget {
     return OutlinedButton.icon(
       onPressed: onResetPassword,
       style: OutlinedButton.styleFrom(
-        minimumSize: const Size.fromHeight(56),
+        minimumSize: const Size.fromHeight(ThemeSize.buttonHeightLarge),
         side: BorderSide(color: context.colorScheme.outline),
         shape: RoundedRectangleBorder(
           borderRadius: ThemeRadius.circular12,
@@ -23,12 +23,11 @@ class _AccountSettingsResetPasswordButton extends StatelessWidget {
         color: context.colorScheme.outline,
         size: ThemeSize.iconMedium,
       ),
-      label: Text(
+      label: ThemeTypography.bodyMedium(
+        context,
         'Şifreyi Sıfırla',
-        style: context.textTheme.bodyMedium?.copyWith(
-          color: context.colorScheme.onSurface,
-          fontWeight: FontWeight.w700,
-        ),
+        color: context.colorScheme.onSurface,
+        weight: FontWeight.w700,
       ),
     );
   }

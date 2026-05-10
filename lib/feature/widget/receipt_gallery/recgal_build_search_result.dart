@@ -16,9 +16,10 @@ final class _ReceiptGalleryBuildSearchResult extends StatelessWidget {
     if (filteredReceipts.isEmpty) {
       return Padding(
         padding: const EdgeInsets.only(top: 32),
-        child: Text(
+        child: ThemeTypography.titleMedium(
+          context,
           'Sonuç bulunamadı.',
-          style: context.textTheme.titleMedium,
+          color: context.colorScheme.onSurface,
           textAlign: TextAlign.center,
         ),
       );
@@ -39,9 +40,9 @@ final class _ReceiptGalleryBuildSearchResult extends StatelessWidget {
         final amountText = currencyFormatter.format(receipt.totalAmount);
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 16),
+          margin: const ThemePadding.marginBottom16(),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: ThemeRadius.circular16,
             gradient: LinearGradient(
               colors: [
                 context.colorScheme.surface,
@@ -65,9 +66,9 @@ final class _ReceiptGalleryBuildSearchResult extends StatelessWidget {
           ),
           child: Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: ThemeRadius.circular16,
             child: InkWell(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: ThemeRadius.circular16,
               onTap: () async {
                 FocusScope.of(context).unfocus();
                 await openDetails(receipt);
@@ -89,40 +90,37 @@ final class _ReceiptGalleryBuildSearchResult extends StatelessWidget {
                         size: ThemeSize.iconLarge,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: ThemeSize.spacingM),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          ThemeTypography.titleMedium(
+                            context,
                             receipt.businessName,
-                            style: context.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: context.colorScheme.onSurface,
-                            ),
+                            weight: FontWeight.w700,
+                            color: context.colorScheme.onSurface,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: ThemeSize.spacingS),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: ThemeSize.spacingS),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
+                        ThemeTypography.titleMedium(
+                          context,
                           amountText,
-                          style: context.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color: context.colorScheme.onSurface,
-                          ),
+                          weight: FontWeight.w800,
+                          color: context.colorScheme.onSurface,
                         ),
-                        Text(
+                        ThemeTypography.titleMedium(
+                          context,
                           dateText,
-                          style: context.textTheme.titleMedium?.copyWith(
-                            color: context.colorScheme.onSurface,
-                          ),
+                          color: context.colorScheme.onSurface,
                         ),
                       ],
                     ),

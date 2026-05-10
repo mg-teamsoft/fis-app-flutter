@@ -17,6 +17,8 @@ class PurchaseService {
   StreamSubscription<List<PurchaseDetails>>? _sub;
 
   Future<void> init() async {
+    if (_sub != null) return;
+
     final available = await _iap.isAvailable();
     if (!available) {
       throw Exception('In-app purchases are not available on this device.');
@@ -24,13 +26,17 @@ class PurchaseService {
 
     _sub = _iap.purchaseStream.listen(
       _onPurchaseUpdates,
-      onDone: () => _sub?.cancel(),
+      onDone: () async {
+        await _sub?.cancel();
+        _sub = null;
+      },
       onError: (Object? e) => debugPrint('purchaseStream error: $e'),
     );
   }
 
   void dispose() {
     unawaited(_sub?.cancel());
+    _sub = null;
   }
 
   Future<List<ProductDetails>> loadProducts(Set<String> productIds) async {
@@ -57,10 +63,6 @@ class PurchaseService {
 
   Future<void> _onPurchaseUpdates(List<PurchaseDetails> purchases) async {
     for (final p in purchases) {
-      debugPrint(
-        'Purchase update: ${p.status} ${p.productID} purchaseID=${p.purchaseID}',
-      );
-
       switch (p.status) {
         case PurchaseStatus.pending:
           // show loading indicator
@@ -105,8 +107,6 @@ class PurchaseService {
 
       final entitlement = json['entitlement'] as Map<String, dynamic>;
       userPlanProvider.setFromEntitlementJson(entitlement);
-
-      debugPrint('✅ Verified and entitlement updated: $entitlement');
     } on Exception catch (e) {
       debugPrint('❌ verify failed: $e');
       // In UI: show "Verification failed, contact support"

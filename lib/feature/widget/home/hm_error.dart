@@ -11,34 +11,42 @@ final class _HomeError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const ThemePadding.all32(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 56, color: theme.colorScheme.error),
-            const SizedBox(height: 16),
-            Text(
+            Icon(
+              Icons.error_outline,
+              size: ThemeSize.iconXL,
+              color: context.colorScheme.error,
+            ),
+            const SizedBox(height: ThemeSize.spacingM),
+            ThemeTypography.titleMedium(
+              context,
               'Veriler alınırken bir hata oluştu.',
-              style: theme.textTheme.titleMedium,
               textAlign: TextAlign.center,
+              color: context.colorScheme.onSurfaceVariant,
             ),
             if (details != null && details!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
+              const SizedBox(height: ThemeSize.spacingS),
+              ThemeTypography.bodySmall(
+                context,
                 details!,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
+                color: context.colorScheme.onSurfaceVariant,
               ),
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: ThemeSize.spacingM),
             FilledButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Tekrar dene'),
+              icon: const Icon(Icons.refresh, size: ThemeSize.iconMedium),
+              label: ThemeTypography.bodyMedium(
+                context,
+                'Tekrar dene',
+                color: context.colorScheme.onPrimaryContainer,
+              ),
             ),
           ],
         ),

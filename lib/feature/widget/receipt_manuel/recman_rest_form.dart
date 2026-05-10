@@ -17,7 +17,9 @@ class _ReceiptManuelRestForm extends StatefulWidget {
     required this.dateText,
     required this.pickDate,
     required this.dateError,
-    required this.recalculateKdv,
+    required this.onCategoryChanged,
+    required this.onKdvRateChanged,
+    required this.onPaymentTypeChanged,
     required this.paymentType,
     required this.saving,
     required this.save,
@@ -47,7 +49,9 @@ class _ReceiptManuelRestForm extends StatefulWidget {
   final bool dateError;
   final ReceiptCategory? selectedCategory;
   final String? selectedKdvRate;
-  final void Function() recalculateKdv;
+  final void Function(ReceiptCategory?) onCategoryChanged;
+  final void Function(String?) onKdvRateChanged;
+  final void Function(String) onPaymentTypeChanged;
   final String paymentType;
   final bool saving;
   final Future<void> Function() save;
@@ -58,15 +62,25 @@ class _ReceiptManuelRestForm extends StatefulWidget {
 
 class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
   ReceiptCategory? _selectedCategory;
-  String? _selectedKdvRate;
   String _paymentType = 'cash';
 
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.selectedCategory;
-    _selectedKdvRate = widget.selectedKdvRate;
     _paymentType = widget.paymentType;
+  }
+
+  @override
+  void didUpdateWidget(covariant _ReceiptManuelRestForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedCategory != oldWidget.selectedCategory) {
+      _selectedCategory = widget.selectedCategory;
+    }
+    if (widget.selectedKdvRate != oldWidget.selectedKdvRate) {}
+    if (widget.paymentType != oldWidget.paymentType) {
+      _paymentType = widget.paymentType;
+    }
   }
 
   @override
@@ -79,13 +93,13 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _FieldLabel('İşletme Adı*'),
-            const SizedBox(height: 8),
+            const SizedBox(height: ThemeSize.spacingS),
             _TextFieldBox(
               controller: widget.businessNameController,
               hintText: 'Acme Corp',
               validator: widget.businessNameValidator,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: ThemeSize.spacingL),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -94,7 +108,7 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const _FieldLabel('Tarih*'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ThemeSize.spacingS),
                       _DateFieldBox(
                         value: widget.dateText,
                         onTap: widget.pickDate,
@@ -103,13 +117,13 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: ThemeSize.spacingM),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const _FieldLabel('Fiş No*'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ThemeSize.spacingS),
                       _TextFieldBox(
                         controller: widget.receiptNoController,
                         hintText: 'REC-12345',
@@ -120,12 +134,12 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: ThemeSize.spacingL),
             const _FieldLabel.rich(
               main: 'İşlem Türü',
               suffix: ' (Opsiyonel)',
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: ThemeSize.spacingM),
             Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -133,13 +147,16 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                 return _ChoiceChipButton(
                   label: category.label,
                   selected: _selectedCategory == category,
-                  onTap: () => setState(() => _selectedCategory = category),
+                  onTap: () {
+                    setState(() => _selectedCategory = category);
+                    widget.onCategoryChanged(category);
+                  },
                 );
               }).toList(),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: ThemeSize.spacingL),
             const _FieldLabel('Toplam Tutar*'),
-            const SizedBox(height: 8),
+            const SizedBox(height: ThemeSize.spacingS),
             _TextFieldBox(
               controller: widget.totalAmountController,
               hintText: '0.00',
@@ -149,7 +166,7 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
               textAlign: TextAlign.right,
               validator: widget.totalAmountValidator,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: ThemeSize.spacingL),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -158,14 +175,13 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const _FieldLabel('KDV Oranı (%)'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ThemeSize.spacingS),
                       _DropdownFieldBox(
-                        value: _selectedKdvRate,
+                        value: widget.selectedKdvRate,
                         hintText: 'Oran Seç',
                         items: const ['1', '8', '10', '18', '20'],
                         onChanged: (value) {
-                          setState(() => _selectedKdvRate = value);
-                          widget.recalculateKdv();
+                          widget.onKdvRateChanged(value);
                         },
                         validator: (value) => (value == null || value.isEmpty)
                             ? 'KDV oranı seçiniz'
@@ -174,13 +190,13 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: ThemeSize.spacingM),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const _FieldLabel('KDV Tutarı*'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: ThemeSize.spacingS),
                       _TextFieldBox(
                         controller: widget.kdvAmountController,
                         hintText: '0.00',
@@ -188,7 +204,7 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.right,
                         readOnly: true,
-                        fillColor: const Color(0xFFF2F4F7),
+                        fillColor: context.colorScheme.surfaceContainer,
                         validator: widget.kdvAmountValidator,
                       ),
                     ],
@@ -196,29 +212,63 @@ class __ReceiptManuelRestFormState extends State<_ReceiptManuelRestForm> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: ThemeSize.spacingL),
             const _FieldLabel.rich(
               main: 'Ödeme Türü',
               suffix: ' (Opsiyonel)',
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: ThemeSize.spacingM),
             Wrap(
-              spacing: 10,
-              runSpacing: 10,
+              spacing: ThemeSize.spacingM,
+              runSpacing: ThemeSize.spacingM,
               children: [
                 _ChoiceChipButton(
                   label: 'Nakit',
                   selected: _paymentType == 'cash',
-                  onTap: () => setState(() => _paymentType = 'cash'),
+                  onTap: () {
+                    setState(() => _paymentType = 'cash');
+                    widget.onPaymentTypeChanged('cash');
+                  },
                 ),
                 _ChoiceChipButton(
                   label: 'Kredi Kartı',
                   selected: _paymentType == 'card',
-                  onTap: () => setState(() => _paymentType = 'card'),
+                  onTap: () {
+                    setState(() => _paymentType = 'card');
+                    widget.onPaymentTypeChanged('card');
+                  },
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: ThemeSize.spacingXXXl),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: widget.save,
+                icon: Icon(
+                  Icons.save,
+                  size: ThemeSize.iconMedium,
+                  color: context.colorScheme.onPrimary,
+                ),
+                label: ThemeTypography.bodyLarge(
+                  context,
+                  'Kaydet',
+                  color: context.colorScheme.onPrimary,
+                  weight: FontWeight.w900,
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: context.colorScheme.primary,
+                  foregroundColor: context.colorScheme.onPrimary,
+                  padding: const ThemePadding.verticalSymmetricMedium(),
+                  minimumSize:
+                      const Size.fromHeight(ThemeSize.buttonHeightLarge),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: ThemeRadius.circular12,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: ThemeSize.spacingXXXl),
           ],
         ),
       ),

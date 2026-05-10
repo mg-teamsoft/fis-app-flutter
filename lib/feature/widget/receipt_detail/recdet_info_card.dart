@@ -20,7 +20,7 @@ final class _InfoCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const ThemePadding.horizontalSymmetric(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: entries,

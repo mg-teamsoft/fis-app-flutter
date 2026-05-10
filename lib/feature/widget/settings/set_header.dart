@@ -8,25 +8,23 @@ final class _SettingsHeader extends StatelessWidget {
     return Column(
       children: [
         Center(
-          child: Text(
+          child: ThemeTypography.h4(
+            context,
             'Ayarlar',
-            style: context.textTheme.titleLarge?.copyWith(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            weight: FontWeight.w900,
+            color: context.colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: ThemeSize.spacingL),
         Row(
           children: [
-            const Icon(Icons.receipt_long, color: Colors.blue),
+            Icon(Icons.receipt_long, color: context.colorScheme.primary),
             const SizedBox(width: ThemeSize.spacingS),
-            Text(
+            ThemeTypography.bodyLarge(
+              context,
               'Fiş Limitleri',
-              style: context.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: context.colorScheme.primary,
-              ),
+              weight: FontWeight.w900,
+              color: context.colorScheme.primary,
             ),
           ],
         ),

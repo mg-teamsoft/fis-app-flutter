@@ -31,12 +31,27 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Hata'),
-        content: Text(message),
+        title: ThemeTypography.bodyLarge(
+          context,
+          'Hata',
+          color: ctx.colorScheme.onSurface,
+          weight: FontWeight.w800,
+        ),
+        content: ThemeTypography.bodyLarge(
+          context,
+          message,
+          color: ctx.colorScheme.error,
+          weight: FontWeight.w500,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Tamam'),
+            child: ThemeTypography.bodyLarge(
+              context,
+              'Tamam',
+              color: ctx.colorScheme.onSurface,
+              weight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -87,8 +102,13 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
         if (size > maxBytes) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('⚠️ Resim en fazla 5 MB olabilir.'),
+              SnackBar(
+                content: ThemeTypography.bodyLarge(
+                  context,
+                  '⚠️ Resim en fazla 5 MB olabilir.',
+                  color: context.theme.error,
+                  weight: FontWeight.w600,
+                ),
               ),
             );
           }
@@ -96,8 +116,13 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
         } else if (size < minBytes) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('⚠️ Resim en az 100 KB olabilir.'),
+              SnackBar(
+                content: ThemeTypography.bodyLarge(
+                  context,
+                  '⚠️ Resim en az 100 KB olabilir.',
+                  color: context.theme.error,
+                  weight: FontWeight.w600,
+                ),
               ),
             );
           }

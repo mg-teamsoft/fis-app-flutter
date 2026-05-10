@@ -12,6 +12,7 @@ part '../view/home_view.dart';
 part '../widget/home/hm_action.dart';
 part '../widget/home/hm_error.dart';
 part '../widget/home/hm_header.dart';
+part '../widget/home/hm_invoice_item.dart';
 part '../widget/home/hm_loading.dart';
 part '../widget/home/hm_recent_receipt.dart';
 part '../widget/home/hm_target_progress_ring.dart';

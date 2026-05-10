@@ -22,10 +22,10 @@ class _ReceiptImageState extends State<_ReceiptDetailImage> {
       height: widget.size.height * 0.25,
       decoration: BoxDecoration(
         color: context.colorScheme.surface,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: ThemeRadius.circular24,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: context.colorScheme.onSurface.withValues(alpha: 0.06),
             offset: const Offset(0, 10),
             blurRadius: 24,
           ),
@@ -60,8 +60,8 @@ class _ReceiptImageState extends State<_ReceiptDetailImage> {
                   ),
                 ),
                 Positioned(
-                  top: 8,
-                  right: 8,
+                  top: ThemeSize.spacingS,
+                  right: ThemeSize.spacingS,
                   child: Material(
                     color: context.colorScheme.surfaceContainerHighest
                         .withValues(alpha: 0.8),

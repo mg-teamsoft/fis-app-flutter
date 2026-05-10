@@ -23,11 +23,25 @@ class _ExcelBuilder extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (snap.hasError) {
-            return Center(child: Text('Hata: ${snap.error}'));
+            return Center(
+              child: ThemeTypography.bodyLarge(
+                context,
+                'Hata: ${snap.error}',
+                color: context.theme.error,
+                weight: FontWeight.w800,
+              ),
+            );
           }
           final rows = snap.data ?? const <ExcelFileEntry>[];
           if (rows.isEmpty) {
-            return const Center(child: Text('Kayıtlı Excel bulunamadı.'));
+            return Center(
+              child: ThemeTypography.bodyLarge(
+                context,
+                'Kayıtlı Excel bulunamadı.',
+                color: context.colorScheme.onSurface,
+                weight: FontWeight.w800,
+              ),
+            );
           }
 
           return _ExcelDataTable(

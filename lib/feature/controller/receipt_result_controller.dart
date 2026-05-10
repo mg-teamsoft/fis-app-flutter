@@ -153,7 +153,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
         if (s.controller == null) {
           s.controller = TextEditingController(text: editorText);
         } else {
-          s.controller!.text = editorText;
+          _setControllerText(s.controller!, editorText);
         }
       } else if (s.status == StatusType.failed.name ||
           s.status == StatusType.error.name) {
@@ -171,7 +171,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
         if (s.controller == null) {
           s.controller = TextEditingController(text: editorText);
         } else {
-          s.controller!.text = editorText;
+          _setControllerText(s.controller!, editorText);
         }
       } else {
         s
@@ -183,6 +183,14 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     }
 
     if (mounted) setState(() {});
+  }
+
+  void _setControllerText(TextEditingController controller, String text) {
+    final safeOffset = text.length;
+    controller.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: safeOffset),
+    );
   }
 
   void _removeItem(SelectedItem it) {
@@ -282,15 +290,16 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
 
     setState(() {
       _submitting = true;
-      _hasSuccessfulSubmission = null;
     });
 
     var okCount = 0;
     var failCount = 0;
-    final failures = <String>[];
+    final messages = <String>[];
+    final successfulJobIds = <String>{};
 
     for (final entry in _state.entries) {
       final s = entry.value;
+      final jobId = s.item.jobId;
       final isSelected = s.selected ?? (s.receipt != null);
       if (!isSelected) continue;
 
@@ -299,75 +308,100 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
 
       if (s.status != StatusType.done.name) continue;
 
-      try {
-        final text = ctrl.text.trim();
-        if (text.toLowerCase().contains('can not read receipt data')) {
-          failCount++;
-          failures.add('${s.item.jobId}: empty');
-          continue;
-        }
-
-        final dynamic decoded = json.decode(text);
-        if (decoded is! Map) {
-          failCount++;
-          failures.add('${s.item.jobId}: geçersiz JSON');
-          continue;
-        }
-
-        final edited = Map<String, dynamic>.from(decoded);
-        final normalized = _delocalizeReceiptIfNeeded(edited);
-
-        final key = s.item.key;
-        if (key == null || key.isEmpty) {
-          failCount++;
-          failures.add('${s.item.jobId}: missing key');
-          continue;
-        }
-
-        final excelPayload = Map<String, dynamic>.from(normalized)
-          ..['imageUrl'] = s.item.imageUrl ?? ''
-          ..['sourceKey'] = key;
-
-        // The backend's mapReceiptDataToReceiptModel mutates transactionType.kdvRate,
-        // so it must be an object. _delocalizeReceiptIfNeeded flattens it to a string;
-        // reconstruct the object here using the vatRate that was already extracted.
-        final txType = excelPayload['transactionType'];
-        if (txType is String) {
-          excelPayload['transactionType'] = <String, dynamic>{
-            'type': txType,
-            'kdvRate': excelPayload['vatRate'] ?? 0,
-          };
-        }
-
-        final ok = await _excel.pushReceipt(key, excelPayload);
-        if (ok) {
-          okCount++;
-        } else {
-          failCount++;
-          failures.add('${s.item.jobId}: excel write failed');
-        }
-      } on Exception catch (e) {
+      final text = ctrl.text.trim();
+      if (text.toLowerCase().contains('can not read receipt data')) {
         failCount++;
-        failures.add('${s.item.jobId}: $e');
+        messages.add('can not read receipt data');
+        continue;
+      }
+
+      final dynamic decoded;
+      try {
+        decoded = json.decode(text);
+      } on FormatException {
+        failCount++;
+        messages.add('geçersiz JSON');
+        continue;
+      }
+      if (decoded is! Map) {
+        failCount++;
+        messages.add('geçersiz JSON');
+        continue;
+      }
+
+      final edited = Map<String, dynamic>.from(decoded);
+      final normalized = _delocalizeReceiptIfNeeded(edited);
+
+      final key = s.item.key;
+      if (key == null || key.isEmpty) {
+        failCount++;
+        messages.add('missing key');
+        continue;
+      }
+
+      final excelPayload = Map<String, dynamic>.from(normalized)
+        ..['imageUrl'] = s.item.imageUrl ?? ''
+        ..['sourceKey'] = key;
+
+      // The backend's mapReceiptDataToReceiptModel mutates transactionType.kdvRate,
+      // so it must be an object. _delocalizeReceiptIfNeeded flattens it to a string;
+      // reconstruct the object here using the vatRate that was already extracted.
+      final txType = excelPayload['transactionType'];
+      if (txType is String) {
+        excelPayload['transactionType'] = <String, dynamic>{
+          'type': txType,
+          'kdvRate': excelPayload['vatRate'] ?? 0,
+        };
+      }
+
+      final ok = await _excel.pushReceipt(key, excelPayload);
+      final message = _excel.lastWriteMessage?.trim();
+      if (message != null && message.isNotEmpty) {
+        messages.add(message);
+      }
+      if (ok && jobId != null) {
+        okCount++;
+        successfulJobIds.add(jobId);
+      } else if (!ok) {
+        failCount++;
       }
     }
 
     if (!context.mounted) return;
 
-    final msg = (failures.isEmpty)
-        ? "✅ $okCount fiş Excel'e yazıldı"
-        : '✅ $okCount yazıldı • ❌ $failCount başarısız\n${failures.join('\n')}';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
-    );
+    for (final jobId in successfulJobIds) {
+      _state[jobId]?.controller?.dispose();
+      _state[jobId]?.photoController?.dispose();
+      _state.remove(jobId);
+    }
 
     setState(() {
+      _items.removeWhere((item) {
+        final jobId = item.jobId;
+        return jobId != null && successfulJobIds.contains(jobId);
+      });
       _submitting = false;
       _hasSuccessfulSubmission = okCount > 0;
     });
 
-    // Navigate to Excel files page on full success
-    if (okCount > 0 && failures.isEmpty) {
+    final msg = failCount == 0
+        ? "✅ $okCount fiş Excel'e yazıldı"
+        : messages.isEmpty
+            ? '✅ $okCount yazıldı • ❌ $failCount başarısız'
+            : messages.join('\n');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: ThemeTypography.bodyLarge(
+          context,
+          msg,
+          color: context.theme.error,
+          weight: FontWeight.w600,
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+
+    if (okCount > 0 && failCount == 0) {
       await Future<void>.delayed(const Duration(seconds: 3));
       if (!context.mounted) return;
       await Navigator.of(context).pushNamedAndRemoveUntil(

@@ -3,12 +3,14 @@ part of '../../page/account_settings_page.dart';
 class _ActiveSettingsUpdateButton extends StatelessWidget {
   const _ActiveSettingsUpdateButton({
     required this.updatingPlan,
+    required this.productsUnavailable,
     required this.selectedPlanKey,
     required this.currentPlanKey,
     required this.onUpdatePlan,
   });
 
   final bool updatingPlan;
+  final bool productsUnavailable;
   final String? selectedPlanKey;
   final String? currentPlanKey;
   final Future<void> Function() onUpdatePlan;
@@ -16,11 +18,12 @@ class _ActiveSettingsUpdateButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 68,
+      height: ThemeSize.buttonHeightLarge,
       child: ElevatedButton(
         onPressed: (selectedPlanKey == null ||
                 selectedPlanKey == currentPlanKey ||
-                updatingPlan)
+                updatingPlan ||
+                productsUnavailable)
             ? null
             : onUpdatePlan,
         style: ElevatedButton.styleFrom(
@@ -39,12 +42,11 @@ class _ActiveSettingsUpdateButton extends StatelessWidget {
                   color: context.colorScheme.onPrimary,
                 ),
               )
-            : Text(
+            : ThemeTypography.bodyMedium(
+                context,
                 'Planı Güncelle',
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colorScheme.onSurface,
-                  fontWeight: FontWeight.w700,
-                ),
+                color: context.colorScheme.onPrimary,
+                weight: FontWeight.w700,
               ),
       ),
     );

@@ -1,9 +1,14 @@
 part of '../../page/connection_page.dart';
 
 class _ConnectionCard extends StatefulWidget {
-  const _ConnectionCard({required this.statusLabel, required this.contact});
+  const _ConnectionCard({
+    required this.statusLabel,
+    required this.contact,
+    required this.onRemoveAccess,
+  });
 
   final _Contact contact;
+  final Future<void> Function(_Contact) onRemoveAccess;
   final String Function(String) statusLabel;
 
   @override
@@ -11,33 +16,33 @@ class _ConnectionCard extends StatefulWidget {
 }
 
 class __ConnectionCardState extends State<_ConnectionCard> {
-  late bool _isActive;
-  late Color _statusColor;
-  late Color _cardBorderColor;
   late _Contact _contact;
+  bool _isRemovingAccess = false;
 
   @override
   void initState() {
-    _isActive = widget.contact.status == 'ACTIVE';
-    _statusColor = _isActive ? Colors.green : Colors.orange;
-    _cardBorderColor =
-        _isActive ? Colors.grey.shade300 : Colors.orange.shade200;
     _contact = widget.contact;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isActive = _contact.status == 'ACTIVE';
+    final statusColor =
+        isActive ? context.theme.success : context.theme.warning;
+    final cardBorderColor =
+        isActive ? context.theme.divider : context.theme.warning;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const ThemePadding.marginBottom12(),
+      padding: const ThemePadding.all16(),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _cardBorderColor, width: 1.2),
+        color: context.colorScheme.surface,
+        borderRadius: ThemeRadius.circular12,
+        border: Border.all(color: cardBorderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: context.colorScheme.onPrimary.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -48,7 +53,7 @@ class __ConnectionCardState extends State<_ConnectionCard> {
           Row(
             children: [
               CircleAvatar(
-                radius: 24,
+                radius: ThemeSize.iconMedium,
                 backgroundColor: _contact.baseColor.withValues(alpha: 0.1),
                 child: ThemeTypography.bodyLarge(
                   context,
@@ -57,7 +62,7 @@ class __ConnectionCardState extends State<_ConnectionCard> {
                   weight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: ThemeSize.spacingM),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,21 +75,18 @@ class __ConnectionCardState extends State<_ConnectionCard> {
                           color: context.colorScheme.onSurface,
                           weight: FontWeight.w800,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: ThemeSize.spacingS),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
+                          padding: const ThemePadding.verticalSymmetricSmall(),
                           decoration: BoxDecoration(
-                            color: _statusColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            color: statusColor.withValues(alpha: 0.1),
+                            borderRadius: ThemeRadius.circular12,
                           ),
                           child: ThemeTypography.bodySmall(
                             context,
                             widget.statusLabel(_contact.status),
                             weight: FontWeight.w800,
-                            color: _statusColor,
+                            color: statusColor,
                           ),
                         ),
                       ],
@@ -100,10 +102,10 @@ class __ConnectionCardState extends State<_ConnectionCard> {
               ),
             ],
           ),
-          if (_isActive) ...[
-            const SizedBox(height: 16),
+          if (isActive) ...[
+            const SizedBox(height: ThemeSize.spacingM),
             const Divider(height: 1),
-            const SizedBox(height: 12),
+            const SizedBox(height: ThemeSize.spacingM),
             Row(
               children: [
                 Expanded(
@@ -123,14 +125,14 @@ class __ConnectionCardState extends State<_ConnectionCard> {
                         },
                         thumbColor:
                             WidgetStateProperty.resolveWith<Color>((states) {
-                          return Colors.white;
+                          return context.colorScheme.surface;
                         }),
                         trackColor:
                             WidgetStateProperty.resolveWith<Color>((states) {
                           if (states.contains(WidgetState.selected)) {
-                            return const Color(0xFF2563EB);
+                            return context.colorScheme.primary;
                           }
-                          return const Color(0xFFE2E8F0);
+                          return context.colorScheme.onPrimary;
                         }),
                         trackOutlineColor:
                             WidgetStateProperty.resolveWith<Color>((states) {
@@ -143,7 +145,7 @@ class __ConnectionCardState extends State<_ConnectionCard> {
                 Container(
                   width: 1,
                   height: 40,
-                  color: Colors.grey.shade200,
+                  color: context.colorScheme.outline,
                 ),
                 Expanded(
                   child: Column(
@@ -162,14 +164,14 @@ class __ConnectionCardState extends State<_ConnectionCard> {
                         },
                         thumbColor:
                             WidgetStateProperty.resolveWith<Color>((states) {
-                          return Colors.white;
+                          return context.colorScheme.surface;
                         }),
                         trackColor:
                             WidgetStateProperty.resolveWith<Color>((states) {
                           if (states.contains(WidgetState.selected)) {
-                            return const Color(0xFF2563EB);
+                            return context.colorScheme.primary;
                           }
-                          return const Color(0xFFE2E8F0);
+                          return context.colorScheme.onPrimary;
                         }),
                         trackOutlineColor:
                             WidgetStateProperty.resolveWith<Color>((states) {
@@ -181,15 +183,22 @@ class __ConnectionCardState extends State<_ConnectionCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: ThemeSize.spacingS),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () {},
+                  onPressed: _isRemovingAccess
+                      ? null
+                      : () async {
+                          setState(() => _isRemovingAccess = true);
+                          await widget.onRemoveAccess(_contact);
+                          if (!mounted) return;
+                          setState(() => _isRemovingAccess = false);
+                        },
                   child: ThemeTypography.bodyMedium(
                     context,
-                    'Erişimi Kaldır',
+                    _isRemovingAccess ? 'Kaldırılıyor...' : 'Erişimi Kaldır',
                     color: context.theme.error,
                     weight: FontWeight.w800,
                   ),
@@ -204,8 +213,8 @@ class __ConnectionCardState extends State<_ConnectionCard> {
                 OutlinedButton(
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.grey.shade800,
-                    side: BorderSide(color: Colors.grey.shade300),
+                    foregroundColor: context.colorScheme.outline,
+                    side: BorderSide(color: context.colorScheme.outline),
                   ),
                   child: ThemeTypography.bodyLarge(
                     context,
@@ -214,14 +223,14 @@ class __ConnectionCardState extends State<_ConnectionCard> {
                     color: context.colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: ThemeSize.spacingS),
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
+                    backgroundColor: context.colorScheme.onSurface,
+                    foregroundColor: context.colorScheme.surface,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: ThemeRadius.circular12,
                     ),
                   ),
                   child: ThemeTypography.bodyLarge(

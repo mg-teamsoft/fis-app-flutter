@@ -26,10 +26,13 @@ class _ReceiptBottomHead extends StatelessWidget {
               fixedSize:
                   const Size(double.infinity, ThemeSize.buttonHeightLarge),
               backgroundColor: context.colorScheme.primary,
-              foregroundColor: context.colorScheme.surface,
+              foregroundColor: context.colorScheme.onPrimaryContainer,
+              disabledBackgroundColor:
+                  context.colorScheme.primary.withValues(alpha: 0.2),
+              disabledForegroundColor: context.colorScheme.onPrimaryContainer,
               padding: const ThemePadding.verticalSymmetricMedium(),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: ThemeRadius.circular8,
               ),
             ),
             child: ThemeTypography.bodyMedium(context, processButtonLabel),

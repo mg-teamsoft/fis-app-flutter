@@ -58,25 +58,22 @@ class __ReceiptDetailBuilderState extends State<_ReceiptDetailBuilder> {
         }
 
         return ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const ThemePadding.all20(),
           children: [
             _ReceiptDetailImage(size: widget.size, imageUrl: detail.imageUrl),
-            const SizedBox(height: 24),
-            Text(
+            const SizedBox(height: ThemeSize.spacingM),
+            ThemeTypography.h4(
+              context,
               detail.businessName,
-              style: context.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              color: context.colorScheme.onSurface,
             ),
             const SizedBox(height: ThemeSize.spacingS),
-            Text(
+            ThemeTypography.h4(
+              context,
               widget.currencyFormatter.format(detail.totalAmount),
-              style: context.textTheme.headlineSmall?.copyWith(
-                color: context.colorScheme.onSurface,
-                fontWeight: FontWeight.w700,
-              ),
+              color: context.colorScheme.onSurface,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: ThemeSize.spacingM),
             _InfoCard(
               entries: [
                 _ReceiptDetailInfoRow(

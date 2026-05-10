@@ -9,25 +9,28 @@ class _CnnPermissionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const ThemePadding.all16(),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F4F7),
-        borderRadius: BorderRadius.circular(8),
+        color: context.colorScheme.surface,
+        borderRadius: ThemeRadius.circular8,
+        border: Border.all(color: context.theme.divider),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 12, color: const Color(0xFF667085)),
-            const SizedBox(width: 6),
-          ],
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF667085),
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            Icon(
+              icon,
+              size: ThemeSize.iconSmall,
+              color: context.colorScheme.onSurface,
             ),
+            const SizedBox(width: ThemeSize.spacingXs),
+          ],
+          ThemeTypography.bodySmall(
+            context,
+            label,
+            color: context.colorScheme.onSurface,
+            weight: FontWeight.w600,
           ),
         ],
       ),

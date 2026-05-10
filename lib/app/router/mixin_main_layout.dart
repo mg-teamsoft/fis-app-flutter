@@ -14,6 +14,7 @@ mixin _MixinMainLayout on State<MainLayout> {
     _currentRoute = _normalizeRoute(widget.initialRoute);
     _currentArguments = widget.initialArguments;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       await context.read<UserPlanProvider>().loadMyPlan();
     });
   }
@@ -39,10 +40,19 @@ mixin _MixinMainLayout on State<MainLayout> {
     '/home': (_, __) => const PageHome(),
     '/about': (_, __) => const PageAbout(),
     '/accountSettings': (_, __) => const PageAccountSettings(),
-    '/connections': (_, __) => const PageConnections(),
-    '/excelFiles': (_, __) => const PageExcel(),
+    '/connections': (_, args) {
+      final initialTab = (args is Map) ? (args['tab'] as int?) : null;
+      return PageConnections(initialTabIndex: initialTab);
+    },
+    '/excelFiles': (_, args) {
+      final customerId = (args is Map) ? (args['customerId'] as String?) : null;
+      return PageExcel(initialCustomerId: customerId);
+    },
     '/receipt': (_, __) => const PageReceipt(),
-    '/gallery': (_, __) => const PageReceiptGallery(),
+    '/gallery': (_, args) {
+      final customerId = (args is Map) ? (args['customerId'] as String?) : null;
+      return PageReceiptGallery(initialCustomerId: customerId);
+    },
     '/settings': (_, __) => const PageSettings(),
     '/receipt/process': (_, args) {
       final files = (args is List<XFile>) ? args : const <XFile>[];
@@ -104,7 +114,14 @@ mixin _MixinMainLayout on State<MainLayout> {
   Widget _buildCurrentPage(BuildContext context) {
     final builder = _pageBuilders[_currentRoute];
     if (builder == null) {
-      return const Center(child: Text('Sayfa bulunamadı'));
+      return Center(
+        child: ThemeTypography.bodyLarge(
+          context,
+          'Sayfa bulunamadı',
+          weight: FontWeight.w600,
+          color: context.colorScheme.error,
+        ),
+      );
     }
     return builder(context, _currentArguments);
   }

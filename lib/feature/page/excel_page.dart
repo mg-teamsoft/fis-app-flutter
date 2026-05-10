@@ -18,9 +18,10 @@ part '../widget/excel/ex_data_table.dart';
 part '../widget/excel/ex_twice_button.dart';
 
 class PageExcel extends StatefulWidget {
-  const PageExcel({this.initialEntries, super.key});
+  const PageExcel({this.initialEntries, this.initialCustomerId, super.key});
 
   final List<ExcelFileEntry>? initialEntries;
+  final String? initialCustomerId;
 
   @override
   State<PageExcel> createState() => _PageExcelState();

@@ -37,11 +37,11 @@ final class _PlanTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
+        padding: const ThemePadding.all16(),
         decoration: BoxDecoration(
           color: backgroundColor,
           border: Border.all(color: borderColor, width: selected ? 2 : 1),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: ThemeRadius.circular16,
         ),
         child: Stack(
           children: [
@@ -73,13 +73,13 @@ final class _PlanTile extends StatelessWidget {
                           child: Icon(
                             Icons.check,
                             color: context.colorScheme.onPrimary,
-                            size: 16,
+                            size: ThemeSize.iconSmall,
                           ),
                         ),
                       ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: ThemeSize.spacingS),
                 ThemeTypography.bodyMedium(
                   context,
                   plan.description.isNotEmpty

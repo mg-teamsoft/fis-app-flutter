@@ -16,7 +16,6 @@ part '../widget/receipt_gallery/recgal_build_search_result.dart';
 part '../widget/receipt_gallery/recgal_content.dart';
 part '../widget/receipt_gallery/recgal_empty_state.dart';
 part '../widget/receipt_gallery/recgal_error.dart';
-part '../widget/receipt_gallery/recgal_header.dart';
 part '../widget/receipt_gallery/recgal_list.dart';
 part '../widget/receipt_gallery/recgal_list_tile.dart';
 part '../widget/receipt_gallery/recgal_month_group.dart';
@@ -24,7 +23,9 @@ part '../widget/receipt_gallery/recgal_search_bar.dart';
 part '../widget/receipt_gallery/recgal_search_result.dart';
 
 final class PageReceiptGallery extends StatefulWidget {
-  const PageReceiptGallery({super.key});
+  const PageReceiptGallery({super.key, this.initialCustomerId});
+
+  final String? initialCustomerId;
 
   @override
   State<PageReceiptGallery> createState() => _PageReceiptGalleryState();

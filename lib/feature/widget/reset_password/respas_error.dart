@@ -10,7 +10,7 @@ final class _ResetPasswordError extends StatelessWidget {
   Widget build(BuildContext context) {
     if (status != null) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
+        padding: const ThemePadding.marginBottom8(),
         child: ThemeTypography.bodySmall(
           context,
           status!,
@@ -20,7 +20,7 @@ final class _ResetPasswordError extends StatelessWidget {
     }
     if (error != null) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
+        padding: const ThemePadding.marginBottom8(),
         child: ThemeTypography.bodySmall(
           context,
           error!,

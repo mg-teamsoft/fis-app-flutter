@@ -21,7 +21,7 @@ final class _ForgotPasswordMessage extends StatelessWidget {
           )
         : (errorMessage != null)
             ? Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const ThemePadding.marginBottom8(),
                 child: ThemeTypography.bodySmall(
                   context,
                   errorMessage!,

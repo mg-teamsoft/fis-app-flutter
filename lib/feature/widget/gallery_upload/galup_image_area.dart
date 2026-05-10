@@ -10,13 +10,19 @@ final class _GalleryUploadImageArea extends StatelessWidget {
     if (img != null) {
       return Expanded(
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: ThemeRadius.circular12,
           child: img,
         ),
       );
     } else {
-      return const Expanded(
-        child: Center(child: Text('Önizleme için bir fotoğraf seçin')),
+      return Expanded(
+        child: Center(
+          child: ThemeTypography.bodyLarge(
+            context,
+            'Önizleme için bir fotoğraf seçin',
+            color: context.colorScheme.onSurfaceVariant,
+          ),
+        ),
       );
     }
   }

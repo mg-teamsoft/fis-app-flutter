@@ -10,12 +10,14 @@ class _CnnInviteTableSection extends StatelessWidget {
     required this.isInvitesLoading,
     required this.invitesError,
     required this.invites,
+    required this.statusText,
     required this.loadInvites,
   });
 
   final bool isInviteLoading;
   final bool isInvitesLoading;
   final String? invitesError;
+  final String Function(String) statusText;
   final Set<String> resendingInviteIds;
   final Color Function(String) statusColor;
   final String Function(DateTime?) formatShortDate;
@@ -27,30 +29,35 @@ class _CnnInviteTableSection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isInvitesLoading) {
       return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 32),
+        padding: ThemePadding.verticalSymmetricLarge(),
         child: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (invitesError != null) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const ThemePadding.all16(),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.red.shade100),
+          color: context.colorScheme.surface,
+          borderRadius: ThemeRadius.circular12,
+          border: Border.all(color: context.theme.error),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            ThemeTypography.bodyMedium(
+              context,
               invitesError!,
-              style: TextStyle(color: Colors.red.shade700),
+              color: context.theme.error,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: ThemeSize.spacingM),
             ElevatedButton(
               onPressed: loadInvites,
-              child: const Text('Tekrar Dene'),
+              child: ThemeTypography.bodyMedium(
+                context,
+                'Tekrar Dene',
+                color: context.colorScheme.onSurface,
+              ),
             ),
           ],
         ),
@@ -59,15 +66,16 @@ class _CnnInviteTableSection extends StatelessWidget {
 
     if (invites.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const ThemePadding.all16(),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          color: context.colorScheme.surface,
+          borderRadius: ThemeRadius.circular12,
+          border: Border.all(color: context.theme.divider),
         ),
-        child: Text(
+        child: ThemeTypography.bodyMedium(
+          context,
           'Henüz gönderilmiş davet bulunmuyor.',
-          style: TextStyle(color: Colors.grey.shade700),
+          color: context.colorScheme.onSurface,
         ),
       );
     }
@@ -82,6 +90,7 @@ class _CnnInviteTableSection extends StatelessWidget {
         const SizedBox(height: 16),
         ...invites.map(
           (invite) => _CnnInvateCard(
+            statusText: statusText,
             handleResendInvite: handleResendInvite,
             invite: invite,
             formatShortDate: formatShortDate,

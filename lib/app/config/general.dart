@@ -26,10 +26,23 @@ class _AppConfigGeneralState extends State<AppConfigGeneral>
             localizationsDelegates: _localization.delegate,
             supportedLocales: _localization.supportLocales,
             navigatorKey: AuthNavigation.navigatorKey,
+            scaffoldMessengerKey: AuthNavigation.scaffoldMessengerKey,
             initialRoute: _router.initialRoute,
             routes: _router.routes,
             onGenerateRoute: (settings) {
               final uri = Uri.tryParse(settings.name ?? '');
+              if (uri != null && uri.path == '/contacts/invites/accept') {
+                final token = uri.queryParameters['token'] ??
+                    (settings.arguments is String
+                        ? settings.arguments! as String
+                        : null);
+
+                return MaterialPageRoute(
+                  builder: (_) => PageContactInviteAccept(initialToken: token),
+                  settings: settings,
+                );
+              }
+
               if (uri != null && uri.path == '/resetPassword') {
                 final token = uri.queryParameters['token'] ??
                     (settings.arguments is String

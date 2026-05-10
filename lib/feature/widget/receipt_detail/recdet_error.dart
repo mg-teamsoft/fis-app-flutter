@@ -19,18 +19,22 @@ final class _ReceiptDetailError extends StatelessWidget {
               size: ThemeSize.avatarLarge,
               color: context.colorScheme.error,
             ),
-            const SizedBox(height: 16),
-            Text(
+            const SizedBox(height: ThemeSize.spacingM),
+            ThemeTypography.titleMedium(
+              context,
               message,
-              style: context.textTheme.titleMedium,
-              textAlign: TextAlign.center,
+              color: context.theme.error,
             ),
             if (onRetry != null) ...[
               const SizedBox(height: ThemeSize.spacingM),
               FilledButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Tekrar dene'),
+                label: ThemeTypography.bodyMedium(
+                  context,
+                  'Tekrar dene',
+                  color: context.colorScheme.onSurface,
+                ),
               ),
             ],
           ],

@@ -63,10 +63,16 @@ mixin _ConnectionRegister on State<PageRegister> {
     setState(() => _loading = false);
 
     if (res.success) {
-      // Go back to login with a success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res.message ?? 'Kayıt başarılı')),
+          SnackBar(
+            content: ThemeTypography.bodyLarge(
+              context,
+              res.message ?? 'Kayıt başarılı',
+              color: context.theme.success,
+              weight: FontWeight.w600,
+            ),
+          ),
         );
       }
       await Navigator.of(context).pushReplacementNamed('/login');
