@@ -66,6 +66,11 @@ class _AccountSettingsView extends StatelessWidget {
         onRetry: loadAll,
       );
     } else {
+      final purchaseProvider = context.watch<PurchaseProvider>();
+      final productLoadError = purchaseProvider.error != null &&
+              purchaseProvider.products.isEmpty
+          ? 'Satın alma seçenekleri şu anda yüklenemiyor. Lütfen tekrar deneyin.'
+          : null;
       final plansWithInterval = plans
           .where(
             (plan) =>
@@ -73,8 +78,12 @@ class _AccountSettingsView extends StatelessWidget {
           )
           .toList();
 
-      final additionalPlans =
-          plans.where((plan) => plan.planKey == 'ADDITIONAL_100').toList();
+      final additionalPlans = plans.where((plan) {
+        final productType = (plan.productType ?? '').toLowerCase();
+        return plan.planKey == 'ADDITIONAL_100' ||
+            productType == 'consumable' ||
+            productType.contains('additional');
+      }).toList();
       return RefreshIndicator(
         onRefresh: onRefresh,
         child: ListView(
@@ -109,6 +118,8 @@ class _AccountSettingsView extends StatelessWidget {
               additionalPlans: additionalPlans,
               activePlan: activePlan,
               selectedPlanKey: selectedPlanKey,
+              productLoadError: productLoadError,
+              onRetryProductLoad: loadAll,
               onBuyAdditional: onBuyAdditional,
               onPlanSelected: onPlanSelected,
               availablePlanBackground: availablePlanBackground,
@@ -118,6 +129,7 @@ class _AccountSettingsView extends StatelessWidget {
             if (plansWithInterval.isNotEmpty)
               _ActiveSettingsUpdateButton(
                 updatingPlan: updatingPlan,
+                productsUnavailable: productLoadError != null,
                 selectedPlanKey: selectedPlanKey,
                 currentPlanKey: currentPlanKey,
                 onUpdatePlan: onUpdatePlan,

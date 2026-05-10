@@ -5,11 +5,13 @@ class _ActiveSettingsPlanCard extends StatefulWidget {
     required this.plan,
     required this.additionalPlans,
     required this.onBuyAdditional,
+    required this.productLoadError,
   });
 
   final PlanOption plan;
   final List<PlanOption> additionalPlans;
   final Future<void> Function(PlanOption plan)? onBuyAdditional;
+  final String? productLoadError;
 
   @override
   State<_ActiveSettingsPlanCard> createState() =>
@@ -110,44 +112,49 @@ class _ActiveSettingsPlanCardState extends State<_ActiveSettingsPlanCard> {
               ),
             ],
           ),
-          const SizedBox(height: ThemeSize.spacingM),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () =>
-                  widget.onBuyAdditional!(widget.additionalPlans.first),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: context.colorScheme.primary,
-                foregroundColor: context.colorScheme.onPrimary,
-                minimumSize: const Size.fromHeight(ThemeSize.buttonHeightLarge),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+          if (widget.productLoadError == null &&
+              widget.onBuyAdditional != null &&
+              widget.additionalPlans.isNotEmpty) ...[
+            const SizedBox(height: ThemeSize.spacingM),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () =>
+                    widget.onBuyAdditional!(widget.additionalPlans.first),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: context.colorScheme.primary,
+                  foregroundColor: context.colorScheme.onPrimary,
+                  minimumSize:
+                      const Size.fromHeight(ThemeSize.buttonHeightLarge),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.shopping_cart_checkout,
+                      size: ThemeSize.iconMedium,
+                      color: context.colorScheme.onPrimary,
+                    ),
+                    const SizedBox(width: ThemeSize.spacingS),
+                    Expanded(
+                      child: ThemeTypography.labelSmall(
+                        context,
+                        'Ek ${widget.additionalPlans.first.quota} Kota Al - ${widget.additionalPlans.first.priceLabel}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        color: context.colorScheme.onPrimary,
+                        weight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.shopping_cart_checkout,
-                    size: ThemeSize.iconMedium,
-                    color: context.colorScheme.onPrimary,
-                  ),
-                  const SizedBox(width: ThemeSize.spacingS),
-                  Expanded(
-                    child: ThemeTypography.labelSmall(
-                      context,
-                      'Ek ${widget.additionalPlans.first.quota} Kota Al - ${widget.additionalPlans.first.priceLabel}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      color: context.colorScheme.onPrimary,
-                      weight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
             ),
-          ),
+          ],
         ],
       ),
     );

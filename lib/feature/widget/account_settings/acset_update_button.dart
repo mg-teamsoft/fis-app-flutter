@@ -3,12 +3,14 @@ part of '../../page/account_settings_page.dart';
 class _ActiveSettingsUpdateButton extends StatelessWidget {
   const _ActiveSettingsUpdateButton({
     required this.updatingPlan,
+    required this.productsUnavailable,
     required this.selectedPlanKey,
     required this.currentPlanKey,
     required this.onUpdatePlan,
   });
 
   final bool updatingPlan;
+  final bool productsUnavailable;
   final String? selectedPlanKey;
   final String? currentPlanKey;
   final Future<void> Function() onUpdatePlan;
@@ -20,7 +22,8 @@ class _ActiveSettingsUpdateButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: (selectedPlanKey == null ||
                 selectedPlanKey == currentPlanKey ||
-                updatingPlan)
+                updatingPlan ||
+                productsUnavailable)
             ? null
             : onUpdatePlan,
         style: ElevatedButton.styleFrom(

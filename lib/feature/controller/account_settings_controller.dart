@@ -368,27 +368,19 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
 
       await _buyPlan(selectedPlan, syncCurrentPlan: true);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: ThemeTypography.bodyLarge(
-            context,
-            'Plan güncellendi.',
-            color: context.theme.success,
-            weight: FontWeight.w700,
-          ),
-        ),
+      await _showPurchaseResultDialog(
+        title: 'Satın Alma Başarılı',
+        message: 'Satın alma işleminiz başarıyla tamamlandı. '
+            'Planınız hesabınıza yansıtıldı.',
+        isError: false,
       );
     } on Exception catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: ThemeTypography.bodyLarge(
-            context,
-            'Plan güncelleme başarısız: $e',
-            color: context.colorScheme.error,
-            weight: FontWeight.w700,
-          ),
-        ),
+      debugPrint('Plan purchase failed: $e');
+      await _showPurchaseResultDialog(
+        title: 'Satın Alma Tamamlanamadı',
+        message: _purchaseFailureMessage(e),
+        isError: true,
       );
     } finally {
       if (mounted) {
@@ -402,27 +394,19 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
     try {
       await _buyPlan(plan, syncCurrentPlan: false);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: ThemeTypography.bodyLarge(
-            context,
-            'Ek kota satın alındı.',
-            color: context.theme.success,
-            weight: FontWeight.w700,
-          ),
-        ),
+      await _showPurchaseResultDialog(
+        title: 'Satın Alma Başarılı',
+        message: 'Ek kota satın alma işleminiz başarıyla tamamlandı. '
+            'Kotanız hesabınıza yansıtıldı.',
+        isError: false,
       );
     } on Exception catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: ThemeTypography.bodyLarge(
-            context,
-            'Satın alma başarısız: $e',
-            color: context.colorScheme.error,
-            weight: FontWeight.w700,
-          ),
-        ),
+      debugPrint('Additional quota purchase failed: $e');
+      await _showPurchaseResultDialog(
+        title: 'Satın Alma Tamamlanamadı',
+        message: _purchaseFailureMessage(e),
+        isError: true,
       );
     } finally {
       if (mounted) {
@@ -436,6 +420,54 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
   // ignore: unused_element
   void _onPlanSelected(String planKey) {
     setState(() => _selectedPlanKey = planKey);
+  }
+
+  String _purchaseFailureMessage(Object error) {
+    final normalized = error.toString().toLowerCase();
+    if (normalized.contains('iptal') || normalized.contains('cancel')) {
+      return 'Satın alma işlemi iptal edildi.';
+    }
+
+    return 'Satın alma işlemi şu anda tamamlanamadı. Ödeme alındıysa '
+        'paketiniz kısa süre içinde hesabınıza yansıtılır. Sorun devam ederse '
+        'lütfen destek ekibimizle iletişime geçin.';
+  }
+
+  Future<void> _showPurchaseResultDialog({
+    required String title,
+    required String message,
+    required bool isError,
+  }) async {
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: ThemeTypography.bodyLarge(
+          ctx,
+          title,
+          color: ctx.colorScheme.onSurface,
+          weight: FontWeight.w800,
+        ),
+        content: ThemeTypography.bodyLarge(
+          ctx,
+          message,
+          color: isError ? ctx.colorScheme.error : ctx.theme.success,
+          weight: FontWeight.w500,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: ThemeTypography.bodyLarge(
+              ctx,
+              'Tamam',
+              color: ctx.colorScheme.onSurface,
+              weight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _onResendVerification() async {
