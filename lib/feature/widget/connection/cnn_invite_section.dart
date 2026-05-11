@@ -147,7 +147,7 @@ class __CnnInviteSectionState extends State<_CnnInviteSection> {
                       context,
                       'Davet Et',
                       weight: FontWeight.w500,
-                      color: context.colorScheme.surface,
+                      color: context.colorScheme.onPrimary,
                     ),
             ),
           ),

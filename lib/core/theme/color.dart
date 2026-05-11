@@ -48,8 +48,8 @@ final class ThemeColors {
   );
 
   // Dark Colors (Midnight Vault / Deep Tones)
-  static const Color _primaryDark = Color(0xffD1E4FF);
-  static const Color _onPrimaryDark = Color(0xff002D5E);
+  static const Color _primaryDark = Color(0xff00497E);
+  static const Color _onPrimaryDark = Color(0xffD1E4FF);
   static const Color _primaryContainerDark = Color(0xff00497E);
   static const Color _onPrimaryContainerDark = Color(0xffD1E4FF);
   static const Color _secondaryDark = Color(0xff4ea3ea);
