@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/providers/purchase_provider.dart';
 import 'package:fis_app_flutter/app/providers/user_plan_provider.dart';
+import 'package:fis_app_flutter/app/services/auth_service.dart';
 import 'package:fis_app_flutter/app/services/plan_service.dart';
 import 'package:fis_app_flutter/app/services/purchase_transaction_service.dart';
 import 'package:fis_app_flutter/app/services/user_service.dart';
@@ -23,6 +24,7 @@ part '../widget/account_settings/acset_detail_card.dart';
 part '../widget/account_settings/acset_empty_plan_card.dart';
 part '../widget/account_settings/acset_payment_detail.dart';
 part '../widget/account_settings/acset_plan_card.dart';
+part '../widget/account_settings/acset_delete_account_link.dart';
 part '../widget/account_settings/acset_reset_password_button.dart';
 part '../widget/account_settings/acset_section_title.dart';
 part '../widget/account_settings/acset_update_button.dart';
@@ -48,6 +50,7 @@ class _PageAccountSettingsState extends State<PageAccountSettings>
       loading: _loading,
       updatingPlan: _updatingPlan,
       resendingVerification: _resendingVerification,
+      deletingAccount: _deletingAccount,
       error: _error,
       transactionError: _transactionError,
       currentPlanKey: _currentPlanKey,
@@ -66,6 +69,7 @@ class _PageAccountSettingsState extends State<PageAccountSettings>
       availablePlanBackground: _availablePlanBackground,
       availablePlanBorder: _availablePlanBorder,
       onResetPassword: _onResetPassword,
+      onDeleteAccount: _onDeleteAccount,
     );
   }
 }

@@ -120,6 +120,8 @@ class ApiClient {
   Future<void> clearToken() async {
     _tokenCache = null;
     _expCache = null;
+    _dio.options.headers.remove(AuthConfig.authorizationHeader);
+    _dio.options.headers.remove('Cookie');
     await _deleteValue(AuthConfig.tokenKey);
     await _deleteValue(AuthConfig.tokenExpKey);
   }

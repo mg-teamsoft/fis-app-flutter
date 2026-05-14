@@ -6,6 +6,7 @@ class _AccountSettingsView extends StatelessWidget {
     required this.loading,
     required this.updatingPlan,
     required this.resendingVerification,
+    required this.deletingAccount,
     required this.error,
     required this.transactionError,
     required this.currentPlanKey,
@@ -24,12 +25,14 @@ class _AccountSettingsView extends StatelessWidget {
     required this.availablePlanBackground,
     required this.availablePlanBorder,
     required this.onResetPassword,
+    required this.onDeleteAccount,
   });
 
   final ScrollController scrollController;
   final bool loading;
   final bool updatingPlan;
   final bool resendingVerification;
+  final bool deletingAccount;
   final String? error;
   final String? transactionError;
   final String? currentPlanKey;
@@ -49,6 +52,7 @@ class _AccountSettingsView extends StatelessWidget {
   final Color Function(int) availablePlanBackground;
   final Color Function(int) availablePlanBorder;
   final VoidCallback onResetPassword;
+  final Future<void> Function() onDeleteAccount;
 
   @override
   Widget build(BuildContext context) {
@@ -147,6 +151,11 @@ class _AccountSettingsView extends StatelessWidget {
               'Plan değişiklikleri hemen uygulanır. Mevcut fatura dönemindeki kullanılmayan kota için iade yapılmaz.',
               textAlign: TextAlign.center,
               color: context.colorScheme.outline,
+            ),
+            const SizedBox(height: ThemeSize.spacingM),
+            _AccountSettingsDeleteAccountLink(
+              deleting: deletingAccount,
+              onDeleteAccount: onDeleteAccount,
             ),
             const SizedBox(height: ThemeSize.spacingM),
             SizedBox(height: navSpacer),

@@ -44,6 +44,27 @@ class UserService {
     }
   }
 
+  Future<void> deleteAccount() async {
+    try {
+      final response = await _api.dio.delete<dynamic>('/api/users');
+
+      if (response.statusCode != 200 &&
+          response.statusCode != 202 &&
+          response.statusCode != 204) {
+        throw Exception('Hesap silinemedi');
+      }
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      if (responseData is Map<String, dynamic>) {
+        final message = responseData['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          throw Exception(message);
+        }
+      }
+      throw Exception('Hesap silinemedi');
+    }
+  }
+
   Map<String, dynamic>? _extractUserMap(dynamic data) {
     if (data == null) return null;
 

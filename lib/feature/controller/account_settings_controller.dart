@@ -2,14 +2,13 @@ part of '../page/account_settings_page.dart';
 
 mixin _ConnectionAccountSettings on State<PageAccountSettings> {
   final Set<String> _fallbackProductIds = <String>{
-    'com.myfisapp.sub.monthly100',
-    'com.myfisapp.sub.yearly1200',
     'com.myfisapp.consumable.100scans',
   };
 
   final double _navSpacer = kBottomNavigationBarHeight + 12;
 
   final _userService = UserService();
+  final _authService = AuthService();
   final _planService = PlanService();
   final _purchaseTransactionService = PurchaseTransactionService();
   final _scrollController = ScrollController();
@@ -29,6 +28,7 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
   bool _loading = true;
   bool _updatingPlan = false;
   bool _resendingVerification = false;
+  bool _deletingAccount = false;
   String? _error;
   bool _iapInitialized = false;
 
@@ -525,5 +525,77 @@ mixin _ConnectionAccountSettings on State<PageAccountSettings> {
       '/resetPassword',
       arguments: {'init': true},
     );
+  }
+
+  Future<void> _onDeleteAccount() async {
+    if (_deletingAccount) return;
+
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: ThemeTypography.bodyLarge(
+              ctx,
+              'Hesabı sil?',
+              color: ctx.colorScheme.onSurface,
+              weight: FontWeight.w800,
+            ),
+            content: ThemeTypography.bodyMedium(
+              ctx,
+              'Bu işlem hesabınızı ve oturum bilgilerinizi kalıcı olarak '
+              'siler. Devam etmek istiyor musunuz?',
+              color: ctx.colorScheme.onSurface,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: ThemeTypography.bodyMedium(
+                  ctx,
+                  'Vazgeç',
+                  color: ctx.colorScheme.onSurface,
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: ThemeTypography.bodyMedium(
+                  ctx,
+                  'Hesabı Sil',
+                  color: ctx.colorScheme.error,
+                  weight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!confirmed || !mounted) return;
+
+    setState(() => _deletingAccount = true);
+    try {
+      await _userService.deleteAccount();
+      await _authService.logout();
+      if (!mounted) return;
+      Provider.of<UserPlanProvider?>(context, listen: false)?.reset();
+      await Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login',
+        (route) => false,
+      );
+    } on Exception catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Hesap silinemedi: $e',
+            color: context.colorScheme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _deletingAccount = false);
+      }
+    }
   }
 }
