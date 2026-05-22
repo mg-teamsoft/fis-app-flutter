@@ -37,6 +37,7 @@ class __RegisterPasswordTextFieldState
       ),
       decoration: InputDecoration(
         labelText: 'Şifre',
+        errorMaxLines: 3,
         labelStyle: context.textTheme.bodyLarge?.copyWith(
           fontWeight: FontWeight.w800,
           color: context.colorScheme.onSurface.withValues(alpha: 0.5),

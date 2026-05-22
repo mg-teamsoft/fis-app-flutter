@@ -12,9 +12,9 @@ final class CoreEnterApp {
         RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$');
 
     if (value == null || value.isEmpty) {
-      return 'Please enter your password';
+      return 'Lütfen şifrenizi girin';
     } else if (!regex.hasMatch(value)) {
-      return 'Use min 8 chars, at least (1 uppercase & 1 lowercase & 1 number & 1 special) char.';
+      return 'Şifre en az 8 karakter olmalı; büyük harf, küçük harf, rakam ve özel karakter içermelidir.';
     }
     return null;
   }
