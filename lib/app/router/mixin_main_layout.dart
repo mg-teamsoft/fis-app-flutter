@@ -134,6 +134,16 @@ mixin _MixinMainLayout on State<MainLayout> {
     _setCurrentRoute(route, isBottomBarTab: index <= 3);
   }
 
+  Future<void> _captureReceiptFromFooter() async {
+    final file = await ReceiptService.captureWithCamera(context);
+    if (!mounted || file == null) return;
+
+    _setCurrentRoute(
+      '/receipt/process',
+      arguments: [file],
+    );
+  }
+
   int get _currentNavIndex {
     final index = _navRoutes.indexOf(_currentRoute);
     if (index >= 0) {

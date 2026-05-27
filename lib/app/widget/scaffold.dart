@@ -1,5 +1,4 @@
 import 'package:fis_app_flutter/app/import/theme.dart';
-import 'package:fis_app_flutter/app/services/receipt_service.dart';
 import 'package:fis_app_flutter/app/widget/appbar.dart';
 import 'package:fis_app_flutter/app/widget/bottombar.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,7 @@ class WidgetScaffold extends StatelessWidget {
     required this.onTabSelected,
     required this.showBackButton,
     required this.body,
+    required this.onCameraPressed,
     this.onBackPressed,
     super.key,
   });
@@ -19,6 +19,7 @@ class WidgetScaffold extends StatelessWidget {
   final int currentIndex;
   final void Function(int) onTabSelected;
   final bool showBackButton;
+  final Future<void> Function() onCameraPressed;
   final VoidCallback? onBackPressed;
 
   @override
@@ -27,7 +28,7 @@ class WidgetScaffold extends StatelessWidget {
       extendBody: true,
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
-        onPressed: () async => ReceiptService.captureWithCamera(context),
+        onPressed: onCameraPressed,
         child: Icon(
           Icons.camera_alt_rounded,
           color: context.colorScheme.onPrimaryContainer,
