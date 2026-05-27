@@ -1,12 +1,13 @@
 import 'package:fis_app_flutter/app/import/page.dart';
+import 'package:fis_app_flutter/app/services/api_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 final class RouterGeneral {
-  final String? _initialRoute = kIsWeb ? null : '/login';
+  final String? _initialRoute = kIsWeb ? null : '/';
   // GET function
   Map<String, Widget Function(BuildContext)> get routes => {
-        '/': (_) => const PageLogin(),
+        '/': (_) => const _AuthGate(),
         '/login': (_) => const PageLogin(),
         '/register': (_) => const PageRegister(),
         '/forgotPassword': (_) => const PageForgotPassword(),
@@ -66,4 +67,29 @@ final class RouterGeneral {
       };
 
   String? get initialRoute => _initialRoute;
+}
+
+class _AuthGate extends StatelessWidget {
+  const _AuthGate();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String?>(
+      future: ApiClient().getValidToken(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final token = snapshot.data;
+        if (token != null && token.isNotEmpty) {
+          return const MainLayout();
+        }
+
+        return const PageLogin();
+      },
+    );
+  }
 }
