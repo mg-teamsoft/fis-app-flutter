@@ -124,3 +124,10 @@ Add integration/widget tests under `test/` to cover new features before shipping
 
 ---
 For IDE integration hints or scripted launch configs, consider adding dedicated `.vscode/` or `melos` tooling if the project grows beyond the current scope.
+
+## Localization
+
+### Build Slang
+```bash
+   dart run slang
+```
