@@ -44,22 +44,34 @@ flutter --version
 To target a specific device/emulator append `-d <device_id>`.
 
 ## Build-Time Configuration (`--dart-define`)
-| Key | Default | Purpose |
-| --- | --- | --- |
-| `API_BASE_URL` | `http://localhost:3000` | REST endpoint used by `ApiClient`.
-| `CONNECT_TIMEOUT_MS` | `15000` | Dio connect timeout in milliseconds.
-| `RECEIVE_TIMEOUT_MS` | `20000` | Dio receive timeout in milliseconds.
-| `ENV` | `dev` | Used for secure-storage key namespacing (`AuthConfig`).
-| `MOCK_OCR` | `false` | Optional flag for toggling mock OCR flows (checked in `AppConfig`).
+| Key                  | Default                 | Purpose                                                             |
+| -------------------- | ----------------------- | ------------------------------------------------------------------- |
+| `API_BASE_URL`       | `http://localhost:3000` | REST endpoint used by `ApiClient`.                                  |
+| `CONNECT_TIMEOUT_MS` | `15000`                 | Dio connect timeout in milliseconds.                                |
+| `RECEIVE_TIMEOUT_MS` | `20000`                 | Dio receive timeout in milliseconds.                                |
+| `ENV`                | `dev`                   | Used for secure-storage key namespacing (`AuthConfig`).             |
+| `MOCK_OCR`           | `false`                 | Optional flag for toggling mock OCR flows (checked in `AppConfig`). |
 
 Example release build with custom environment:
-
+### build ipa (IOS)
 ```bash
-flutter build apk \
-  --dart-define=API_BASE_URL=https://api.prod.example.com \
+flutter clean ; flutter pub get ; flutter build ipa --release --build-name=1.0.0 --build-number=1 --dart-define=ENV=prod --dart-define=API_BASE_URL=<backend_url>
+```
+
+### deploy ipa (IOS)
+```bash
+API_PRIVATE_KEYS_DIR=~/<path-to-secret-key-file> \
+xcrun altool --upload-app --type ios -f build/ios/ipa/*.ipa --apiKey <apikey> --apiIssuer <apiIssuer>
+```
+
+### build aab (Android)
+```bash
+flutter clean ; flutter pub get ; flutter build appbundle --release \
+  --obfuscate --split-debug-info=build/app/outputs/symbols \
+  --dart-define=API_BASE_URL=<backend_url> \
   --dart-define=ENV=prod \
-  --dart-define=CONNECT_TIMEOUT_MS=20000 \
-  --dart-define=RECEIVE_TIMEOUT_MS=30000
+  --dart-define=CONNECT_TIMEOUT_MS=30000 \
+  --dart-define=MOCK_OCR=false
 ```
 
 ## Authentication Flow
