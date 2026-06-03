@@ -113,7 +113,7 @@ mixin _ConnectionReceiptGallery on State<PageReceiptGallery> {
     final picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      lastDate: DateTime.now(),
       initialDateRange: _selectedDateRange,
       saveText: 'Seç',
       cancelText: 'İptal',
