@@ -85,7 +85,7 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
       context: context,
       initialDate: initial,
       firstDate: DateTime(2020),
-      lastDate: DateTime(now.year + 5),
+      lastDate: now,
       locale: const Locale('tr', 'TR'),
     );
     if (!mounted || result == null) return;
