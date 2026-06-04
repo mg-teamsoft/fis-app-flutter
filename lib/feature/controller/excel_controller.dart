@@ -7,21 +7,47 @@ mixin _ConnectionExcel on State<PageExcel> {
   final _scrollController = ScrollController();
 
   late Future<List<ExcelFileEntry>> _future;
-  late bool _isLoadingCustomers;
-  late List<CustomerListItemDto> _customerItems;
+  bool _isLoadingCustomers = true;
+  List<CustomerListItemDto> _customerItems = [];
+  List<SupervisorContactDto> _supervisors = [];
   late String? _selectedCustomerId;
   late String? _appliedCustomerId;
   final Set<String> _busy = {}; // rows busy state (by idOrKey)
+  bool _isNotifying = false;
 
   @override
   void initState() {
     super.initState();
-    _isLoadingCustomers = false;
+    _isLoadingCustomers = true;
     _customerItems = [];
+    _supervisors = [];
     _selectedCustomerId = widget.initialCustomerId;
     _appliedCustomerId = widget.initialCustomerId;
-    _future = _load();
-    unawaited(_loadCustomers());
+    _future = _initData();
+  }
+
+  Future<List<ExcelFileEntry>> _initData() async {
+    await Future.wait([
+      _loadCustomers(),
+      _loadSupervisors(),
+    ]);
+    return _load();
+  }
+
+  Future<void> _loadSupervisors() async {
+    try {
+      final connectionsService = ConnectionsService();
+      final list = await connectionsService.fetchSupervisors();
+      if (!mounted) return;
+      setState(() {
+        _supervisors = list;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _supervisors = [];
+      });
+    }
   }
 
   @override
@@ -36,6 +62,34 @@ mixin _ConnectionExcel on State<PageExcel> {
         widget.initialEntries!.isNotEmpty) {
       return widget.initialEntries!;
     }
+    
+    // If no specific customer is selected, and user has customers (is manager)
+    if (_appliedCustomerId == null && _customerItems.isNotEmpty) {
+      final allEntries = <ExcelFileEntry>[];
+      for (final customer in _customerItems) {
+        try {
+          final list = await _excelFilesApi.listFiles(customerUserId: customer.id);
+          allEntries.addAll(list.map((rec) {
+            final id = (rec['_id'] ?? rec['s3Key']).toString();
+            final fileName = (rec['fileName'] ?? 'Fis_Listesi.xlsx').toString();
+            final sheetName =
+                (rec['sheets'] is List && (rec['sheets'] as List).isNotEmpty)
+                    ? (rec['sheets'] as List).last.toString()
+                    : '';
+            return ExcelFileEntry(
+              idOrKey: id,
+              fileName: fileName,
+              sheetName: sheetName,
+              customerUserId: customer.id,
+            );
+          }));
+        } catch (_) {
+          // Ignore errors for individual customers to not break the whole list
+        }
+      }
+      return allEntries;
+    }
+
     final list = await _excelFilesApi.listFiles(
       customerUserId: _appliedCustomerId,
     );
@@ -57,15 +111,12 @@ mixin _ConnectionExcel on State<PageExcel> {
   }
 
   Future<void> _loadCustomers() async {
-    setState(() {
-      _isLoadingCustomers = true;
-    });
-
     try {
       final customers = await _customerService.fetchCustomers(
         permission: ContactPermission.downloadFiles,
       );
       if (!mounted) return;
+
       setState(() {
         _customerItems = customers;
         _selectedCustomerId =
@@ -76,6 +127,7 @@ mixin _ConnectionExcel on State<PageExcel> {
             customers.any((item) => item.id == _appliedCustomerId)
                 ? _appliedCustomerId
                 : null;
+        
         _isLoadingCustomers = false;
       });
     } on Exception {
@@ -100,6 +152,95 @@ mixin _ConnectionExcel on State<PageExcel> {
       _appliedCustomerId = _selectedCustomerId;
       _future = _load();
     });
+  }
+
+  Future<void> _notifyManager() async {
+    if (_supervisors.isEmpty || _isNotifying) return;
+
+    setState(() => _isNotifying = true);
+    
+    try {
+      for (final sup in _supervisors) {
+        await _excelFilesApi.sendUpdateNotification(sup.email);
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Yönetici başarıyla bilgilendirildi.',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Bildirim gönderilemedi: $e',
+            color: context.theme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isNotifying = false);
+    }
+  }
+
+  Future<void> _notifyUpdate() async {
+    if (_appliedCustomerId == null || _isNotifying) return;
+    
+    final matchingCustomers = _customerItems.where((c) => c.id == _appliedCustomerId).toList();
+    final customer = matchingCustomers.isNotEmpty ? matchingCustomers.first : null;
+    final email = customer?.email;
+    if (email == null || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Seçili kullanıcının e-posta adresi bulunamadı.',
+            color: context.theme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isNotifying = true);
+
+    try {
+      await _excelFilesApi.sendUpdateNotification(email);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Bildirim başarıyla gönderildi.',
+            color: context.theme.success,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+    } on Exception catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ThemeTypography.bodyLarge(
+            context,
+            'Bildirim gönderilemedi: $e',
+            color: context.theme.error,
+            weight: FontWeight.w700,
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isNotifying = false);
+    }
   }
 
   Future<void> _open(ExcelFileEntry row) async {

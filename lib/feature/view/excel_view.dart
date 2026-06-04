@@ -13,6 +13,10 @@ class _ExcelView extends StatelessWidget {
     required this.isLoadingCustomers,
     required this.onCustomerChanged,
     required this.applyCustomerSelection,
+    required this.isNotifying,
+    required this.notifyUpdate,
+    required this.hasManager,
+    required this.notifyManager,
   });
 
   final Future<List<ExcelFileEntry>> future;
@@ -26,38 +30,84 @@ class _ExcelView extends StatelessWidget {
   final bool isLoadingCustomers;
   final void Function(String?) onCustomerChanged;
   final Future<void> Function() applyCustomerSelection;
+  final bool isNotifying;
+  final Future<void> Function() notifyUpdate;
+  final bool hasManager;
+  final Future<void> Function() notifyManager;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const ThemePadding.all16(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Align(
-            child: ThemeTypography.h4(
-              context,
-              'Excel Dosyaları',
-              weight: FontWeight.w900,
-              color: context.colorScheme.onSurface,
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: hasManager
+          ? FloatingActionButton.extended(
+              onPressed: isNotifying ? null : notifyManager,
+              backgroundColor: context.colorScheme.primary,
+              foregroundColor: context.colorScheme.onPrimary,
+              icon: isNotifying
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: context.colorScheme.onPrimary,
+                      ),
+                    )
+                  : const Icon(Icons.notifications_active),
+              label: const Text('Yöneticiyi Bilgilendir'),
+            )
+          : null,
+      body: Padding(
+        padding: const ThemePadding.all16(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ThemeTypography.h4(
+                context,
+                'Excel Dosyaları',
+                weight: FontWeight.w900,
+                color: context.colorScheme.onSurface,
+              ),
             ),
-          ),
-          _ExcelCustomerPicker(
-            customerItems: customerItems,
-            selectedCustomerId: selectedCustomerId,
-            appliedCustomerId: appliedCustomerId,
-            isLoadingCustomers: isLoadingCustomers,
-            onCustomerChanged: onCustomerChanged,
-            applyCustomerSelection: applyCustomerSelection,
-          ),
-          const SizedBox(height: ThemeSize.spacingM),
-          _ExcelBuilder(
-            future: future,
-            busy: busy,
-            open: open,
-            download: download,
-          ),
-        ],
+            _ExcelCustomerPicker(
+              customerItems: customerItems,
+              selectedCustomerId: selectedCustomerId,
+              appliedCustomerId: appliedCustomerId,
+              isLoadingCustomers: isLoadingCustomers,
+              onCustomerChanged: onCustomerChanged,
+              applyCustomerSelection: applyCustomerSelection,
+            ),
+            if (appliedCustomerId != null) ...[
+              const SizedBox(height: ThemeSize.spacingM),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  onPressed: isNotifying ? null : notifyUpdate,
+                  icon: isNotifying
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.notifications_active),
+                  label: const Text('Kullanıcıya Bildir'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: ThemeSize.spacingM),
+            _ExcelBuilder(
+              future: future,
+              busy: busy,
+              open: open,
+              download: download,
+            ),
+          ],
+        ),
       ),
     );
   }

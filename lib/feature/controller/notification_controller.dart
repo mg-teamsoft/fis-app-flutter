@@ -163,6 +163,15 @@ mixin _NotificationController on State<PageNotification> {
             Navigator.pushNamed(context, screen, arguments: {'tab': 2}),
           );
         }
+        break;
+
+      case 'EXCEL_UPDATE':
+        if (screen != null) {
+          unawaited(
+            Navigator.pushNamed(context, screen),
+          );
+        }
+        break;
 
       default:
         debugPrint('Tanımlanmayan bildirim tipi: ${notification.actionType}');

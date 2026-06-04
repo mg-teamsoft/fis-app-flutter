@@ -82,4 +82,19 @@ class ExcelService {
       throw Exception('Unexpected error: $e');
     }
   }
+
+  Future<bool> sendUpdateNotification(String inviteeEmail) async {
+    try {
+      final res = await _api.dio.post<Map<String, dynamic>>(
+        '/api/notifications/excelUpdate',
+        data: {'inviteeEmail': inviteeEmail},
+      );
+      print("Response Data: ${res.data}");
+      return res.statusCode == 201;
+    } on DioException catch (e) {
+      throw Exception('Failed to send notification: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
 }
