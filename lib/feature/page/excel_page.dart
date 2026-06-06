@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fis_app_flutter/app/config/contact_permission.dart';
 import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/services/customer_service.dart';
+import 'package:fis_app_flutter/app/services/connections_service.dart';
 import 'package:fis_app_flutter/app/services/excel_service.dart';
 import 'package:fis_app_flutter/app/services/file_download_service.dart';
 import 'package:fis_app_flutter/model/excel_file_entry.dart';
@@ -42,6 +43,12 @@ class _PageExcelState extends State<PageExcel> with _ConnectionExcel {
       isLoadingCustomers: _isLoadingCustomers,
       onCustomerChanged: _onCustomerChanged,
       applyCustomerSelection: _applyCustomerSelection,
+      isNotifying: _isNotifying,
+      isManagerNotified: _isManagerNotified,
+      notifyUpdate: _notifyUpdate,
+      hasManager: _supervisors
+          .any((s) => s.status == 'ACTIVE' || s.status == 'ACCEPTED'),
+      notifyManager: _notifyManager,
     );
   }
 }

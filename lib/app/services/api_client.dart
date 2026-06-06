@@ -63,7 +63,10 @@ class ApiClient {
           handler.next(response);
         },
         onError: (e, handler) async {
-          if (e.response?.statusCode == 401) {
+          final path = e.requestOptions.uri.path;
+          final isLoginRequest = path.endsWith('/api/auth/login');
+
+          if (e.response?.statusCode == 401 && !isLoginRequest) {
             // Token expired or invalid
             await clearToken();
 
