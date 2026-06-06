@@ -14,6 +14,7 @@ class _ExcelView extends StatelessWidget {
     required this.onCustomerChanged,
     required this.applyCustomerSelection,
     required this.isNotifying,
+    required this.isManagerNotified,
     required this.notifyUpdate,
     required this.hasManager,
     required this.notifyManager,
@@ -31,6 +32,7 @@ class _ExcelView extends StatelessWidget {
   final void Function(String?) onCustomerChanged;
   final Future<void> Function() applyCustomerSelection;
   final bool isNotifying;
+  final bool isManagerNotified;
   final Future<void> Function() notifyUpdate;
   final bool hasManager;
   final Future<void> Function() notifyManager;
@@ -41,7 +43,8 @@ class _ExcelView extends StatelessWidget {
       backgroundColor: Colors.transparent,
       floatingActionButton: hasManager
           ? FloatingActionButton.extended(
-              onPressed: isNotifying ? null : notifyManager,
+              onPressed:
+                  isNotifying || isManagerNotified ? null : notifyManager,
               backgroundColor: context.colorScheme.primary,
               foregroundColor: context.colorScheme.onPrimary,
               icon: isNotifying
@@ -53,8 +56,16 @@ class _ExcelView extends StatelessWidget {
                         color: context.colorScheme.onPrimary,
                       ),
                     )
-                  : const Icon(Icons.notifications_active),
-              label: const Text('Yöneticiyi Bilgilendir'),
+                  : Icon(
+                      isManagerNotified
+                          ? Icons.check
+                          : Icons.notifications_active,
+                    ),
+              label: Text(
+                isManagerNotified
+                    ? 'Bilgilendirme Gönderildi'
+                    : 'Yöneticiyi Bilgilendir',
+              ),
             )
           : null,
       body: Padding(
@@ -94,7 +105,10 @@ class _ExcelView extends StatelessWidget {
                       : const Icon(Icons.notifications_active),
                   label: const Text('Kullanıcıya Bildir'),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                 ),
               ),

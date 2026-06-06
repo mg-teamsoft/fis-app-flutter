@@ -44,8 +44,10 @@ class _PageExcelState extends State<PageExcel> with _ConnectionExcel {
       onCustomerChanged: _onCustomerChanged,
       applyCustomerSelection: _applyCustomerSelection,
       isNotifying: _isNotifying,
+      isManagerNotified: _isManagerNotified,
       notifyUpdate: _notifyUpdate,
-      hasManager: _supervisors.any((s) => s.status == 'ACTIVE' || s.status == 'ACCEPTED'),
+      hasManager: _supervisors
+          .any((s) => s.status == 'ACTIVE' || s.status == 'ACCEPTED'),
       notifyManager: _notifyManager,
     );
   }

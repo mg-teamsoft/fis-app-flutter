@@ -14,6 +14,7 @@ mixin _ConnectionExcel on State<PageExcel> {
   late String? _appliedCustomerId;
   final Set<String> _busy = {}; // rows busy state (by idOrKey)
   bool _isNotifying = false;
+  bool _isManagerNotified = false;
 
   @override
   void initState() {
@@ -62,27 +63,31 @@ mixin _ConnectionExcel on State<PageExcel> {
         widget.initialEntries!.isNotEmpty) {
       return widget.initialEntries!;
     }
-    
+
     // If no specific customer is selected, and user has customers (is manager)
     if (_appliedCustomerId == null && _customerItems.isNotEmpty) {
       final allEntries = <ExcelFileEntry>[];
       for (final customer in _customerItems) {
         try {
-          final list = await _excelFilesApi.listFiles(customerUserId: customer.id);
-          allEntries.addAll(list.map((rec) {
-            final id = (rec['_id'] ?? rec['s3Key']).toString();
-            final fileName = (rec['fileName'] ?? 'Fis_Listesi.xlsx').toString();
-            final sheetName =
-                (rec['sheets'] is List && (rec['sheets'] as List).isNotEmpty)
-                    ? (rec['sheets'] as List).last.toString()
-                    : '';
-            return ExcelFileEntry(
-              idOrKey: id,
-              fileName: fileName,
-              sheetName: sheetName,
-              customerUserId: customer.id,
-            );
-          }));
+          final list =
+              await _excelFilesApi.listFiles(customerUserId: customer.id);
+          allEntries.addAll(
+            list.map((rec) {
+              final id = (rec['_id'] ?? rec['s3Key']).toString();
+              final fileName =
+                  (rec['fileName'] ?? 'Fis_Listesi.xlsx').toString();
+              final sheetName =
+                  (rec['sheets'] is List && (rec['sheets'] as List).isNotEmpty)
+                      ? (rec['sheets'] as List).last.toString()
+                      : '';
+              return ExcelFileEntry(
+                idOrKey: id,
+                fileName: fileName,
+                sheetName: sheetName,
+                customerUserId: customer.id,
+              );
+            }),
+          );
         } catch (_) {
           // Ignore errors for individual customers to not break the whole list
         }
@@ -127,7 +132,7 @@ mixin _ConnectionExcel on State<PageExcel> {
             customers.any((item) => item.id == _appliedCustomerId)
                 ? _appliedCustomerId
                 : null;
-        
+
         _isLoadingCustomers = false;
       });
     } on Exception {
@@ -155,15 +160,16 @@ mixin _ConnectionExcel on State<PageExcel> {
   }
 
   Future<void> _notifyManager() async {
-    if (_supervisors.isEmpty || _isNotifying) return;
+    if (_supervisors.isEmpty || _isNotifying || _isManagerNotified) return;
 
     setState(() => _isNotifying = true);
-    
+
     try {
       for (final sup in _supervisors) {
         await _excelFilesApi.sendUpdateNotification(sup.email);
       }
       if (!mounted) return;
+      setState(() => _isManagerNotified = true);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: ThemeTypography.bodyLarge(
@@ -193,9 +199,11 @@ mixin _ConnectionExcel on State<PageExcel> {
 
   Future<void> _notifyUpdate() async {
     if (_appliedCustomerId == null || _isNotifying) return;
-    
-    final matchingCustomers = _customerItems.where((c) => c.id == _appliedCustomerId).toList();
-    final customer = matchingCustomers.isNotEmpty ? matchingCustomers.first : null;
+
+    final matchingCustomers =
+        _customerItems.where((c) => c.id == _appliedCustomerId).toList();
+    final customer =
+        matchingCustomers.isNotEmpty ? matchingCustomers.first : null;
     final email = customer?.email;
     if (email == null || email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
