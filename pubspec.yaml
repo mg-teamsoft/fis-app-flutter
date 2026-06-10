@@ -121,6 +121,8 @@ flutter:
   assets:
     - assets/fonts/
     - assets/i18n/
+    - assets/i18n/en/
+    - assets/i18n/tr/
     - assets/icon/
     - assets/svg/
     - assets/1.png

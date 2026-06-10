@@ -21,6 +21,7 @@ final class _LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translations = Translations.of(context);
     return SingleChildScrollView(
       controller: scrollController,
       padding: const ThemePadding.all24(),
@@ -28,6 +29,26 @@ final class _LoginView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: ThemeSize.spacingL,
         children: [
+          SizedBox(height: size.height * 0.1),
+          Text(
+            translations.page.login.test,
+            style: TextStyle(fontSize: 24),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final current = LocaleSettings.currentLocale;
+              if (current == AppLocale.en) {
+                await LocaleSettings.setLocale(AppLocale.tr);
+                debugPrint(
+                    'Locale changed to: ${LocaleSettings.currentLocale}');
+              } else {
+                await LocaleSettings.setLocale(AppLocale.en);
+                debugPrint(
+                    'Locale changed to: ${LocaleSettings.currentLocale}');
+              }
+            },
+            child: const Text('Change Locale'),
+          ),
           SizedBox(height: size.height * 0.075),
           const _LoginLogo(),
           _UsernameTextField(usernameController),

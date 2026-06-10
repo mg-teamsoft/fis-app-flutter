@@ -8,7 +8,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:slang/generated.dart';
-import 'strings.g.dart';
+import 'translations.g.dart';
 
 // Path: <root>
 class TranslationsTr with BaseTranslations<AppLocale, Translations> implements Translations {
@@ -37,13 +37,27 @@ class TranslationsTr with BaseTranslations<AppLocale, Translations> implements T
 	TranslationsTr $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsTr(meta: meta ?? this.$meta);
 
 	// Translations
-	@override String get appTitle => 'My Fiş App';
-	@override String get home => 'Ev';
-	@override String get settings => 'Ayarlar';
-	@override String get language => 'Dil';
-	@override String get theme => 'Tema';
-	@override String get light => 'Açık';
-	@override String get dark => 'Koyu';
+	@override late final _Translations$page$tr page = _Translations$page$tr._(_root);
+}
+
+// Path: page
+class _Translations$page$tr implements Translations$page$en {
+	_Translations$page$tr._(this._root);
+
+	final TranslationsTr _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$page$login$tr login = _Translations$page$login$tr._(_root);
+}
+
+// Path: page.login
+class _Translations$page$login$tr implements Translations$page$login$en {
+	_Translations$page$login$tr._(this._root);
+
+	final TranslationsTr _root; // ignore: unused_field
+
+	// Translations
+	@override String get test => 'tr';
 }
 
 /// The flat map containing all translations for locale <tr>.
@@ -54,13 +68,7 @@ class TranslationsTr with BaseTranslations<AppLocale, Translations> implements T
 extension on TranslationsTr {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
-			'appTitle' => 'My Fiş App',
-			'home' => 'Ev',
-			'settings' => 'Ayarlar',
-			'language' => 'Dil',
-			'theme' => 'Tema',
-			'light' => 'Açık',
-			'dark' => 'Koyu',
+			'page.login.test' => 'tr',
 			_ => null,
 		};
 	}

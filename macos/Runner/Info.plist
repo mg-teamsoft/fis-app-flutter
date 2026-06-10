@@ -33,5 +33,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+
+	</array>
 </dict>
 </plist>

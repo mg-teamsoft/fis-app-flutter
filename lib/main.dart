@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:fis_app_flutter/app/config/general.dart';
 import 'package:fis_app_flutter/app/config/platform.dart';
+import 'package:fis_app_flutter/i18n/translations.g.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -17,7 +18,7 @@ Future<void> main() async {
       WidgetsFlutterBinding.ensureInitialized();
       final platformSetup = PlatformFactory.getPlatformInit();
       await platformSetup.prepare();
-      runApp(const AppConfigGeneral());
+      runApp(TranslationProvider(child: const AppConfigGeneral()));
     },
     (error, stack) {
       developer.log('Uncaught: $error\n$stack');

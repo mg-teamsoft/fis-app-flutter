@@ -5,7 +5,7 @@
 // ignore_for_file: type=lint, unused_import
 // dart format off
 
-part of 'strings.g.dart';
+part of 'translations.g.dart';
 
 // Path: <root>
 typedef TranslationsEn = Translations; // ignore: unused_element
@@ -40,27 +40,29 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
+	late final Translations$page$en page = Translations$page$en._(_root);
+}
 
-	/// en: 'My Fiş App'
-	String get appTitle => 'My Fiş App';
+// Path: page
+class Translations$page$en {
+	Translations$page$en._(this._root);
 
-	/// en: 'Home'
-	String get home => 'Home';
+	final Translations _root; // ignore: unused_field
 
-	/// en: 'Settings'
-	String get settings => 'Settings';
+	// Translations
+	late final Translations$page$login$en login = Translations$page$login$en._(_root);
+}
 
-	/// en: 'Language'
-	String get language => 'Language';
+// Path: page.login
+class Translations$page$login$en {
+	Translations$page$login$en._(this._root);
 
-	/// en: 'Theme'
-	String get theme => 'Theme';
+	final Translations _root; // ignore: unused_field
 
-	/// en: 'Light'
-	String get light => 'Light';
+	// Translations
 
-	/// en: 'Dark'
-	String get dark => 'Dark';
+	/// en: 'en'
+	String get test => 'en';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -71,13 +73,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
-			'appTitle' => 'My Fiş App',
-			'home' => 'Home',
-			'settings' => 'Settings',
-			'language' => 'Language',
-			'theme' => 'Theme',
-			'light' => 'Light',
-			'dark' => 'Dark',
+			'page.login.test' => 'en',
 			_ => null,
 		};
 	}
