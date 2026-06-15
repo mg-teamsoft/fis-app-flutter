@@ -1,7 +1,10 @@
 import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/services/auth_service.dart';
 import 'package:fis_app_flutter/app/services/plan_service.dart';
+import 'package:fis_app_flutter/app/widget/localization_button.dart';
+import 'package:fis_app_flutter/app/widget/theme_button.dart';
 import 'package:fis_app_flutter/core/enter_app.dart';
+import 'package:fis_app_flutter/i18n/translations.g.dart';
 import 'package:fis_app_flutter/model/plan_option.dart';
 import 'package:flutter/material.dart';
 
@@ -31,6 +34,7 @@ class _PageRegisterState extends State<PageRegister> with _ConnectionRegister {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _RegisterView(
+        translations: _translation,
         formKey: _formKey,
         scrollController: _scrollController,
         validator: _coreEnterApp,

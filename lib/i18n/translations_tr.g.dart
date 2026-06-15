@@ -57,7 +57,11 @@ class _Translations$page$login$tr implements Translations$page$login$en {
 	final TranslationsTr _root; // ignore: unused_field
 
 	// Translations
-	@override String get test => 'tr';
+	@override String get textfield_username => 'Kullanıcı Adınız';
+	@override String get textfield_password => 'Şifreniz';
+	@override String get button_login => 'Giriş Yap';
+	@override String get button_register => 'Kayıt Ol';
+	@override String get button_forget_password => 'Şifremi Unuttum';
 }
 
 /// The flat map containing all translations for locale <tr>.
@@ -68,7 +72,11 @@ class _Translations$page$login$tr implements Translations$page$login$en {
 extension on TranslationsTr {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
-			'page.login.test' => 'tr',
+			'page.login.textfield_username' => 'Kullanıcı Adınız',
+			'page.login.textfield_password' => 'Şifreniz',
+			'page.login.button_login' => 'Giriş Yap',
+			'page.login.button_register' => 'Kayıt Ol',
+			'page.login.button_forget_password' => 'Şifremi Unuttum',
 			_ => null,
 		};
 	}

@@ -1,11 +1,16 @@
 part of '../../page/login_page.dart';
 
 final class _PasswordTextField extends StatelessWidget {
-  _PasswordTextField({required this.controller, required this.onPressed});
+  _PasswordTextField({
+    required this.controller,
+    required this.onPressed,
+    required this.translations,
+  });
 
   final TextEditingController controller;
   final ValueNotifier<bool> _obscureNotifier = ValueNotifier<bool>(true);
   final VoidCallback onPressed;
+  final Translations translations;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +25,7 @@ final class _PasswordTextField extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
           decoration: InputDecoration(
-            labelText: 'Şifreniz',
+            labelText: translations.page.login.textfield_password,
             labelStyle: context.textTheme.bodyLarge?.copyWith(
               color: context.colorScheme.onSurface.withValues(alpha: 0.5),
             ),

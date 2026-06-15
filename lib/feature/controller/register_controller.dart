@@ -15,6 +15,7 @@ mixin _ConnectionRegister on State<PageRegister> {
   late PlanService _planService;
   late Future<List<PlanOption>> _plansFuture;
   String? _selectedPlanKey;
+  late Translations _translation;
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ mixin _ConnectionRegister on State<PageRegister> {
         _planService.fetchPlans().then(PlanService.sortPlansWithFreeFirst);
     _selectedPlanKey = null;
     _coreEnterApp = CoreEnterApp();
+    _translation = Translations();
   }
 
   @override

@@ -1,10 +1,15 @@
 part of '../../page/login_page.dart';
 
 final class _LoginButton extends StatelessWidget {
-  const _LoginButton({required this.isLoading, required this.onPressed});
+  const _LoginButton({
+    required this.isLoading,
+    required this.onPressed,
+    required this.translations,
+  });
 
   final bool isLoading;
   final VoidCallback onPressed;
+  final Translations translations;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +41,7 @@ final class _LoginButton extends StatelessWidget {
                   ),
                   ThemeTypography.h4(
                     context,
-                    'Giriş Yap',
+                    translations.page.login.button_login,
                   ),
                 ],
               ),

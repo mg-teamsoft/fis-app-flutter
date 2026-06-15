@@ -1,7 +1,9 @@
 part of '../../page/login_page.dart';
 
 final class _ForgetPasswordButton extends StatelessWidget {
-  const _ForgetPasswordButton();
+  const _ForgetPasswordButton({required this.translations});
+
+  final Translations translations;
 
   @override
   Widget build(BuildContext context) {
@@ -9,7 +11,7 @@ final class _ForgetPasswordButton extends StatelessWidget {
       onPressed: () => Navigator.of(context).pushNamed('/forgotPassword'),
       child: ThemeTypography.titleMedium(
         context,
-        'Şifremi Unuttum',
+        translations.page.login.button_forget_password,
         color: context.colorScheme.primary,
         weight: FontWeight.w700,
       ),

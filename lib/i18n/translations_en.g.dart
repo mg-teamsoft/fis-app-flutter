@@ -61,8 +61,20 @@ class Translations$page$login$en {
 
 	// Translations
 
-	/// en: 'en'
-	String get test => 'en';
+	/// en: 'Username'
+	String get textfield_username => 'Username';
+
+	/// en: 'Password'
+	String get textfield_password => 'Password';
+
+	/// en: 'Login'
+	String get button_login => 'Login';
+
+	/// en: 'Register'
+	String get button_register => 'Register';
+
+	/// en: 'Forgot Password'
+	String get button_forget_password => 'Forgot Password';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -73,7 +85,11 @@ class Translations$page$login$en {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
-			'page.login.test' => 'en',
+			'page.login.textfield_username' => 'Username',
+			'page.login.textfield_password' => 'Password',
+			'page.login.button_login' => 'Login',
+			'page.login.button_register' => 'Register',
+			'page.login.button_forget_password' => 'Forgot Password',
 			_ => null,
 		};
 	}

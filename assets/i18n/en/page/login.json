@@ -1,3 +1,7 @@
 {
-    "test":"en"
+    "textfield_username":"Username",
+    "textfield_password":"Password",
+    "button_login":"Login",
+    "button_register":"Register",
+    "button_forget_password":"Forgot Password"
 }

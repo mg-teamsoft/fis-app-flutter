@@ -1,3 +1,7 @@
 {
-    "test":"tr"
+    "textfield_username":"Kullanıcı Adınız",
+    "textfield_password":"Şifreniz",
+    "button_login":"Giriş Yap",
+    "button_register":"Kayıt Ol",
+    "button_forget_password":"Şifremi Unuttum"
 }

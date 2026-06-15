@@ -2,6 +2,7 @@ part of '../page/register_page.dart';
 
 class _RegisterView extends StatelessWidget {
   const _RegisterView({
+    required this.translations,
     required this.formKey,
     required this.scrollController,
     required this.validator,
@@ -32,6 +33,7 @@ class _RegisterView extends StatelessWidget {
   final VoidCallback? onRegister;
   final VoidCallback retryPlans;
   final ValueChanged<String> onPlanSelected;
+  final Translations translations;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,14 @@ class _RegisterView extends StatelessWidget {
           key: formKey,
           child: Column(
             children: [
+              const SizedBox(height: ThemeSize.spacingXXXl),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AppThemeButton(),
+                  LocalizationButton(),
+                ],
+              ),
               const SizedBox(height: ThemeSize.spacingXXXl),
               const _RegisterLogo(),
               const SizedBox(height: ThemeSize.spacingS),

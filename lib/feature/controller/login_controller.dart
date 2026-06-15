@@ -1,6 +1,7 @@
 part of '../page/login_page.dart';
 
 mixin _ConnectionLogin on State<PageLogin> {
+  late Translations _translations;
   late AuthService _auth;
   late ScrollController _scrollController;
   late TextEditingController _userCtrl;
@@ -32,6 +33,7 @@ mixin _ConnectionLogin on State<PageLogin> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _size = MediaQuery.of(context).size;
+    _translations = Translations.of(context);
   }
 
   Future<void> _handleLogin() async {

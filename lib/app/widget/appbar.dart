@@ -4,8 +4,8 @@ import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/services/notification_service.dart';
 import 'package:fis_app_flutter/app/widget/popmenu.dart';
 import 'package:fis_app_flutter/app/widget/popmenuitem.dart';
+import 'package:fis_app_flutter/app/widget/theme_button.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 part 'notification_button.dart';
 
@@ -23,7 +23,7 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+
 
     return Container(
       decoration: BoxDecoration(
@@ -69,20 +69,7 @@ class WidgetAppbar extends StatelessWidget implements PreferredSizeWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      IconButton(
-                        icon: Icon(
-                          isDark
-                              ? Icons.light_mode_rounded
-                              : Icons.dark_mode_rounded,
-                          color: isDark
-                              ? context.theme.warning
-                              : context.colorScheme.onSurface,
-                          size: ThemeSize.iconMedium,
-                        ),
-                        onPressed: () {
-                          context.read<ThemeProvider>().toggleTheme();
-                        },
-                      ),
+                      const AppThemeButton(),
                       const _NotificationButton(),
                       WidgetPopMenu(
                         onSelected: onSelected,

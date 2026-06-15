@@ -2,6 +2,7 @@ part of '../page/login_page.dart';
 
 final class _LoginView extends StatelessWidget {
   const _LoginView({
+    required this.translations,
     required this.isLoading,
     required this.usernameController,
     required this.passwordController,
@@ -11,6 +12,7 @@ final class _LoginView extends StatelessWidget {
     required this.error,
   });
 
+final Translations translations;
   final TextEditingController usernameController;
   final TextEditingController passwordController;
   final ScrollController scrollController;
@@ -21,7 +23,6 @@ final class _LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final translations = Translations.of(context);
     return SingleChildScrollView(
       controller: scrollController,
       padding: const ThemePadding.all24(),
@@ -29,32 +30,21 @@ final class _LoginView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: ThemeSize.spacingL,
         children: [
-          SizedBox(height: size.height * 0.1),
-          Text(
-            translations.page.login.test,
-            style: TextStyle(fontSize: 24),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final current = LocaleSettings.currentLocale;
-              if (current == AppLocale.en) {
-                await LocaleSettings.setLocale(AppLocale.tr);
-                debugPrint(
-                    'Locale changed to: ${LocaleSettings.currentLocale}');
-              } else {
-                await LocaleSettings.setLocale(AppLocale.en);
-                debugPrint(
-                    'Locale changed to: ${LocaleSettings.currentLocale}');
-              }
-            },
-            child: const Text('Change Locale'),
-          ),
           SizedBox(height: size.height * 0.075),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppThemeButton(),
+              LocalizationButton(),
+            ],
+          ),
+          const SizedBox(height: ThemeSize.spacingXXl),
           const _LoginLogo(),
-          _UsernameTextField(usernameController),
+          _UsernameTextField(usernameController, translations),
           _PasswordTextField(
             controller: passwordController,
             onPressed: onLogin,
+            translations: translations,
           ),
           const SizedBox(height: ThemeSize.spacingL),
           if (error != null) ...[
@@ -64,9 +54,10 @@ final class _LoginView extends StatelessWidget {
           _LoginButton(
             isLoading: isLoading,
             onPressed: onLogin,
+            translations: translations,
           ),
-          const _RegisterButton(),
-          const _ForgetPasswordButton(),
+          _RegisterButton(translations: translations),
+          _ForgetPasswordButton(translations: translations),
         ],
       ),
     );

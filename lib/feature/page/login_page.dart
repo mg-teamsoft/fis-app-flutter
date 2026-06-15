@@ -1,6 +1,8 @@
 import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/providers/user_plan_provider.dart';
 import 'package:fis_app_flutter/app/services/auth_service.dart';
+import 'package:fis_app_flutter/app/widget/localization_button.dart';
+import 'package:fis_app_flutter/app/widget/theme_button.dart';
 import 'package:fis_app_flutter/i18n/translations.g.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +29,7 @@ class _PageLoginState extends State<PageLogin> with _ConnectionLogin {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _LoginView(
+        translations: _translations,
         isLoading: _loading,
         usernameController: _userCtrl,
         passwordController: _passCtrl,
