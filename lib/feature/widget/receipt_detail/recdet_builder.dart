@@ -93,7 +93,7 @@ class __ReceiptDetailBuilderState extends State<_ReceiptDetailBuilder> {
                   label: 'Toplam KDV Tutarı',
                   value: widget.currencyFormatter.format(detail.vatAmount),
                   secondaryLabel: 'KDV Oranı',
-                  secondaryValue: '${detail.vatRate.toStringAsFixed(2)}%',
+                  secondaryValue: '${detail.vatRate.toStringAsFixed(0)}%',
                 ),
                 _ReceiptDetailInfoRow(
                   label: 'İşlem Tipi',

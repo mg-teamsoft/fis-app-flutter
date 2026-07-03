@@ -65,7 +65,7 @@ final class _ReceiptListTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: ThemeTypography.titleMedium(
+                  child: ThemeTypography.bodySmall(
                     context,
                     summary.businessName,
                     weight: FontWeight.w700,
@@ -80,14 +80,14 @@ final class _ReceiptListTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ThemeTypography.titleMedium(
+                      ThemeTypography.bodySmall(
                         context,
                         amountText,
                         weight: FontWeight.w800,
                         color: context.colorScheme.onSurface,
                       ),
                       const SizedBox(height: ThemeSize.spacingS),
-                      ThemeTypography.bodyMedium(
+                      ThemeTypography.bodySmall(
                         context,
                         dateText,
                         color: context.colorScheme.onSurface,

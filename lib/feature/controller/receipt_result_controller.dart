@@ -224,8 +224,20 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
 
     void requireNumeric(String key, String label) {
       final v = receipt[key]?.toString().trim() ?? '';
-      if (v.isNotEmpty && double.tryParse(v) == null) {
+      if (v.isNotEmpty && _parseNumber(v) == null) {
         errors.add('$label geçerli bir sayı olmalıdır.');
+      }
+    }
+
+    void requirePositiveNumber(String key, String label) {
+      final v = receipt[key]?.toString().trim() ?? '';
+      final parsed = _parseNumber(v);
+      if (v.isEmpty) {
+        errors.add('$label zorunludur.');
+      } else if (parsed == null) {
+        errors.add('$label geçerli bir sayı olmalıdır.');
+      } else if (parsed <= 0) {
+        errors.add("$label 0'dan büyük olmalıdır.");
       }
     }
 
@@ -233,8 +245,8 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     requireField('İşlem Tarihi', 'İşlem Tarihi');
     requireField('Toplam Tutar', 'Toplam Tutar');
     requireNumeric('Toplam Tutar', 'Toplam Tutar');
-    requireNumeric('KDV Tutarı', 'KDV Tutarı');
-    requireNumeric('KDV (%)', 'KDV');
+    requirePositiveNumber('KDV Tutarı', 'KDV Tutarı');
+    requirePositiveNumber('KDV (%)', 'KDV Oranı');
 
     final products = receipt['Ürünler'];
     if (products is List) {
@@ -245,7 +257,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
           if (name.isEmpty) errors.add('Ürün ${i + 1}: Ürün Adı zorunludur.');
           for (final f in ['Miktar', 'Birim Fiyat', 'Satır Toplamı']) {
             final v = p[f]?.toString().trim() ?? '';
-            if (v.isNotEmpty && double.tryParse(v) == null) {
+            if (v.isNotEmpty && _parseNumber(v) == null) {
               errors.add('Ürün ${i + 1}: $f geçerli bir sayı olmalıdır.');
             }
           }
@@ -253,6 +265,14 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
       }
     }
     return errors;
+  }
+
+  static double? _parseNumber(dynamic value) {
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value.trim().replaceAll(',', '.'));
+    }
+    return null;
   }
 
   Future<void> _approveAll(BuildContext context) async {

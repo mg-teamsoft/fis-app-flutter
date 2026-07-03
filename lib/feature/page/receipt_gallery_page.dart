@@ -5,7 +5,6 @@ import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/services/customer_service.dart';
 import 'package:fis_app_flutter/app/services/receipt_api_service.dart';
 import 'package:fis_app_flutter/core/capitalize.dart';
-import 'package:fis_app_flutter/core/date.dart';
 import 'package:fis_app_flutter/feature/model/receipt_model.dart';
 import 'package:fis_app_flutter/feature/page/receipt_detail_page.dart';
 import 'package:flutter/material.dart';

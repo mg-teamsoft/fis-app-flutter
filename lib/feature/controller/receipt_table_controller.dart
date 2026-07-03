@@ -134,7 +134,8 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
       text: _pick<String>(['Ödeme Türü', 'Ödeme Tipi', 'paymentType']) ?? '',
     );
     _vatRate = TextEditingController(
-      text: _fmt(_pick<dynamic>(['KDV (%)', 'KDV Oranı (%)', 'vatRate'])),
+      text:
+          _fmtVatRate(_pick<dynamic>(['KDV (%)', 'KDV Oranı (%)', 'vatRate'])),
     );
     _businessTaxNo = TextEditingController(
       text: _fmt(
@@ -195,6 +196,14 @@ mixin _ConnectionReceiptTable on State<PageReceiptTable> {
     if (v == null) return '';
     if (v is Map) return v.values.join(' / ');
     return v.toString();
+  }
+
+  String _fmtVatRate(dynamic v) {
+    if (v == null) return '';
+    if (v is num) return v.toStringAsFixed(0);
+    final text = v.toString().trim();
+    final parsed = double.tryParse(text.replaceAll(',', '.'));
+    return parsed == null ? text : parsed.toStringAsFixed(0);
   }
 
   void _onScalarChanged() {

@@ -442,7 +442,7 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
     if (value == null || value.trim().isEmpty) return 'Bu alan zorunludur';
     final parsed = double.tryParse(value.trim().replaceAll(',', '.'));
     if (parsed == null) return 'Geçerli bir tutar giriniz';
-    if (parsed < 0) return 'Tutar negatif olamaz';
+    if (parsed <= 0) return "Tutar 0'dan büyük olmalıdır";
     final total = double.tryParse(
       _totalAmountController.text.trim().replaceAll(',', '.'),
     );

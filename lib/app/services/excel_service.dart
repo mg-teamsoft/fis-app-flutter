@@ -10,6 +10,11 @@ class ExcelService {
   Future<bool> pushReceipt(String key, Map<String, dynamic> receiptJson) async {
     try {
       _lastWriteMessage = null;
+      final validationMessage = _validateReceiptForWrite(receiptJson);
+      if (validationMessage != null) {
+        _lastWriteMessage = validationMessage;
+        return false;
+      }
       final payload = <String, dynamic>{
         'key': key,
         'receiptJson': receiptJson,
@@ -37,6 +42,35 @@ class ExcelService {
       _lastWriteMessage = 'Unexpected error: $e';
       return false;
     }
+  }
+
+  String? _validateReceiptForWrite(Map<String, dynamic> receiptJson) {
+    final vatAmount = _parseNumber(
+      receiptJson['vatAmount'] ?? receiptJson['kdvAmount'],
+    );
+    final transactionType = receiptJson['transactionType'];
+    final nestedVatRate = transactionType is Map
+        ? transactionType['kdvRate'] ?? transactionType['vatRate']
+        : null;
+    final vatRate = _parseNumber(
+      receiptJson['vatRate'] ?? receiptJson['kdvRate'] ?? nestedVatRate,
+    );
+
+    if (vatAmount == null || vatAmount <= 0) {
+      return "KDV tutarı 0'dan büyük olmalıdır. Excel'e yazılmadı.";
+    }
+    if (vatRate == null || vatRate <= 0) {
+      return "KDV oranı 0'dan büyük olmalıdır. Excel'e yazılmadı.";
+    }
+    return null;
+  }
+
+  double? _parseNumber(dynamic value) {
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value.trim().replaceAll(',', '.'));
+    }
+    return null;
   }
 
   /// GET /excel/files  -> list the single file record (one per user)
@@ -89,7 +123,6 @@ class ExcelService {
         '/api/notifications/excelUpdate',
         data: {'inviteeEmail': inviteeEmail},
       );
-      print("Response Data: ${res.data}");
       return res.statusCode == 201;
     } on DioException catch (e) {
       throw Exception('Failed to send notification: ${e.message}');

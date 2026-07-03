@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:fis_app_flutter/app/config/contact_permission.dart';
 import 'package:fis_app_flutter/app/import/theme.dart';
-import 'package:fis_app_flutter/app/services/customer_service.dart';
 import 'package:fis_app_flutter/app/services/connections_service.dart';
+import 'package:fis_app_flutter/app/services/customer_service.dart';
 import 'package:fis_app_flutter/app/services/excel_service.dart';
 import 'package:fis_app_flutter/app/services/file_download_service.dart';
 import 'package:fis_app_flutter/model/excel_file_entry.dart';

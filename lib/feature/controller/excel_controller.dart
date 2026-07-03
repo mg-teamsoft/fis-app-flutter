@@ -43,7 +43,7 @@ mixin _ConnectionExcel on State<PageExcel> {
       setState(() {
         _supervisors = list;
       });
-    } catch (_) {
+    } on Exception catch (_) {
       if (!mounted) return;
       setState(() {
         _supervisors = [];
@@ -88,7 +88,7 @@ mixin _ConnectionExcel on State<PageExcel> {
               );
             }),
           );
-        } catch (_) {
+        } on Exception catch (_) {
           // Ignore errors for individual customers to not break the whole list
         }
       }
@@ -180,7 +180,7 @@ mixin _ConnectionExcel on State<PageExcel> {
           ),
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

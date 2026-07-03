@@ -95,7 +95,7 @@ final class _ReceiptGalleryBuildSearchResult extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ThemeTypography.titleMedium(
+                          ThemeTypography.bodySmall(
                             context,
                             receipt.businessName,
                             weight: FontWeight.w700,
@@ -111,13 +111,13 @@ final class _ReceiptGalleryBuildSearchResult extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        ThemeTypography.titleMedium(
+                        ThemeTypography.bodySmall(
                           context,
                           amountText,
                           weight: FontWeight.w800,
                           color: context.colorScheme.onSurface,
                         ),
-                        ThemeTypography.titleMedium(
+                        ThemeTypography.bodySmall(
                           context,
                           dateText,
                           color: context.colorScheme.onSurface,

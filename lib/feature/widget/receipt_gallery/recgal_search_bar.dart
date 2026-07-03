@@ -96,7 +96,7 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                   size: ThemeSize.iconMedium,
                   color: context.colorScheme.onSecondary,
                 ),
-                label: ThemeTypography.bodyLarge(
+                label: ThemeTypography.bodyMedium(
                   context,
                   selectedDateRange == null
                       ? 'Tarih Aralığı Seç'
@@ -113,7 +113,7 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                     size: ThemeSize.iconMedium,
                     color: context.colorScheme.onSurface,
                   ),
-                  label: ThemeTypography.bodyLarge(
+                  label: ThemeTypography.bodyMedium(
                     context,
                     'Temizle',
                     weight: FontWeight.w600,
@@ -157,7 +157,7 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                         .map(
                           (item) => DropdownMenuItem<String>(
                             value: item.id,
-                            child: ThemeTypography.bodyLarge(
+                            child: ThemeTypography.bodyMedium(
                               context,
                               item.name,
                               overflow: TextOverflow.ellipsis,
@@ -176,7 +176,7 @@ final class _ReceiptGallerySearchBar extends StatelessWidget {
                     onPressed: selectedCustomerId == null
                         ? null
                         : applyCustomerSelection,
-                    child: ThemeTypography.bodyLarge(
+                    child: ThemeTypography.bodyMedium(
                       context,
                       'Seç',
                       weight: FontWeight.w600,
