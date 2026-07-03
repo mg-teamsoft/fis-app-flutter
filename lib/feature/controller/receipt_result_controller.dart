@@ -539,7 +539,12 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     final containsLocalizedKey =
         source.keys.any((key) => _localizedReceiptKeys.contains(key));
     if (!containsLocalizedKey) {
-      return source;
+      final normalized = Map<String, dynamic>.from(source);
+      for (final key in ['vatAmount', 'vatRate', 'totalAmount']) {
+        final parsed = _parseNumber(normalized[key]);
+        if (parsed != null) normalized[key] = parsed;
+      }
+      return normalized;
     }
 
     final normalized = <String, dynamic>{};
@@ -560,14 +565,11 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
       'transactionDate',
       source['İşlem Tarihi'] ?? source['islemTarihi'],
     );
-    put(
-      'vatAmount',
-      source['KDV Tutarı'] ?? source['kdvTutari'],
-    );
-    put(
-      'vatRate',
-      source['KDV (%)'] ?? source['KDV Oranı (%)'] ?? source['kdvOrani'],
-    );
+    final rawVatAmount = source['KDV Tutarı'] ?? source['kdvTutari'];
+    put('vatAmount', _parseNumber(rawVatAmount) ?? rawVatAmount);
+    final rawVatRate =
+        source['KDV (%)'] ?? source['KDV Oranı (%)'] ?? source['kdvOrani'];
+    put('vatRate', _parseNumber(rawVatRate) ?? rawVatRate);
     put(
       'businessTaxNo',
       source['Vergi No'] ??
@@ -575,10 +577,8 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
           source['businessTaxNo'] ??
           source['vergiNumarasi'],
     );
-    put(
-      'totalAmount',
-      source['Toplam Tutar'] ?? source['toplamTutar'],
-    );
+    final rawTotalAmount = source['Toplam Tutar'] ?? source['toplamTutar'];
+    put('totalAmount', _parseNumber(rawTotalAmount) ?? rawTotalAmount);
     put(
       'paymentType',
       source['Ödeme Türü'] ?? source['Ödeme Tipi'] ?? source['odemeTipi'],

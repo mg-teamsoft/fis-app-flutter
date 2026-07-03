@@ -62,7 +62,9 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
   }
 
   void _recalculateKdv() {
-    final total = double.tryParse(_totalAmountController.text.trim());
+    final total = double.tryParse(
+      _totalAmountController.text.trim().replaceAll(',', '.'),
+    );
     final rate = int.tryParse(_selectedKdvRate ?? '');
     if (total == null || rate == null || rate == 0) {
       setState(() {
@@ -341,10 +343,14 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
 
     setState(() => _saving = true);
     try {
-      final totalAmount =
-          double.tryParse(_totalAmountController.text.trim()) ?? 0.0;
-      final vatAmount =
-          double.tryParse(_kdvAmountController.text.trim()) ?? 0.0;
+      final totalAmount = double.tryParse(
+            _totalAmountController.text.trim().replaceAll(',', '.'),
+          ) ??
+          0.0;
+      final vatAmount = double.tryParse(
+            _kdvAmountController.text.trim().replaceAll(',', '.'),
+          ) ??
+          0.0;
       final vatRate = int.tryParse(_selectedKdvRate ?? '') ?? 0;
       final transactionDate = DateFormat('dd.MM.yyyy').format(_selectedDate!);
       debugPrint(

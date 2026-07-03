@@ -10,14 +10,15 @@ class ExcelService {
   Future<bool> pushReceipt(String key, Map<String, dynamic> receiptJson) async {
     try {
       _lastWriteMessage = null;
-      final validationMessage = _validateReceiptForWrite(receiptJson);
+      final normalizedReceipt = _normalizeReceiptForWrite(receiptJson);
+      final validationMessage = _validateReceiptForWrite(normalizedReceipt);
       if (validationMessage != null) {
         _lastWriteMessage = validationMessage;
         return false;
       }
       final payload = <String, dynamic>{
         'key': key,
-        'receiptJson': receiptJson,
+        'receiptJson': normalizedReceipt,
       };
       final res = await _api.dio
           .post<Map<String, dynamic>>('/api/excel/write', data: payload);
@@ -42,6 +43,35 @@ class ExcelService {
       _lastWriteMessage = 'Unexpected error: $e';
       return false;
     }
+  }
+
+  Map<String, dynamic> _normalizeReceiptForWrite(
+    Map<String, dynamic> receiptJson,
+  ) {
+    final normalized = Map<String, dynamic>.from(receiptJson);
+    final vatAmount = _parseNumber(
+      normalized['kdvAmount'] ?? normalized['vatAmount'],
+    );
+    if (vatAmount != null) normalized['kdvAmount'] = vatAmount;
+
+    final vatRate =
+        _parseNumber(normalized['vatRate'] ?? normalized['kdvRate']);
+    final transactionType = normalized['transactionType'];
+    if (transactionType is String) {
+      normalized['transactionType'] = <String, dynamic>{
+        'type': transactionType,
+        if (vatRate != null) 'kdvRate': vatRate,
+      };
+    } else if (transactionType is Map) {
+      final normalizedType = Map<String, dynamic>.from(transactionType);
+      final nestedRate = _parseNumber(
+        normalizedType['kdvRate'] ?? normalizedType['vatRate'] ?? vatRate,
+      );
+      if (nestedRate != null) normalizedType['kdvRate'] = nestedRate;
+      normalized['transactionType'] = normalizedType;
+    }
+
+    return normalized;
   }
 
   String? _validateReceiptForWrite(Map<String, dynamic> receiptJson) {
