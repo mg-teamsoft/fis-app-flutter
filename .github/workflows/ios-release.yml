@@ -1,0 +1,67 @@
+name: Flutter iOS Production Dağıtımı
+
+on:
+  push:
+    tags:
+      - "v*-[0-9]*" # Örn: v1.1.2-16 formatındaki tag'lerde tetiklenir
+
+jobs:
+  deploy-ios:
+    name: iOS Build & App Store Dağıtımı
+    runs-on: macos-latest
+
+    steps:
+      - name: Kodu GitHub'dan Çek
+        uses: actions/checkout@v4
+
+      # v1.1.2-16 tag'ini parçalayıp sürüm adını ve numarasını ayıran regex adım
+      - name: Tag Bilgilerini Oku ve Değişken Yap
+        id: get_version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          # v1.1.2-16 -> Sürüm: 1.1.2, Build: 16
+          BUILD_NAME=$(echo $TAG_NAME | sed -E 's/v(.*)-[0-9]+/\1/')
+          BUILD_NUMBER=$(echo $TAG_NAME | sed -E 's/v.*-([0-9]+)/\1/')
+          echo "VERSION_NAME=$BUILD_NAME" >> $GITHUB_ENV
+          echo "VERSION_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+
+      - name: SSH Key Kurulumu (Fastlane Match için)
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.GIT_PRIVATE_SSH_KEY }}
+
+      - name: Flutter SDK Kurulumu
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Bağımlılıkları Yükle
+        run: |
+          flutter clean
+          flutter pub get
+
+      - name: CocoaPods Bağımlılıklarını Kur
+        run: |
+          cd ios
+          pod install --repo-update
+
+      # Tam olarak sizin çalıştırdığınız derleme komutu (Tag'den gelen dinamik versiyonlarla)
+      - name: Flutter iOS IPA Oluştur (Kod İmzasız)
+        run: |
+          flutter build ipa --release \
+            --no-codesign \
+            --build-name=${{ env.VERSION_NAME }} \
+            --build-number=${{ env.VERSION_NUMBER }} \
+            --dart-define=ENV=prod \
+            --dart-define=API_BASE_URL=https://api.myfisapp.com
+
+      - name: Fastlane ile İmzala ve App Store Connect'e Yükle
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }} # H32VC8PY7V
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }} # a677955f-0f48-42e2-8929-2331441c61a5
+          APP_STORE_CONNECT_BASE64_KEY: ${{ secrets.APP_STORE_CONNECT_BASE64_KEY }} # Secrets'a eklediğiniz p8 içeriği
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        run: |
+          cd ios
+          bundle exec fastlane release

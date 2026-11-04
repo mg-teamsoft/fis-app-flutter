@@ -125,3 +125,13 @@ app.*.symbols
 .prompt/*
 .agent/*
 *.agent
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/README.md
+
+*.p8
+*.cer
+*.mobileprovision
