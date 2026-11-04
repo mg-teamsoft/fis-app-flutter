@@ -35,3 +35,8 @@ Runner/GeneratedPluginRegistrant.*
 !default.pbxuser
 !default.perspectivev3
 *.lock
+!Gemfile.lock
+
+# Generated Fastlane output
+fastlane/README.md
+fastlane/report.xml
