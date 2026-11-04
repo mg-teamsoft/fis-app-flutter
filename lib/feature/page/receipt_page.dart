@@ -2,6 +2,7 @@ import 'dart:io' show File;
 import 'dart:typed_data';
 
 import 'package:fis_app_flutter/app/import/theme.dart';
+import 'package:fis_app_flutter/app/services/receipt_image_service.dart';
 import 'package:fis_app_flutter/app/services/receipt_service.dart';
 import 'package:fis_app_flutter/app/widget/build_action.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;

@@ -98,15 +98,25 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
   }
 
   Future<void> _pickInvoiceImage() async {
-    final file = await _picker.pickImage(source: ImageSource.gallery);
-    if (!mounted || file == null) return;
+    final selected = await _picker.pickImage(source: ImageSource.gallery);
+    if (!mounted || selected == null) return;
+    late XFile file;
+    try {
+      file = await ReceiptImageService.prepare(selected);
+    } on Exception catch (e) {
+      if (mounted) _showSnackBar('Görsel hazırlanamadı: $e');
+      return;
+    }
+    if (!mounted) return;
 
     Uint8List? bytes;
     if (kIsWeb) {
       bytes = await file.readAsBytes();
     }
 
-    // Show the image immediately in the picker box
+    if (!mounted) return;
+
+    // Show the prepared image in the picker box
     setState(() {
       _invoiceImage = file;
       _invoiceImageBytes = bytes;
@@ -123,10 +133,10 @@ mixin _ConnectionReceiptManuel on State<PageReceiptManuel> {
 
       // Size validation
       final size = rawBytes.length;
-      const maxBytes = 5 * 1024 * 1024;
+      const maxBytes = S3UploadService.maxImageBytes;
       const minBytes = 10 * 1024;
       if (size > maxBytes) {
-        _showSnackBar('⚠️ Resim en fazla 5 MB olabilir.');
+        _showSnackBar('⚠️ Resim en fazla 7 MB olabilir.');
         setState(() {
           _invoiceImage = null;
           _invoiceImageBytes = null;

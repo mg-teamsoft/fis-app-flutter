@@ -10,8 +10,8 @@ final class _HomeActions extends StatelessWidget {
       size: size!,
       onPressedOne: () => Navigator.of(context).pushNamed('/receipt'),
       onPressedTwo: () => Navigator.of(context).pushNamed('/excelFiles'),
-      titleOne: ' Fiş Yükle',
-      titleTwo: ' Excel Aç',
+      titleOne: 'Fiş Yükle',
+      titleTwo: 'Excel Aç',
       iconOne: Icon(
         Icons.receipt,
         color: context.colorScheme.onPrimaryContainer,

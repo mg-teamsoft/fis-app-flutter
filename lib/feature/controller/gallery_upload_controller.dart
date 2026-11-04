@@ -19,7 +19,17 @@ mixin _ConnectionGalleryUpload on State<PageGalleryUpload> {
   }
 
   Future<void> _pick() async {
-    final file = await ReceiptService.pickFromGallery(context);
+    late XFile? file;
+    try {
+      file = await ReceiptService.pickFromGallery(context);
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Görsel hazırlanamadı: $e')),
+        );
+      }
+      return;
+    }
     Uint8List? bytes;
 
     if (kIsWeb && file != null) {

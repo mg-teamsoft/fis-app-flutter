@@ -18,10 +18,10 @@ class UploadService {
     try {
       final form = FormData.fromMap({
         // if your backend expects multiple: use a list with one entry
-        'files': await MultipartFile.fromFile(
-          file.path,
+        'files': MultipartFile.fromBytes(
+          await file.readAsBytes(),
           filename: file.name,
-          contentType: DioMediaType.parse('image/${_ext(file.path)}'),
+          contentType: DioMediaType.parse('image/${_ext(file.name)}'),
         ),
       });
 

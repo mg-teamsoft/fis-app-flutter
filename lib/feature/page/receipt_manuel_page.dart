@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/services/excel_service.dart';
 import 'package:fis_app_flutter/app/services/receipt_api_service.dart';
+import 'package:fis_app_flutter/app/services/receipt_image_service.dart';
 import 'package:fis_app_flutter/app/services/s3_upload_service.dart';
 import 'package:fis_app_flutter/app/utils/checksum_utils.dart';
 import 'package:fis_app_flutter/app/utils/mime_utils.dart';

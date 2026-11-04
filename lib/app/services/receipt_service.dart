@@ -1,3 +1,4 @@
+import 'package:fis_app_flutter/app/services/receipt_image_service.dart';
 import 'package:fis_app_flutter/core/permission_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,7 +13,8 @@ class ReceiptService {
         await PermissionService.ensureFor(ReceiptAction.pick, context: context);
     if (!ok) return null;
 
-    return _picker.pickImage(source: ImageSource.gallery);
+    final file = await _picker.pickImage(source: ImageSource.gallery);
+    return file == null ? null : ReceiptImageService.prepare(file);
   }
 
   /// Capture with camera (asks Camera permission on first use)
@@ -23,8 +25,7 @@ class ReceiptService {
     );
     if (!ok) return null;
 
-    return _picker.pickImage(
-      source: ImageSource.camera,
-    );
+    final file = await _picker.pickImage(source: ImageSource.camera);
+    return file == null ? null : ReceiptImageService.prepare(file);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/services/receipt_api_service.dart';
 import 'package:fis_app_flutter/feature/model/receipt_detail_model.dart';

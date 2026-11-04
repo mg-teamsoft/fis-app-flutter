@@ -13,7 +13,20 @@ mixin _ConnectionReceiptInitial on State<PageReceipt> {
   }
 
   Future<void> _pickMultiGallery() async {
-    final files = await _picker.pickMultiImage(imageQuality: 90);
+    final selected = await _picker.pickMultiImage();
+    final files = <XFile>[];
+    try {
+      for (final file in selected) {
+        files.add(await ReceiptImageService.prepare(file));
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Görsel hazırlanamadı: $e')),
+        );
+      }
+      return;
+    }
     if (!mounted || files.isEmpty) return;
     setState(() {
       final existing = _picked.map((f) => f.path).toSet();
@@ -25,11 +38,22 @@ mixin _ConnectionReceiptInitial on State<PageReceipt> {
   }
 
   Future<void> _captureCamera() async {
-    final file = await ReceiptService.captureWithCamera(context);
-    if (!mounted || file == null) return;
+    late XFile? file;
+    try {
+      file = await ReceiptService.captureWithCamera(context);
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Görsel hazırlanamadı: $e')),
+        );
+      }
+      return;
+    }
+    final capturedFile = file;
+    if (!mounted || capturedFile == null) return;
     setState(() {
-      if (_picked.every((item) => item.path != file.path)) {
-        _picked = [..._picked, file];
+      if (_picked.every((item) => item.path != capturedFile.path)) {
+        _picked = [..._picked, capturedFile];
       }
     });
   }

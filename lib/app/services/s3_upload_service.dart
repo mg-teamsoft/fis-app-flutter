@@ -21,6 +21,8 @@ class S3InitResponse {
 }
 
 class S3UploadService {
+  static const int maxImageBytes = 7 * 1024 * 1024;
+
   final _api = ApiClient();
 
   Map<String, dynamic> _normalizeMap(dynamic raw) {
@@ -106,6 +108,9 @@ class S3UploadService {
 
     // Read whole file into memory -> set explicit Content-Length
     final bytes = await file.readAsBytes();
+    if (bytes.length > maxImageBytes) {
+      throw Exception('Resim en fazla 7 MB olabilir.');
+    }
 
     // Build headers EXACTLY as presigned requires
     final reqHeaders = <String, dynamic>{

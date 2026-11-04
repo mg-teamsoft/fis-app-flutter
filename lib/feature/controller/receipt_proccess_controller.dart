@@ -64,17 +64,53 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
 
     try {
       for (final item in items) {
-        final jpegFile = await convertToJpeg(File(item.file.path));
+        final uploadFile = File(item.file.path);
 
-        final mime = guessMime(jpegFile.path);
+        final bytes = await uploadFile.readAsBytes();
+        final size = bytes.length;
+        const maxBytes = S3UploadService.maxImageBytes;
+        const minBytes = 10 * 1024;
+
+        if (size > maxBytes) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: ThemeTypography.bodyLarge(
+                  context,
+                  '⚠️ Resim en fazla 7 MB olabilir.',
+                  color: context.theme.error,
+                  weight: FontWeight.w600,
+                ),
+                duration: const Duration(seconds: 5),
+              ),
+            );
+          }
+          continue;
+        } else if (size < minBytes) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: ThemeTypography.bodyLarge(
+                  context,
+                  '⚠️ Resim en az 10 KB olabilir.',
+                  color: context.theme.error,
+                  weight: FontWeight.w600,
+                ),
+                duration: const Duration(seconds: 5),
+              ),
+            );
+          }
+          continue;
+        }
+
+        final mime = guessMime(uploadFile.path);
         // 1) init
-        final bytes = await jpegFile.readAsBytes();
         final checksum = crc32Base64(bytes);
         final sha = crytoSHA256Hex(bytes);
 
         final init = await _s3.initUpload(
           contentType: mime,
-          filename: p.basename(jpegFile.path),
+          filename: p.basename(uploadFile.path),
           checksumCRC32: checksum,
           sha256: sha,
         );
@@ -86,49 +122,15 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
         // 2) put to s3
         await _s3.putToS3(
           presignedUrl: init.presignedUrl,
-          file: File(item.file.path),
+          file: uploadFile,
           headers: {
-            'Content-Type': 'image/jpeg',
+            'Content-Type': mime,
             // Optional but fine to include for clarity:
             // 'x-amz-checksum-crc32': checksum,
           },
         );
 
         // 3) confirm
-        final size = await File(item.file.path).length();
-        const maxBytes = 5 * 1024 * 1024;
-        const minBytes = 10 * 1024;
-
-        if (size > maxBytes) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: ThemeTypography.bodyLarge(
-                  context,
-                  '⚠️ Resim en fazla 5 MB olabilir.',
-                  color: context.theme.error,
-                  weight: FontWeight.w600,
-                ),
-              ),
-            );
-          }
-          continue;
-        } else if (size < minBytes) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: ThemeTypography.bodyLarge(
-                  context,
-                  '⚠️ Resim en az 100 KB olabilir.',
-                  color: context.theme.error,
-                  weight: FontWeight.w600,
-                ),
-              ),
-            );
-          }
-          continue;
-        }
-
         await _s3.confirmUpload(
           key: init.key,
           size: size,
@@ -140,7 +142,7 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
         item.jobId = await _jobs.startByKey(init.key, mime: mime);
       }
 
-      if (!mounted) return;
+      if (!mounted || items.every((item) => item.jobId == null)) return;
       await Navigator.pushReplacementNamed(
         context,
         '/receipt/results',

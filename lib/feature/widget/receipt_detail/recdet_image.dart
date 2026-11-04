@@ -43,10 +43,18 @@ class _ReceiptImageState extends State<_ReceiptDetailImage> {
                       physics: const BouncingScrollPhysics(),
                       child: RotatedBox(
                         quarterTurns: _rotationQuarterTurns,
-                        child: Image.network(
-                          widget.imageUrl,
+                        child: CachedNetworkImage(
+                          imageUrl: widget.imageUrl,
                           fit: BoxFit.fitWidth,
-                          errorBuilder: (_, error, __) {
+                          fadeInDuration: Duration.zero,
+                          fadeOutDuration: Duration.zero,
+                          placeholder: (_, __) => SizedBox(
+                            height: widget.size.height * 0.25,
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                          errorWidget: (_, __, error) {
                             debugPrint(
                               'Receipt image load failed. url=${widget.imageUrl} error=$error',
                             );
