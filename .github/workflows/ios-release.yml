@@ -47,8 +47,18 @@ jobs:
           GIT_TERMINAL_PROMPT: "0"
           GIT_SSH_COMMAND: "ssh -o BatchMode=yes"
         run: |
-          git ls-remote --exit-code --heads \
-            git@github.com:mg-teamsoft/ios-certificates.git main > /dev/null
+          if ! REMOTE_REFS="$(git ls-remote --symref git@github.com:mg-teamsoft/ios-certificates.git HEAD)"; then
+            echo "::error::Sertifika deposuna SSH üzerinden erişilemedi. Anahtarın okuma yetkisini kontrol edin."
+            exit 1
+          fi
+          MATCH_BRANCH="$(printf '%s\n' "$REMOTE_REFS" | awk '$1 == "ref:" && $3 == "HEAD" { sub(/^refs\/heads\//, "", $2); print $2; exit }')"
+          if [ -z "$MATCH_BRANCH" ]; then
+            echo "::error::Sertifika deposunun varsayılan branch'i bulunamadı. Depoda en az bir commit olmalı ve varsayılan branch ayarlanmalı."
+            exit 1
+          fi
+          git check-ref-format --branch "$MATCH_BRANCH" > /dev/null
+          printf 'MATCH_GIT_BRANCH=%s\n' "$MATCH_BRANCH" >> "$GITHUB_ENV"
+          printf 'Match sertifika branch: %s\n' "$MATCH_BRANCH"
 
       - name: Flutter SDK Kurulumu
         uses: subosito/flutter-action@v2

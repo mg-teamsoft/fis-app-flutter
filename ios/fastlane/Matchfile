@@ -1,5 +1,5 @@
 git_url("git@github.com:mg-teamsoft/ios-certificates.git")
-git_branch("main")
+# CI discovers the repository's default branch and sets MATCH_GIT_BRANCH.
 
 storage_mode("git")
 
