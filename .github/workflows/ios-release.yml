@@ -42,6 +42,14 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.GIT_PRIVATE_SSH_KEY }}
 
+      - name: Sertifika Deposuna SSH Erişimini Doğrula
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+          GIT_SSH_COMMAND: "ssh -o BatchMode=yes"
+        run: |
+          git ls-remote --exit-code --heads \
+            git@github.com:mg-teamsoft/ios-certificates.git main > /dev/null
+
       - name: Flutter SDK Kurulumu
         uses: subosito/flutter-action@v2
         with:
