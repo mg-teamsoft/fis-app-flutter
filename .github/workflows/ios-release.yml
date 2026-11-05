@@ -56,7 +56,7 @@ jobs:
         run: |
           flutter build ipa --release \
             --no-codesign \
-            --no-pub \
+            --no-pub-use-spm \
             --build-name="$VERSION_NAME" \
             --build-number="$VERSION_NUMBER" \
             --dart-define=ENV=prod \
