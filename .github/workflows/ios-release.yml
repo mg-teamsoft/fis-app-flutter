@@ -19,6 +19,13 @@ jobs:
         with:
           xcode-version: "26.0.1"
 
+      - name: Xcode iOS Platform Bileşenlerini Hazırla
+        run: |
+          sudo env "DEVELOPER_DIR=${DEVELOPER_DIR:-$(xcode-select -p)}" \
+            xcodebuild -runFirstLaunch -checkForNewerComponents
+          xcodebuild -downloadPlatform iOS
+          xcrun --sdk iphoneos --show-sdk-version
+
       # v1.1.2-16 tag'ini parçalayıp sürüm adını ve numarasını ayıran regex adım
       - name: Tag Bilgilerini Oku ve Değişken Yap
         id: get_version
