@@ -11,6 +11,8 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      - name: Xcode Sürümünü Ayarla
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
       - name: Kodu GitHub'dan Çek
         uses: actions/checkout@v4
 
