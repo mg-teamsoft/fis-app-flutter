@@ -145,6 +145,7 @@ flutter:
   # see https://flutter.dev/to/font-from-package
   config:
     enable-uiscene-migration: false
+    disable-swift-package-manager: true
 fonts:
   - family: Manrope
     fonts:
