@@ -143,6 +143,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+  config:
+    enable-uiscene-migration: false
 fonts:
   - family: Manrope
     fonts:
