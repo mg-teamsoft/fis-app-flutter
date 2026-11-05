@@ -38,8 +38,16 @@ jobs:
       - name: Flutter SDK Kurulumu
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: "3.35.1"
           channel: "stable"
           cache: true
+
+      - name: Ruby ve Fastlane Bağımlılıklarını Kur
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: ios
 
       - name: Bağımlılıkları Yükle
         run: |
@@ -49,12 +57,32 @@ jobs:
       - name: CocoaPods Bağımlılıklarını Kur
         run: |
           cd ios
-          pod install --repo-update
+          bundle exec pod install --repo-update
 
-      # Tam olarak sizin çalıştırdığınız derleme komutu (Tag'den gelen dinamik versiyonlarla)
-      - name: Flutter iOS IPA Oluştur (Kod İmzasız)
+      - name: Xcode Release Ayarlarını Doğrula
         run: |
-          flutter build ipa --release \
+          flutter --version
+          xcodebuild -version
+          xcodebuild -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -showBuildSettings -json > "$RUNNER_TEMP/ios-release-settings.json"
+          python3 - "$RUNNER_TEMP/ios-release-settings.json" <<'PY'
+          import json
+          import sys
+
+          with open(sys.argv[1]) as source:
+              targets = json.load(source)
+          if not any(target.get("target") == "Runner" and target.get("buildSettings") for target in targets):
+              raise SystemExit("Runner Release build settings could not be read")
+          PY
+
+      # İmzalı arşiv ve IPA aşağıdaki Fastlane adımında oluşturulur.
+      - name: Flutter iOS Release Yapılandırmasını Hazırla
+        run: |
+          flutter build ios --release --config-only \
             --no-codesign \
             --build-name="$VERSION_NAME" \
             --build-number="$VERSION_NUMBER" \
