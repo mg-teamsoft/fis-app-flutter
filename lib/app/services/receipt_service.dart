@@ -18,7 +18,10 @@ class ReceiptService {
   }
 
   /// Capture with camera (asks Camera permission on first use)
-  static Future<XFile?> captureWithCamera(BuildContext context) async {
+  static Future<XFile?> captureWithCamera(
+    BuildContext context, {
+    bool prepareImage = true,
+  }) async {
     final ok = await PermissionService.ensureFor(
       ReceiptAction.capture,
       context: context,
@@ -26,6 +29,8 @@ class ReceiptService {
     if (!ok) return null;
 
     final file = await _picker.pickImage(source: ImageSource.camera);
-    return file == null ? null : ReceiptImageService.prepare(file);
+    return file == null || !prepareImage
+        ? file
+        : ReceiptImageService.prepare(file);
   }
 }

@@ -20,5 +20,18 @@
     "workbench.colorCustomizations": {
         "tab.activeBorderTop": "#FFD400"
     },
-    "editor.inlineSuggest.enabled": true
+    "editor.inlineSuggest.enabled": true,
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.import.gradle.wrapper.enabled": true,
+    "java.import.gradle.java.home": "/Users/macbook/Library/Java/JavaVirtualMachines/corretto-21.0.3/Contents/Home",
+    "java.import.exclusions": [
+        "**/node_modules/**",
+        "**/.metadata/**",
+        "**/archetype-resources/**",
+        "**/META-INF/maven/**",
+        "**/.pub-cache/**",
+        "**/.symlinks/**",
+        "**/.dart_tool/**",
+        "**/build/**"
+    ]
 }

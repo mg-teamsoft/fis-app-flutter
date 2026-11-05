@@ -6,6 +6,53 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
   bool _processing = false;
   final Map<String, Future<Uint8List>> _bytesCache = {};
   late Size _size;
+  late final List<XFile> _files;
+
+  @override
+  void initState() {
+    super.initState();
+    _files = List<XFile>.of(widget.files);
+  }
+
+  void _removeImage(XFile file) {
+    if (_processing) return;
+    setState(() {
+      _files.remove(file);
+      unawaited(_bytesCache.remove(file.path));
+    });
+    unawaited(ReceiptImageService.deletePrepared(file));
+  }
+
+  Future<void> _previewImage(XFile file) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => Dialog.fullscreen(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  tooltip: 'Kapat',
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ),
+              Expanded(
+                child: InteractiveViewer(
+                  minScale: 1,
+                  maxScale: 5,
+                  child: Center(
+                    child: Image.file(File(file.path), fit: BoxFit.contain),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   void didChangeDependencies() {
@@ -59,8 +106,9 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
   }
 
   Future<void> _process() async {
+    if (_processing || _files.isEmpty) return;
     setState(() => _processing = true);
-    final items = widget.files.map(SelectedItem.new).toList();
+    final items = _files.map(SelectedItem.new).toList();
 
     try {
       for (final item in items) {
@@ -143,11 +191,12 @@ mixin _ConnectionReceiptProcess on State<PageReceiptProcess> {
       }
 
       if (!mounted || items.every((item) => item.jobId == null)) return;
-      await Navigator.pushReplacementNamed(
+      await Navigator.pushNamed<void>(
         context,
         '/receipt/results',
         arguments: items,
       );
+      if (mounted) Navigator.pop(context);
     } on DioException catch (e) {
       if (!mounted) return;
       await _showErrorDialog(_extractDioErrorMessage(e));

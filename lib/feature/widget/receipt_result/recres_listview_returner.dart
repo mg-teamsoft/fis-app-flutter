@@ -12,6 +12,7 @@ class _ReceiptResultListViewReturner extends StatefulWidget {
     required this.item,
     required this.image,
     required this.editor,
+    super.key,
   });
 
   final int i;
@@ -34,6 +35,7 @@ class __ReceiptResultListViewReturnerState
     extends State<_ReceiptResultListViewReturner> {
   @override
   Widget build(BuildContext context) {
+    final reviewNotice = widget.state.reviewNotice;
     return Padding(
       padding: const ThemePadding.marginBottom16(),
       child: Column(
@@ -74,6 +76,34 @@ class __ReceiptResultListViewReturnerState
             ],
           ),
           const SizedBox(height: ThemeSize.spacingS),
+          if (reviewNotice != null) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: context.theme.warning.withValues(alpha: 0.15),
+                borderRadius: ThemeRadius.circular8,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: context.theme.warning,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      reviewNotice,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: ThemeSize.spacingS),
+          ],
           if (widget.wide)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

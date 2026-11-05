@@ -51,8 +51,8 @@ jobs:
         run: |
           flutter build ipa --release \
             --no-codesign \
-            --build-name=${{ env.VERSION_NAME }} \
-            --build-number=${{ env.VERSION_NUMBER }} \
+            --build-name="$VERSION_NAME" \
+            --build-number="$VERSION_NUMBER" \
             --dart-define=ENV=prod \
             --dart-define=API_BASE_URL=https://api.myfisapp.com
 

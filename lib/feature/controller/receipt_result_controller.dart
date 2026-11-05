@@ -68,9 +68,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
   @override
   void dispose() {
     _tick?.cancel();
-    for (final s in _state.values) {
-      s.controller?.dispose();
-    }
+    _state.values.forEach(_disposeItemAfterUnmount);
     super.dispose();
   }
 
@@ -79,7 +77,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     _tick = Timer.periodic(const Duration(seconds: 1), (t) async {
       var anyActive = false;
 
-      for (final s in _state.values) {
+      for (final s in List<_ItemState>.of(_state.values)) {
         if (!s.active) continue; // already done/failed
         anyActive = true;
 
@@ -102,7 +100,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     });
 
     // Kick an initial poll immediately (no need to wait 10s for first update)
-    for (final s in _state.values) {
+    for (final s in List<_ItemState>.of(_state.values)) {
       await _pollOne(s);
     }
   }
@@ -111,12 +109,15 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     final jobId = s.item.jobId!;
     try {
       final resp = await _jobs.getJob(jobId);
+      if (!mounted || !identical(_state[jobId], s)) return;
 
       final jobObj = (resp['job'] is Map)
           ? Map<String, dynamic>.from(resp['job'] as Map)
           : Map<String, dynamic>.from(resp as Map);
 
       s.status = (jobObj['status'] as String?) ?? s.status;
+      final needsReview = jobObj['needsReview'];
+      s.needsReview = needsReview is bool ? needsReview : null;
       final message = jobObj['message']?.toString();
 
       final raw = jobObj['receipt'];
@@ -195,13 +196,27 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
 
   void _removeItem(SelectedItem it) {
     final jobId = it.jobId;
-    if (jobId != null && _state.containsKey(jobId)) {
-      _state[jobId]?.controller?.dispose();
-      _state[jobId]?.photoController?.dispose();
-      _state.remove(jobId);
+    final removed = jobId == null ? null : _state.remove(jobId);
+    if (removed != null) {
+      _disposeItemAfterUnmount(removed);
     }
     setState(() {
       _items.removeWhere((x) => x.jobId == jobId);
+    });
+  }
+
+  void _disposeItemAfterUnmount(_ItemState state) {
+    final editor = state.controller;
+    final photo = state.photoController;
+    state
+      ..active = false
+      ..controller = null
+      ..photoController = null;
+    // PhotoView removes its listeners during unmount. Its controller must stay
+    // alive until that frame's widget-tree cleanup is complete.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      editor?.dispose();
+      photo?.dispose();
     });
   }
 
@@ -390,9 +405,8 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
     if (!context.mounted) return;
 
     for (final jobId in successfulJobIds) {
-      _state[jobId]?.controller?.dispose();
-      _state[jobId]?.photoController?.dispose();
-      _state.remove(jobId);
+      final removed = _state.remove(jobId);
+      if (removed != null) _disposeItemAfterUnmount(removed);
     }
 
     setState(() {

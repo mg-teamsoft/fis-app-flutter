@@ -78,6 +78,7 @@ class __ReceiptResultViewState extends State<_ReceiptResultView> {
                   final showControls = !submitted;
 
                   return _ReceiptResultListViewReturner(
+                    key: ValueKey(jobId),
                     i: i,
                     showControls: showControls,
                     isSelected: isSelected,

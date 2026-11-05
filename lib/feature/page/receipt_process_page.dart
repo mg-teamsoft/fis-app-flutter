@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:io' show File;
 
 import 'package:dio/dio.dart';
 import 'package:fis_app_flutter/app/import/theme.dart';
 import 'package:fis_app_flutter/app/services/job_service.dart';
+import 'package:fis_app_flutter/app/services/receipt_image_service.dart';
 import 'package:fis_app_flutter/app/services/s3_upload_service.dart';
 import 'package:fis_app_flutter/app/utils/checksum_utils.dart';
 import 'package:fis_app_flutter/app/utils/mime_utils.dart';
@@ -30,13 +32,18 @@ class _PageReceiptProcess extends State<PageReceiptProcess>
     with _ConnectionReceiptProcess {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _ReceiptProcessView(
-        size: _size,
-        files: widget.files,
-        processing: _processing,
-        bytesCache: _bytesCache,
-        process: _process,
+    return PopScope(
+      canPop: !_processing,
+      child: Scaffold(
+        body: _ReceiptProcessView(
+          size: _size,
+          files: _files,
+          processing: _processing,
+          bytesCache: _bytesCache,
+          process: _process,
+          previewImage: _previewImage,
+          removeImage: _removeImage,
+        ),
       ),
     );
   }

@@ -13,7 +13,8 @@ class JobService {
   }
 
   /// Expected backend response shape:
-  /// { status: "queued|processing|done|error", receipt?: {...}, message?: string }
+  /// { status: "queued|processing|done|error", needsReview: bool|null,
+  ///   receipt?: {...}, message?: string }
   Future<Map<String, dynamic>> getJob(String jobId) async {
     final res = await _api.dio.get<Map<String, dynamic>>('/api/job/$jobId');
     return (res.data! as Map).map((k, v) => MapEntry(k.toString(), v));

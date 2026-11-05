@@ -5,6 +5,14 @@ mixin _ConnectionReceiptInitial on State<PageReceipt> {
   List<XFile> _picked = [];
   final Map<String, Future<Uint8List>> _bytesCache = {};
   late Size _size;
+  bool _preparing = false;
+  int _preparedCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(ReceiptImageService.cleanExpired());
+  }
 
   @override
   void didChangeDependencies() {
@@ -13,20 +21,8 @@ mixin _ConnectionReceiptInitial on State<PageReceipt> {
   }
 
   Future<void> _pickMultiGallery() async {
-    final selected = await _picker.pickMultiImage();
-    final files = <XFile>[];
-    try {
-      for (final file in selected) {
-        files.add(await ReceiptImageService.prepare(file));
-      }
-    } on Exception catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Görsel hazırlanamadı: $e')),
-        );
-      }
-      return;
-    }
+    if (_preparing) return;
+    final files = await _picker.pickMultiImage();
     if (!mounted || files.isEmpty) return;
     setState(() {
       final existing = _picked.map((f) => f.path).toSet();
@@ -37,10 +33,20 @@ mixin _ConnectionReceiptInitial on State<PageReceipt> {
     });
   }
 
+  void _removeSelected(XFile file) {
+    if (_preparing) return;
+    setState(() {
+      _picked.remove(file);
+      unawaited(_bytesCache.remove(file.path));
+    });
+  }
+
   Future<void> _captureCamera() async {
+    if (_preparing) return;
     late XFile? file;
     try {
-      file = await ReceiptService.captureWithCamera(context);
+      file =
+          await ReceiptService.captureWithCamera(context, prepareImage: false);
     } on Exception catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -59,12 +65,39 @@ mixin _ConnectionReceiptInitial on State<PageReceipt> {
   }
 
   Future<void> _processSelected() async {
-    if (_picked.isEmpty) return;
-    await Navigator.pushNamed(
-      context,
-      '/receipt/process',
-      arguments: List<XFile>.from(_picked),
-    );
+    if (_picked.isEmpty || _preparing) return;
+    final selected = List<XFile>.of(_picked);
+    final batch = ReceiptImageBatch();
+    setState(() {
+      _preparing = true;
+      _preparedCount = 0;
+    });
+    try {
+      final prepared = await batch.prepareAll(
+        selected,
+        isCancelled: () => !mounted,
+        onProgress: (completed, total) {
+          if (mounted) setState(() => _preparedCount = completed);
+        },
+      );
+      if (!mounted) return;
+      setState(() => _preparing = false);
+      await Navigator.pushNamed<void>(
+        context,
+        '/receipt/process',
+        arguments: prepared,
+      );
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Görseller hazırlanamadı: $e')),
+        );
+      }
+    } finally {
+      // Review stays beneath results, so local images remain valid until both close.
+      await batch.dispose();
+      if (mounted) setState(() => _preparing = false);
+    }
   }
 
   Future<void> _openManualForm() async {
@@ -74,7 +107,6 @@ mixin _ConnectionReceiptInitial on State<PageReceipt> {
   String get _processButtonLabel {
     if (_picked.isEmpty) return 'Devam Et';
     final count = _picked.length;
-    final suffix = count == 1 ? 'Fiş' : 'Fiş';
-    return '$count $suffix Seçildi - Devam Et';
+    return '$count resim seçildi - Devam Et';
   }
 }

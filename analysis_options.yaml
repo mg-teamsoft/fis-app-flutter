@@ -12,7 +12,6 @@ analyzer:
     - "**/*.freezed.dart"
     - "**/build/**"
     - "test/.test_covarage.dart"
-    - "test/"
     - "assets/translations/**"
 
   errors:  

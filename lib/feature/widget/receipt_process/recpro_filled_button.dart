@@ -7,7 +7,7 @@ class _ReceiptProcessFilledButton extends StatelessWidget {
   });
 
   final bool processing;
-  final VoidCallback process;
+  final VoidCallback? process;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class _ReceiptProcessFilledButton extends StatelessWidget {
             : const Icon(Icons.play_arrow),
         label: ThemeTypography.bodyLarge(
           context,
-          processing ? 'İşleniyor...' : 'İşle',
+          processing ? 'Yükleniyor...' : 'Onayla ve işle',
           weight: FontWeight.w900,
           color: context.colorScheme.onPrimary,
         ),

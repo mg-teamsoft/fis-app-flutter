@@ -7,6 +7,7 @@ class _ReceiptView extends StatelessWidget {
     required this.openManualForm,
     required this.processSelected,
     required this.picked,
+    required this.removeSelected,
     required this.bytesCache,
     required this.processButtonLabel,
     required this.size,
@@ -18,11 +19,36 @@ class _ReceiptView extends StatelessWidget {
   final void Function() openManualForm;
   final void Function() processSelected;
   final List<XFile> picked;
+  final ValueChanged<XFile> removeSelected;
   final Map<String, Future<Uint8List>> bytesCache;
   final String processButtonLabel;
 
   @override
   Widget build(BuildContext context) {
+    if (picked.isEmpty) {
+      return SingleChildScrollView(
+        padding: const ThemePadding.horizontalSymmetric(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 24),
+            const _ReceiptPhotoTips(),
+            _ReceiptTopHead(
+              pickMultiGallery: pickMultiGallery,
+              captureCamera: captureCamera,
+              openManualForm: openManualForm,
+            ),
+            ThemeTypography.bodyMedium(
+              context,
+              'Galerinizden fiş seçin veya kamerayla çekin.',
+              color: context.colorScheme.onSurfaceVariant,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      );
+    }
     return Padding(
       padding: const ThemePadding.horizontalSymmetric(),
       child: Column(
@@ -33,7 +59,11 @@ class _ReceiptView extends StatelessWidget {
             captureCamera: captureCamera,
             openManualForm: openManualForm,
           ),
-          _ReceiptMidHead(picked: picked, bytesCache: bytesCache),
+          _ReceiptMidHead(
+            picked: picked,
+            bytesCache: bytesCache,
+            removeSelected: removeSelected,
+          ),
           _ReceiptBottomHead(
             picked: picked,
             bytesCache: bytesCache,

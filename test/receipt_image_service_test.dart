@@ -14,6 +14,7 @@ class _Compressor extends FlutterImageCompressPlatform {
   int? height;
   int? requestedQuality;
   CompressFormat? requestedFormat;
+  Uint8List? inputBytes;
   Uint8List output =
       Uint8List.fromList(img.encodeJpg(img.Image(width: 1, height: 1)));
 
@@ -29,6 +30,7 @@ class _Compressor extends FlutterImageCompressPlatform {
     CompressFormat format = CompressFormat.jpeg,
     bool keepExif = false,
   }) async {
+    inputBytes = image;
     width = minWidth;
     height = minHeight;
     requestedQuality = quality;
@@ -41,12 +43,29 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late _Compressor compressor;
   late Directory directory;
+  Uint8List? cropOutput;
+  var noDocument = false;
+  var cropFailure = false;
   final original = FlutterImageCompressPlatform.instance;
 
   setUp(() async {
+    cropOutput = null;
+    noDocument = false;
+    cropFailure = false;
     compressor = _Compressor();
     FlutterImageCompressPlatform.instance = compressor;
     directory = await Directory.systemTemp.createTemp('receipt_resize_test');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('fis_app/receipt_crop'),
+      (call) async {
+        expect(call.method, 'cropDocument');
+        if (cropFailure) throw PlatformException(code: 'crop_failed');
+        if (noDocument) return null;
+        return cropOutput ??
+            await File((call.arguments as Map)['path'] as String).readAsBytes();
+      },
+    );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('plugins.flutter.io/path_provider'),
@@ -55,6 +74,11 @@ void main() {
   });
 
   tearDown(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('fis_app/receipt_crop'),
+      null,
+    );
     FlutterImageCompressPlatform.instance = original;
     await directory.delete(recursive: true);
   });
@@ -94,6 +118,68 @@ void main() {
       Uint8List.fromList(img.encodePng(img.Image(width: 10, height: 10))),
       name: 'receipt.png',
     );
+    cropOutput = await source.readAsBytes();
     await expectLater(ReceiptImageService.prepare(source), throwsException);
+  });
+
+  test('compresses the cropped pixels, not the original photo', () async {
+    final originalImage = File('${directory.path}/original.png');
+    await originalImage
+        .writeAsBytes(img.encodePng(img.Image(width: 3000, height: 4000)));
+    cropOutput =
+        Uint8List.fromList(img.encodePng(img.Image(width: 600, height: 1200)));
+    await ReceiptImageService.prepare(XFile(originalImage.path));
+    expect(compressor.inputBytes, cropOutput);
+    expect(compressor.width, 600);
+    expect(compressor.height, 1200);
+  });
+
+  test('does not compress or return the original if no document is detected',
+      () async {
+    noDocument = true;
+    await expectLater(
+      ReceiptImageService.prepare(XFile('/original.jpg')),
+      throwsException,
+    );
+    expect(compressor.inputBytes, isNull);
+  });
+
+  test('does not fall back to original pixels on native failure', () async {
+    cropFailure = true;
+    await expectLater(
+      ReceiptImageService.prepare(XFile('/original.jpg')),
+      throwsException,
+    );
+    expect(compressor.inputBytes, isNull);
+  });
+
+  test('cleanup deletes only generated outputs and preserves gallery sources',
+      () async {
+    final outputDirectory =
+        await Directory('${directory.path}/receipt_images').create();
+    final generated =
+        await File('${outputDirectory.path}/receipt.jpg').writeAsBytes([1]);
+    final source =
+        await File('${directory.path}/gallery.jpg').writeAsBytes([1]);
+    await ReceiptImageService.deletePrepared(XFile(source.path));
+    await ReceiptImageService.deletePrepared(XFile(generated.path));
+    expect(source.statSync().type, FileSystemEntityType.file);
+    expect(generated.statSync().type, FileSystemEntityType.notFound);
+  });
+
+  test('stale cleanup preserves recent outputs and files outside its directory',
+      () async {
+    final outputDirectory =
+        await Directory('${directory.path}/receipt_images').create();
+    final old = await File('${outputDirectory.path}/old.jpg').writeAsBytes([1]);
+    final recent =
+        await File('${outputDirectory.path}/recent.jpg').writeAsBytes([1]);
+    final source =
+        await File('${directory.path}/gallery.jpg').writeAsBytes([1]);
+    await old.setLastModified(DateTime.now().subtract(const Duration(days: 2)));
+    await ReceiptImageService.cleanExpired();
+    expect(old.statSync().type, FileSystemEntityType.notFound);
+    expect(recent.statSync().type, FileSystemEntityType.file);
+    expect(source.statSync().type, FileSystemEntityType.file);
   });
 }

@@ -5,3 +5,6 @@
 -dontwarn com.google.mlkit.vision.text.korean.**
 -keep class com.google.mlkit.vision.** { *; }
 -keep class com.google.mlkit.common.** { *; }
+
+# OpenCV Java classes and members are called by its bundled JNI library.
+-keep class org.opencv.** { *; }
