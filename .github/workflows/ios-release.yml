@@ -17,7 +17,7 @@ jobs:
       - name: Stabil Xcode Sürümünü Ayarla
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: "16.2" # Tırnak işaretleri zorunludur. Projenize göre '16.0' veya '16.1' de yapabilirsiniz.
+          xcode-version: "26.0.1"
 
       # v1.1.2-16 tag'ini parçalayıp sürüm adını ve numarasını ayıran regex adım
       - name: Tag Bilgilerini Oku ve Değişken Yap
