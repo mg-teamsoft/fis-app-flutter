@@ -22,9 +22,11 @@ jobs:
       - name: Xcode iOS Platform Bileşenlerini Hazırla
         run: |
           sudo env "DEVELOPER_DIR=${DEVELOPER_DIR:-$(xcode-select -p)}" \
-            xcodebuild -runFirstLaunch -checkForNewerComponents
-          xcodebuild -downloadPlatform iOS
+            xcodebuild -runFirstLaunch
+          # App Store arşivi cihaz SDK'sını kullanır; Simulator runtime indirmeyin.
           xcrun --sdk iphoneos --show-sdk-version
+          IOS_SDK_PATH="$(xcrun --sdk iphoneos --show-sdk-path)"
+          test -d "$IOS_SDK_PATH"
 
       # v1.1.2-16 tag'ini parçalayıp sürüm adını ve numarasını ayıran regex adım
       - name: Tag Bilgilerini Oku ve Değişken Yap
