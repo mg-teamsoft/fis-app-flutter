@@ -8,7 +8,7 @@ on:
 jobs:
   deploy-ios:
     name: iOS Build & App Store Dağıtımı
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
       - name: Kodu GitHub'dan Çek
@@ -17,10 +17,13 @@ jobs:
       - name: Stabil Xcode Sürümünü Ayarla
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: "26.0.1"
+          xcode-version: "26.6"
 
       - name: Xcode iOS Platform Bileşenlerini Hazırla
         run: |
+          sw_vers
+          xcode-select -p
+          xcodebuild -version
           sudo env "DEVELOPER_DIR=${DEVELOPER_DIR:-$(xcode-select -p)}" \
             xcodebuild -runFirstLaunch
           # App Store arşivi cihaz SDK'sını kullanır; Simulator runtime indirmeyin.
