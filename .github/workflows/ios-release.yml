@@ -128,3 +128,26 @@ jobs:
         run: |
           cd ios
           bundle exec fastlane release
+
+      - name: Xcode Hata Ayrıntılarını Göster
+        if: failure()
+        run: |
+          LOG_DIR="$HOME/Library/Logs/gym"
+          if [ -d "$LOG_DIR" ]; then
+            find "$LOG_DIR" -type f -name '*.log' -exec sh -c '
+              for log_file do
+                printf "\nXcode log: %s\n" "$log_file"
+                grep -n -C 5 -E "error:|fatal error:|CodeSign|Provisioning profile|No signing certificate|ARCHIVE FAILED" "$log_file" || true
+                tail -n 100 "$log_file"
+              done
+            ' sh {} +
+          fi
+
+      - name: Xcode Build Loglarını Sakla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-logs
+          path: ~/Library/Logs/gym/*.log
+          if-no-files-found: ignore
+          retention-days: 7

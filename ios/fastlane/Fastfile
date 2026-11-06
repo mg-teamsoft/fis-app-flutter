@@ -3,51 +3,24 @@ default_platform(:ios)
 platform :ios do
   desc "Manuel Versiyon ile App Store Production Dağıtımı"
   lane :release do
-    setup_ci if ENV["CI"]
+    setup_ci # CI ortamını hazırlar
 
     # App Store Connect API bağlantısı
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
       issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
       key_content: ENV["APP_STORE_CONNECT_BASE64_KEY"],
-      is_key_content_base64: true,
       in_house: false
     )
 
     # Sertifikaları sadece oku ve CI sunucusuna yükle
-    match(type: "appstore", readonly: true, api_key: api_key)
+    match(type: "appstore", readonly: true)
 
-    app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
-    profiles = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING] || {}
-    profile_name = profiles[app_identifier]
-    UI.user_error!("App Store provisioning profile missing for #{app_identifier}") unless profile_name
-
-    update_code_signing_settings(
-      path: "Runner.xcodeproj",
-      targets: ["Runner"],
-      build_configurations: ["Release"],
-      use_automatic_signing: false,
-      code_sign_identity: "Apple Distribution",
-      profile_name: profile_name
-    )
-
-    # Flutter'ın Generated.xcconfig dosyasındaki prod/sürüm ayarları kullanılır.
-    # Sertifikalar kurulduktan sonra imzalı arşiv ve gerçek IPA oluşturulur.
-    ipa_path = build_app(
-      workspace: "Runner.xcworkspace",
-      scheme: "Runner",
-      configuration: "Release",
-      export_method: "app-store",
-      export_options: { signingStyle: "manual", provisioningProfiles: profiles },
-      output_directory: "../build/ios/ipa",
-      output_name: "fis_app.ipa"
-    )
-
-    # Hazırladığınız .ipa dosyasını doğrudan App Store Connect'e yükler
-    # xcrun altool komutunuzun yaptığı işi Fastlane API anahtarı ile güvenli yapar
+    # HATA VEREN build_app ADIMINI SİLDİK!
+    # Doğrudan Flutter'ın ürettiği hazır .ipa dosyasını App Store Connect'e gönderiyoruz
     upload_to_app_store(
       api_key: api_key,
-      ipa: ipa_path,
+      ipa: "../build/ios/ipa/Runner.ipa", # Flutter'ın ürettiği varsayılan ipa yolu (Eğer ipa adınız farklıysa güncelleyebilirsiniz)
       force: true,
       skip_metadata: true,
       skip_screenshots: true,
