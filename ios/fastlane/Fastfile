@@ -48,6 +48,8 @@ platform :ios do
       force: true,
       skip_metadata: true,
       skip_screenshots: true,
+      # App Store Connect API keys cannot inspect in-app purchases in precheck.
+      precheck_include_in_app_purchases: false,
       submit_for_review: false,
       phased_release: true
     )
