@@ -3,7 +3,7 @@ default_platform(:ios)
 platform :ios do
   desc "Manuel Versiyon ile App Store Production Dağıtımı"
   lane :release do
-    setup_ci # CI ortamını hazırlar
+    setup_ci if ENV["CI"]
 
     # App Store Connect API bağlantısı
     api_key = app_store_connect_api_key(
@@ -15,13 +15,36 @@ platform :ios do
     )
 
     # Sertifikaları sadece oku ve CI sunucusuna yükle
-    match(type: "appstore", readonly: true)
+    match(type: "appstore", readonly: true, api_key: api_key)
 
-    # HATA VEREN build_app ADIMINI SİLDİK!
-    # Doğrudan Flutter'ın ürettiği hazır .ipa dosyasını App Store Connect'e gönderiyoruz
+    app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+    profiles = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING] || {}
+    profile_name = profiles[app_identifier]
+    UI.user_error!("App Store provisioning profile missing for #{app_identifier}") unless profile_name
+
+    update_code_signing_settings(
+      path: "Runner.xcodeproj",
+      targets: ["Runner"],
+      build_configurations: ["Release"],
+      use_automatic_signing: false,
+      code_sign_identity: "Apple Distribution",
+      profile_name: profile_name
+    )
+
+    # Workflow Flutter yapılandırmasını hazırlar; arşiv ve IPA burada üretilir.
+    ipa_path = build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      export_options: { signingStyle: "manual", provisioningProfiles: profiles },
+      output_directory: "../build/ios/ipa",
+      output_name: "fis_app.ipa"
+    )
+
     upload_to_app_store(
       api_key: api_key,
-      ipa: "../build/ios/ipa/Runner.ipa", # Flutter'ın ürettiği varsayılan ipa yolu (Eğer ipa adınız farklıysa güncelleyebilirsiniz)
+      ipa: ipa_path,
       force: true,
       skip_metadata: true,
       skip_screenshots: true,
