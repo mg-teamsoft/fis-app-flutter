@@ -38,35 +38,38 @@ class _ReceiptProcessList extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: ThemeRadius.circular8,
-                      child: InkWell(
-                        onTap: processing ? null : () => previewImage(file),
-                        child: kIsWeb
-                            ? FutureBuilder<Uint8List>(
-                                future: bytesCache.putIfAbsent(
-                                  file.path,
-                                  file.readAsBytes,
-                                ),
-                                builder: (context, snap) {
-                                  if (!snap.hasData) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
+                      child: Material(
+                        color: const Color(0xFF1E293B),
+                        child: InkWell(
+                          onTap: processing ? null : () => previewImage(file),
+                          child: kIsWeb
+                              ? FutureBuilder<Uint8List>(
+                                  future: bytesCache.putIfAbsent(
+                                    file.path,
+                                    file.readAsBytes,
+                                  ),
+                                  builder: (context, snap) {
+                                    if (!snap.hasData) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                    return Image.memory(
+                                      snap.data!,
+                                      fit: BoxFit.contain,
                                     );
-                                  }
-                                  return Image.memory(
-                                    snap.data!,
-                                    fit: BoxFit.contain,
-                                  );
-                                },
-                              )
-                            : Image(
-                                image: ResizeImage(
-                                  FileImage(File(file.path)),
-                                  width: 480,
-                                  height: 480,
-                                  policy: ResizeImagePolicy.fit,
+                                  },
+                                )
+                              : Image(
+                                  image: ResizeImage(
+                                    FileImage(File(file.path)),
+                                    width: 480,
+                                    height: 480,
+                                    policy: ResizeImagePolicy.fit,
+                                  ),
+                                  fit: BoxFit.contain,
                                 ),
-                                fit: BoxFit.contain,
-                              ),
+                        ),
                       ),
                     ),
                     Positioned(

@@ -13,7 +13,6 @@ class ReceiptImageService {
   static const _cropChannel = MethodChannel('fis_app/receipt_crop');
 
   static Future<XFile> prepare(XFile source) async {
-    // Never fall back to uploading the uncropped photo.
     if (kIsWeb ||
         (defaultTargetPlatform != TargetPlatform.android &&
             defaultTargetPlatform != TargetPlatform.iOS)) {
@@ -21,9 +20,9 @@ class ReceiptImageService {
         'Otomatik fatura kırpma yalnızca Android ve iOS üzerinde destekleniyor.',
       );
     }
-    final Uint8List? input;
+    Uint8List? cropped;
     try {
-      input = await _cropChannel.invokeMethod<Uint8List>(
+      cropped = await _cropChannel.invokeMethod<Uint8List>(
         'cropDocument',
         {'path': source.path},
       );
@@ -32,11 +31,11 @@ class ReceiptImageService {
         'Fatura kırpılamadı. Belgenin tamamı görünecek şekilde tekrar fotoğraf çekin.',
       );
     }
-    if (input == null || input.isEmpty) {
-      throw Exception(
-        'Fatura kenarları algılanamadı. Belgeyi zıt renkli bir zeminde, dört köşesi görünecek şekilde tekrar çekin.',
-      );
-    }
+    // No detected rectangle is a valid outcome on patterned backgrounds.
+    // Preserve the full photo and still apply the upload size/quality limits.
+    final input = cropped == null || cropped.isEmpty
+        ? await source.readAsBytes()
+        : cropped;
     final codec = await ui.instantiateImageCodec(input);
     late int width;
     late int height;

@@ -134,14 +134,19 @@ void main() {
     expect(compressor.height, 1200);
   });
 
-  test('does not compress or return the original if no document is detected',
-      () async {
+  test('resizes the full photo when no document is detected', () async {
     noDocument = true;
-    await expectLater(
-      ReceiptImageService.prepare(XFile('/original.jpg')),
-      throwsException,
+    final bytes = Uint8List.fromList(
+      img.encodePng(img.Image(width: 3000, height: 1000)),
     );
-    expect(compressor.inputBytes, isNull);
+    final source = File('${directory.path}/original.png');
+    await source.writeAsBytes(bytes);
+    final result = await ReceiptImageService.prepare(XFile(source.path));
+    expect(compressor.inputBytes, bytes);
+    expect(compressor.width, 2560);
+    expect(compressor.height, 853);
+    expect(compressor.requestedQuality, 88);
+    expect(await result.readAsBytes(), compressor.output);
   });
 
   test('does not fall back to original pixels on native failure', () async {

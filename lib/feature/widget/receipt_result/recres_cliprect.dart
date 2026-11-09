@@ -31,7 +31,7 @@ class _ReceiptResultClipRect extends StatelessWidget {
                   imageProvider: MemoryImage(snap.data!),
                   controller: photoController,
                   backgroundDecoration: const BoxDecoration(
-                    color: Colors.transparent,
+                    color: Color(0xFF1E293B),
                   ),
                   minScale: PhotoViewComputedScale.contained * 0.95,
                   maxScale: PhotoViewComputedScale.covered * 4.0,
@@ -44,7 +44,7 @@ class _ReceiptResultClipRect extends StatelessWidget {
               imageProvider: FileImage(File(item.file.path)),
               controller: photoController,
               backgroundDecoration:
-                  const BoxDecoration(color: Colors.transparent),
+                  const BoxDecoration(color: Color(0xFF1E293B)),
               minScale: PhotoViewComputedScale.contained * 0.95,
               maxScale: PhotoViewComputedScale.covered * 4.0,
               basePosition: Alignment.center,
