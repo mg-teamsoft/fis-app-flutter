@@ -45,7 +45,7 @@ class __ReceiptResultListViewReturnerState
             children: [
               if (widget.showControls) ...[
                 Checkbox(
-                  value: widget.isSelected,
+                  value: widget.state.selected ?? widget.isSelected,
                   onChanged: (v) {
                     setState(() {
                       widget.state.selected = v ?? false;

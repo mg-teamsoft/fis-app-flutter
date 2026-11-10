@@ -60,7 +60,7 @@ class __ReceiptResultViewState extends State<_ReceiptResultView> {
                       .putIfAbsent(jobId, () => _ItemState(item: it));
                   final wide = MediaQuery.of(context).size.width > 700;
                   final isSelected = s.selected ?? (s.receipt != null);
-                  final submitted = widget.hasSuccessfulSubmission ?? false;
+                  final submitted = widget.submitting;
                   final controller =
                       s.photoController ??= PhotoViewController();
 

@@ -88,6 +88,75 @@ void main() {
     );
   }
 
+  testWidgets('valid receipts write while invalid receipts remain selectable',
+      (tester) async {
+    ApiClient().dio.interceptors.remove(interceptor);
+    var writes = 0;
+    for (final item in items) {
+      item.key = item.jobId;
+    }
+    interceptor = InterceptorsWrapper(
+      onRequest: (options, handler) {
+        final writing = options.path == '/api/excel/write';
+        if (writing) writes++;
+        handler.resolve(
+          Response<Map<String, dynamic>>(
+            requestOptions: options,
+            statusCode: 200,
+            data: writing
+                ? {'status': 'success'}
+                : {
+                    'status': 'done',
+                    'needsReview': false,
+                    'receipt': {
+                      'businessName': 'Test Market',
+                      'transactionDate': '2026-11-10',
+                      'totalAmount': 120,
+                      'vatAmount': options.path.endsWith('job-0') ? 0 : 20,
+                      'vatRate': 20,
+                    },
+                  },
+          ),
+        );
+      },
+    );
+    ApiClient().dio.interceptors.insert(0, interceptor);
+    await showResults(tester);
+    await tester.pump(const Duration(seconds: 1));
+    final approve = find.text("Onayla ve Excel'e Yaz");
+    await tester.ensureVisible(approve);
+    await tester.runAsync(() => tester.tap(approve));
+    await tester.pump();
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pump();
+    await tester.pump();
+    expect(writes, 1);
+    expect(find.byType(PhotoView), findsOneWidget);
+    expect(find.byType(Checkbox), findsOneWidget);
+    await tester.ensureVisible(find.byType(Checkbox));
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+    expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isFalse);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 4));
+  });
+
+  testWidgets('receipt selection can be toggled off and on', (tester) async {
+    await showResults(tester);
+    final checkbox = find.byType(Checkbox).first;
+    expect(tester.widget<Checkbox>(checkbox).value, isTrue);
+    await tester.tap(checkbox);
+    await tester.pump();
+    expect(tester.widget<Checkbox>(checkbox).value, isFalse);
+    await tester.tap(checkbox);
+    await tester.pump();
+    expect(tester.widget<Checkbox>(checkbox).value, isTrue);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets(
       'removing first and last receipts safely detaches photo listeners',
       (tester) async {

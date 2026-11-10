@@ -293,36 +293,6 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
   Future<void> _approveAll(BuildContext context) async {
     if (_submitting) return;
 
-    // ── pre-flight validation ──────────────────────────────────────────────
-    var anyValidationError = false;
-    for (final s in _state.values) {
-      final isSelected = s.selected ?? (s.receipt != null);
-      if (!isSelected) continue;
-      if (s.status != StatusType.done.name) continue;
-      final errors = _collectErrors(s.receipt);
-      if (errors.isNotEmpty) {
-        s.showErrors = true;
-        anyValidationError = true;
-      }
-    }
-
-    if (anyValidationError) {
-      setState(() {});
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: ThemeTypography.bodyMedium(
-            context,
-            '⚠️ Lütfen kırmızı alanları düzeltin.',
-            color: context.colorScheme.onSurface,
-          ),
-          backgroundColor: context.colorScheme.surface,
-        ),
-      );
-      return;
-    }
-    // ── end validation ────────────────────────────────────────────────────
-
     setState(() {
       _submitting = true;
     });
@@ -337,6 +307,16 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
       final jobId = s.item.jobId;
       final isSelected = s.selected ?? (s.receipt != null);
       if (!isSelected) continue;
+
+      if (s.status == StatusType.done.name &&
+          _collectErrors(s.receipt).isNotEmpty) {
+        s.showErrors = true;
+        failCount++;
+        messages.add(
+          'Eksik veya hatalı alanları düzeltin ya da fişin seçimini kaldırın.',
+        );
+        continue;
+      }
 
       final ctrl = s.controller;
       if (ctrl == null) continue;
@@ -415,14 +395,15 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
         return jobId != null && successfulJobIds.contains(jobId);
       });
       _submitting = false;
-      _hasSuccessfulSubmission = okCount > 0;
+      _hasSuccessfulSubmission =
+          (_hasSuccessfulSubmission ?? false) || okCount > 0;
     });
 
     final msg = failCount == 0
         ? "✅ $okCount fiş Excel'e yazıldı"
         : messages.isEmpty
             ? '✅ $okCount yazıldı • ❌ $failCount başarısız'
-            : messages.join('\n');
+            : '✅ $okCount yazıldı • ❌ $failCount başarısız\n${messages.toSet().join('\n')}';
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: ThemeTypography.bodyLarge(
@@ -435,7 +416,7 @@ mixin _ConnectionReceiptResult on State<PageReceiptResult> {
       ),
     );
 
-    if (okCount > 0 && failCount == 0) {
+    if (okCount > 0 && _items.isEmpty) {
       await Future<void>.delayed(const Duration(seconds: 3));
       if (!context.mounted) return;
       await Navigator.of(context).pushNamedAndRemoveUntil(
