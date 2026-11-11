@@ -123,7 +123,7 @@ class NotificationService {
 
   NotificationModel _mapNotification(Map<String, dynamic> json) {
     final createdAt = _parseDateTime(
-      json['createdAt'] ?? json['date'] ?? json['timestamp'],
+      json['createdAt'] ?? json['date'] ?? json['timestamp'] ?? json['time'],
     );
 
     return NotificationModel(
@@ -145,15 +145,18 @@ class NotificationService {
         json['message']?.toString(),
         '',
       ]),
-      // Eğer backend'den 'time' zaten "2 dk önce" şeklinde geliyorsa doğrudan kullan,
-      // yoksa createdAt üzerinden formatla.
-      time: json['time']?.toString() ??
-          (createdAt == null ? '' : _formatRelativeTime(createdAt)),
+      // Prefer timestamps so all notifications share the same local format.
+      time: createdAt != null
+          ? _formatNotificationTime(createdAt)
+          : json['time']?.toString().trim() ?? '',
       isUnread: _parseIsUnread(json),
 
       // BURASI KRİTİK: Yeni alanları ekliyoruz
       actionType: json['actionType']?.toString(),
       screen: json['screen']?.toString(),
+      category: _emptyToNull(json['category']?.toString().trim() ?? ''),
+      version: _emptyToNull(json['version']?.toString().trim() ?? ''),
+      endDate: _parseDateTime(json['endDate']),
     );
   }
 
@@ -184,27 +187,18 @@ class NotificationService {
     return DateTime.tryParse(text);
   }
 
-  String _formatRelativeTime(DateTime value) {
+  String _formatNotificationTime(DateTime value) {
     final now = DateTime.now();
     final local = value.toLocal();
-    final diff = now.difference(local);
+    final today = DateTime(now.year, now.month, now.day);
+    final date = DateTime(local.year, local.month, local.day);
+    final clock = DateFormat('HH:mm').format(local);
 
-    if (diff.inMinutes < 1) {
-      return 'Az önce';
+    if (date == today) return 'Bugün, $clock';
+    if (date == DateTime(today.year, today.month, today.day - 1)) {
+      return 'Dün, $clock';
     }
-    if (diff.inHours < 1) {
-      return '${diff.inMinutes} dk önce';
-    }
-    if (diff.inDays < 1) {
-      return '${diff.inHours} saat önce';
-    }
-    if (diff.inDays == 1) {
-      return 'Dün';
-    }
-    if (diff.inDays < 7) {
-      return '${diff.inDays} gün önce';
-    }
-    return DateFormat('d MMM yyyy', 'tr_TR').format(local);
+    return DateFormat('d MMM yyyy, HH:mm', 'tr_TR').format(local);
   }
 
   String _pickFirstNonEmpty(List<String?> values) {

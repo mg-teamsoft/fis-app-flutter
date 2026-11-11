@@ -50,8 +50,9 @@ class _NotificationView extends StatelessWidget {
                           controller: scrollController,
                           itemCount:
                               notifications.length + (isLoadingMore ? 1 : 0),
-                          separatorBuilder: (context, index) =>
-                              Divider(color: context.colorScheme.outline),
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                          separatorBuilder: (_, index) =>
+                              const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             if (index == notifications.length) {
                               return const Padding(
@@ -60,80 +61,11 @@ class _NotificationView extends StatelessWidget {
                                     Center(child: CircularProgressIndicator()),
                               );
                             }
-                            final notif = notifications[index];
-                            final isUnread = notif.isUnread;
-
-                            return InkWell(
-                              onTap: () => handleNotificationTap(notif),
-                              child: Padding(
-                                padding: const ThemePadding
-                                    .horizontalSymmetricMedium(),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      width: 8,
-                                      height: 8,
-                                      margin:
-                                          ThemePadding.verticalSymmetricFree(
-                                        12,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: isUnread
-                                            ? context.colorScheme.primary
-                                            : Colors.transparent,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ThemeTypography.h4(
-                                            context,
-                                            notif.title,
-                                            color:
-                                                context.colorScheme.onSurface,
-                                            weight: FontWeight.w800,
-                                          ),
-                                          const SizedBox(height: 4),
-                                          if (notif.subtitle != null)
-                                            ThemeTypography.titleSmall(
-                                              context,
-                                              notif.subtitle ?? '',
-                                              color:
-                                                  context.colorScheme.outline,
-                                              weight: FontWeight.w400,
-                                            )
-                                          else
-                                            const SizedBox.shrink(),
-                                          if (notif.content.isNotEmpty) ...[
-                                            const SizedBox(height: 6),
-                                            ThemeTypography.bodySmall(
-                                              context,
-                                              notif.content,
-                                              color:
-                                                  context.colorScheme.outline,
-                                              weight: FontWeight.w600,
-                                            ),
-                                          ],
-                                          if (notif.time.isNotEmpty) ...[
-                                            const SizedBox(height: 8),
-                                            ThemeTypography.bodySmall(
-                                              context,
-                                              notif.time,
-                                              color:
-                                                  context.colorScheme.outline,
-                                              weight: FontWeight.w700,
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            final notification = notifications[index];
+                            return _NotificationCard(
+                              key: ValueKey(notification.id),
+                              notification: notification,
+                              onTap: () => handleNotificationTap(notification),
                             );
                           },
                         ),

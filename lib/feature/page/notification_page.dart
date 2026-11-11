@@ -8,6 +8,7 @@ import 'package:fis_app_flutter/model/notification_model.dart';
 part '../controller/notification_controller.dart';
 part '../view/notification_view.dart';
 part '../widget/notification/ntf_header.dart';
+part '../widget/notification/ntf_card.dart';
 
 class PageNotification extends StatefulWidget {
   const PageNotification({super.key});

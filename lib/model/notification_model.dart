@@ -8,6 +8,9 @@ class NotificationModel {
     this.isUnread = false,
     this.actionType,
     this.screen,
+    this.category,
+    this.version,
+    this.endDate,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +23,9 @@ class NotificationModel {
       isUnread: json['isUnread'] as bool? ?? false,
       actionType: json['actionType']?.toString(),
       screen: json['screen']?.toString(),
+      category: json['category']?.toString(),
+      version: json['version']?.toString(),
+      endDate: DateTime.tryParse(json['endDate']?.toString() ?? ''),
     );
   }
 
@@ -32,6 +38,9 @@ class NotificationModel {
   // Yönlendirme için gereken alanlar
   final String? actionType;
   final String? screen;
+  final String? category;
+  final String? version;
+  final DateTime? endDate;
 
   NotificationModel copyWith({
     String? id,
@@ -42,6 +51,9 @@ class NotificationModel {
     bool? isUnread,
     String? actionType,
     String? screen,
+    String? category,
+    String? version,
+    DateTime? endDate,
   }) {
     return NotificationModel(
       id: id ?? this.id,
@@ -52,6 +64,9 @@ class NotificationModel {
       isUnread: isUnread ?? this.isUnread,
       actionType: actionType ?? this.actionType,
       screen: screen ?? this.screen,
+      category: category ?? this.category,
+      version: version ?? this.version,
+      endDate: endDate ?? this.endDate,
     );
   }
 
@@ -65,6 +80,9 @@ class NotificationModel {
       'isUnread': isUnread,
       'actionType': actionType,
       'screen': screen,
+      'category': category,
+      'version': version,
+      'endDate': endDate?.toIso8601String(),
     };
   }
 }
